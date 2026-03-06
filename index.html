@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Máy Tính Tiền Pro</title>
+    <!-- Thêm icon cho màn hình chính -->
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%234263eb'/><text x='50' y='70' font-size='50' text-anchor='middle' fill='white' font-family='Arial'>💰</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50' y='80' font-size='80' text-anchor='middle' fill='%234263eb'>💰</text></svg>">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#4263eb">
     <style>
         * {
             box-sizing: border-box;
@@ -18,7 +24,9 @@
             height: 100%;
             overflow: hidden;
             position: fixed;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            /* Font cho Android */
+            font-family: 'Roboto', 'Droid Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-weight: 400;
         }
 
         body {
@@ -38,23 +46,69 @@
             max-height: 100%;
             display: flex;
             flex-direction: column;
-            padding: 20px;
-            padding-bottom: 0;
+            padding: 16px;
+            padding-bottom: 8px;
             overflow: hidden;
+            position: relative;
         }
         
-        /* Màn hình hiển thị */
+        /* Màn hình hiển thị với viền động */
         .display {
             background: #f8f9fa;
-            border-radius: 24px;
-            padding: 20px;
-            margin-bottom: 16px;
+            border-radius: 28px;
+            padding: 16px;
+            margin-bottom: 12px;
             text-align: right;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            border: 1px solid #e9ecef;
+            gap: 6px;
+            border: 2px solid #e9ecef;
             flex-shrink: 0;
+            position: relative;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        /* Viền động */
+        .display::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 32px;
+            border: 3px solid transparent;
+            pointer-events: none;
+            transition: all 0.3s;
+        }
+        
+        .display.checking::before {
+            border-color: #4dabf7;
+            box-shadow: 0 0 15px #4dabf7;
+            animation: borderPulse 1.5s infinite;
+        }
+        
+        .display.success::before {
+            border-color: #40c057;
+            box-shadow: 0 0 20px #40c057;
+        }
+        
+        .display.error::before {
+            border-color: #e03131;
+            box-shadow: 0 0 20px #e03131;
+            animation: borderBlink 0.3s 3;
+        }
+        
+        @keyframes borderPulse {
+            0% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); }
+            100% { opacity: 0.5; transform: scale(1); }
+        }
+        
+        @keyframes borderBlink {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
         }
         
         .target-row {
@@ -64,46 +118,47 @@
             font-size: 14px;
             color: #6c757d;
             border-bottom: 1px dashed #dee2e6;
-            padding-bottom: 6px;
+            padding-bottom: 4px;
         }
         
         #targetDisplay {
-            font-family: 'Courier New', monospace;
+            font-family: 'Roboto Mono', 'Courier New', monospace;
             font-weight: 600;
             color: #4263eb;
-            font-size: 16px;
+            font-size: 15px;
         }
         
         .input-row {
-            font-size: 48px;
+            font-size: clamp(36px, 10vw, 48px);
             font-weight: 600;
-            font-family: 'Courier New', monospace;
+            font-family: 'Roboto Mono', 'Courier New', monospace;
             color: #212529;
-            min-height: 70px;
+            min-height: 60px;
             word-wrap: break-word;
             line-height: 1.2;
+            letter-spacing: 1px;
         }
         
         .total-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 20px;
+            font-size: 18px;
             border-top: 1px dashed #dee2e6;
-            padding-top: 6px;
+            padding-top: 4px;
         }
         
         .total-label {
             color: #6c757d;
             font-weight: 500;
-            font-size: 16px;
+            font-size: 15px;
         }
         
         #totalDisplay {
-            font-family: 'Courier New', monospace;
+            font-family: 'Roboto Mono', 'Courier New', monospace;
             font-weight: 700;
             color: #40c057;
-            font-size: 24px;
+            font-size: clamp(20px, 6vw, 24px);
         }
         
         /* Thông báo kết quả */
@@ -111,14 +166,14 @@
             background: #212529;
             color: white;
             text-align: center;
-            padding: 12px;
-            border-radius: 40px;
-            margin-bottom: 16px;
+            padding: 10px;
+            border-radius: 30px;
+            margin-bottom: 12px;
             font-weight: 500;
-            font-size: 15px;
+            font-size: 14px;
             opacity: 0;
             transition: opacity 0.2s;
-            min-height: 48px;
+            min-height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -129,33 +184,21 @@
             opacity: 1;
         }
         
-        .result-toast.success {
-            background: #2b8a3e;
-        }
-        
-        .result-toast.error {
-            background: #e03131;
-        }
-        
-        .result-toast.warning {
-            background: #e8590c;
-        }
-        
-        /* Bàn phím - layout mới */
+        /* Bàn phím */
         .keypad {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+            gap: 8px;
             flex: 1;
-            padding-bottom: 20px;
+            padding-bottom: 8px;
             align-content: stretch;
         }
         
         .key {
             background: #f1f3f5;
             border: none;
-            border-radius: 20px;
-            font-size: 28px;
+            border-radius: 18px;
+            font-size: clamp(22px, 7vw, 28px);
             font-weight: 600;
             color: #212529;
             display: flex;
@@ -163,10 +206,11 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.1s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
             width: 100%;
             height: 100%;
-            min-height: 70px;
+            min-height: 60px;
+            font-family: 'Roboto', 'Segoe UI', sans-serif;
         }
         
         .key:active {
@@ -174,17 +218,11 @@
             background: #e9ecef;
         }
         
-        /* Phím số */
-        .key.number {
-            background: #f1f3f5;
-            color: #212529;
-        }
-        
         /* Phím xóa */
         .key.delete {
             background: #ff8787;
             color: white;
-            font-size: 26px;
+            font-size: 24px;
         }
         
         .key.delete:active {
@@ -201,18 +239,18 @@
             background: #339af0;
         }
         
-        /* Phím bằng - chuyển xuống hàng 4 */
+        /* Phím bằng */
         .key.equals {
             background: #51cf66;
             color: white;
-            font-size: 32px;
+            font-size: 28px;
         }
         
         .key.equals:active {
             background: #40c057;
         }
         
-        /* Phím C - chuyển xuống hàng 4 */
+        /* Phím C */
         .key.clear {
             background: #ff8787;
             color: white;
@@ -253,33 +291,18 @@
             animation: shake 0.4s ease-in-out;
         }
         
-        /* Điều chỉnh cho iPhone notch */
+        /* Điều chỉnh cho iPhone notch và Android */
         @supports (padding: max(0px)) {
             .calculator {
-                padding-left: max(20px, env(safe-area-inset-left));
-                padding-right: max(20px, env(safe-area-inset-right));
-                padding-top: max(20px, env(safe-area-inset-top));
+                padding-left: max(16px, env(safe-area-inset-left));
+                padding-right: max(16px, env(safe-area-inset-right));
+                padding-top: max(16px, env(safe-area-inset-top));
+                padding-bottom: max(8px, env(safe-area-inset-bottom));
             }
         }
         
-        /* Màn hình nhỏ */
+        /* Màn hình nhỏ (iPhone SE, Android nhỏ) */
         @media (max-height: 670px) {
-            .input-row {
-                font-size: 40px;
-                min-height: 60px;
-            }
-            
-            .key {
-                font-size: 24px;
-                min-height: 60px;
-            }
-        }
-        
-        @media (max-height: 570px) {
-            .calculator {
-                padding: 10px;
-            }
-            
             .input-row {
                 font-size: 36px;
                 min-height: 50px;
@@ -287,15 +310,51 @@
             
             .key {
                 font-size: 22px;
+                min-height: 55px;
+            }
+        }
+        
+        /* Màn hình rất nhỏ */
+        @media (max-height: 570px) {
+            .calculator {
+                padding: 10px;
+            }
+            
+            .input-row {
+                font-size: 32px;
+                min-height: 45px;
+            }
+            
+            .key {
+                font-size: 20px;
                 min-height: 50px;
+            }
+        }
+        
+        /* Màn hình lớn (tablet) */
+        @media (min-height: 800px) {
+            .calculator {
+                max-width: 450px;
+                margin: 0 auto;
+            }
+            
+            .key {
+                font-size: 30px;
+            }
+        }
+        
+        /* Tối ưu cho Android */
+        @media (any-hover: none) {
+            .key {
+                -webkit-tap-highlight-color: transparent;
             }
         }
     </style>
 </head>
 <body>
     <div class="calculator">
-        <!-- Màn hình hiển thị -->
-        <div class="display">
+        <!-- Màn hình hiển thị với viền động -->
+        <div class="display" id="display">
             <div class="target-row">
                 <span>Cần kiểm tra:</span>
                 <span id="targetDisplay">0</span>
@@ -310,28 +369,28 @@
         <!-- Thông báo kết quả -->
         <div class="result-toast" id="resultToast"></div>
         
-        <!-- Bàn phím - layout mới với C và = ở hàng 4 -->
+        <!-- Bàn phím -->
         <div class="keypad">
             <!-- Hàng 1: 7 8 9 ⌫ -->
-            <button class="key number" data-value="7">7</button>
-            <button class="key number" data-value="8">8</button>
-            <button class="key number" data-value="9">9</button>
+            <button class="key" data-value="7">7</button>
+            <button class="key" data-value="8">8</button>
+            <button class="key" data-value="9">9</button>
             <button class="key delete" data-action="delete">⌫</button>
             
             <!-- Hàng 2: 4 5 6 + -->
-            <button class="key number" data-value="4">4</button>
-            <button class="key number" data-value="5">5</button>
-            <button class="key number" data-value="6">6</button>
+            <button class="key" data-value="4">4</button>
+            <button class="key" data-value="5">5</button>
+            <button class="key" data-value="6">6</button>
             <button class="key add" data-action="add">+</button>
             
             <!-- Hàng 3: 1 2 3 . -->
-            <button class="key number" data-value="1">1</button>
-            <button class="key number" data-value="2">2</button>
-            <button class="key number" data-value="3">3</button>
+            <button class="key" data-value="1">1</button>
+            <button class="key" data-value="2">2</button>
+            <button class="key" data-value="3">3</button>
             <button class="key dot" data-value=".">.</button>
             
             <!-- Hàng 4: 0 00 C = -->
-            <button class="key number" data-value="0">0</button>
+            <button class="key" data-value="0">0</button>
             <button class="key double-zero" data-value="00">00</button>
             <button class="key clear" data-action="clear">C</button>
             <button class="key equals" data-action="check">=</button>
@@ -347,6 +406,7 @@
         let itemCount = 0;
         
         // DOM elements
+        const display = document.getElementById('display');
         const inputDisplay = document.getElementById('inputDisplay');
         const targetDisplay = document.getElementById('targetDisplay');
         const totalDisplay = document.getElementById('totalDisplay');
@@ -418,6 +478,7 @@
             targetValue = parseFloat(targetValue.toString().replace(/^0+/, '') || '0');
             targetDisplay.textContent = formatNumber(targetValue);
             hideToast();
+            display.classList.remove('success', 'error', 'checking');
         }
         
         // Nhập input mặt hàng
@@ -434,6 +495,7 @@
             
             inputDisplay.textContent = formatNumber(currentInput || '0');
             hideToast();
+            display.classList.remove('success', 'error', 'checking');
         }
         
         function deleteTargetChar() {
@@ -444,12 +506,14 @@
                 targetValue = 0;
             }
             targetDisplay.textContent = formatNumber(targetValue);
+            display.classList.remove('success', 'error', 'checking');
         }
         
         function deleteInputChar() {
             if (currentInput.length > 0) {
                 currentInput = currentInput.slice(0, -1);
                 inputDisplay.textContent = formatNumber(currentInput || '0');
+                display.classList.remove('success', 'error', 'checking');
             }
         }
         
@@ -463,6 +527,7 @@
                 isTargetSet = true;
                 targetDisplay.textContent = formatNumber(targetValue);
                 showToast('✓ Đã ghi nhớ', 'success');
+                display.classList.add('checking');
                 return;
             }
             
@@ -507,14 +572,29 @@
                 calculator.classList.add('shake');
                 playErrorSound();
                 
+                // Hiệu ứng viền đỏ nhấp nháy
+                display.classList.remove('success', 'checking');
+                display.classList.add('error');
+                
                 const diffText = (diff > 0 ? '+' : '') + formatNumber(Math.abs(diff));
                 showToast(`SAI! ${diffText}`, 'error');
                 
                 setTimeout(() => {
                     calculator.classList.remove('shake');
                 }, 400);
+                
+                setTimeout(() => {
+                    display.classList.remove('error');
+                }, 1000);
             } else {
+                // Hiệu ứng viền xanh
+                display.classList.remove('error', 'checking');
+                display.classList.add('success');
                 showToast('ĐÚNG!', 'success');
+                
+                setTimeout(() => {
+                    display.classList.remove('success');
+                }, 1000);
             }
         }
         
@@ -529,6 +609,7 @@
             targetDisplay.textContent = '0';
             totalDisplay.textContent = '0';
             
+            display.classList.remove('success', 'error', 'checking');
             hideToast();
         }
         
@@ -540,6 +621,11 @@
         function showToast(message, type = 'info') {
             resultToast.textContent = message;
             resultToast.className = `result-toast show ${type}`;
+            
+            // Tự động ẩn sau 2 giây
+          //  setTimeout(() => {
+           //     resultToast.classList.remove('show');
+         //   }, 2000);
         }
         
         function hideToast() {
@@ -556,6 +642,13 @@
             gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
             oscillator.start();
             oscillator.stop(audioContext.currentTime + 0.15);
+        }
+        
+        // Thêm vào màn hình chính (PWA)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // Có thể thêm service worker ở đây
+            });
         }
     </script>
 </body>
