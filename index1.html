@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Máy Tính Tiền Pro</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .calculator {
+            background: white;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            overflow: hidden;
+        }
+        
+        /* Header với menu */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+        
+        .menu-btn {
+            background: #f1f3f5;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 22px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        /* Menu thả xuống */
+        .menu-panel {
+            position: absolute;
+            top: 70px;
+            left: 16px;
+            right: 16px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 16px;
+            z-index: 100;
+            transform: translateY(-150%);
+            transition: transform 0.3s ease;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .menu-panel.show {
+            transform: translateY(0);
+        }
+        
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .volume-btn {
+            background: #f1f3f5;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        
+        .volume-btn:active {
+            background: #dee2e6;
+        }
+        
+        #volumeValue {
+            min-width: 50px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        /* Lịch sử */
+        .history-panel {
+            background: #f1f3f5;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            flex-shrink: 0;
+        }
+        
+        .history-panel.show {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 16px;
+            background: #e9ecef;
+            border-radius: 20px 20px 0 0;
+            font-weight: 600;
+        }
+        
+        .clear-history {
+            background: none;
+            border: none;
+            color: #e03131;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+        
+        #historyList {
+            list-style: none;
+            padding: 8px 0;
+        }
+        
+        #historyList li {
+            padding: 8px 16px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+        
+        /* Màn hình hiển thị */
+        .display {
+            background: #f8f9fa;
+            border-radius: 24px;
+            padding: 16px;
+            margin-bottom: 12px;
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            border: 1px solid #e9ecef;
+            flex-shrink: 0;
+        }
+        
+        .target-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: #6c757d;
+            border-bottom: 1px dashed #dee2e6;
+            padding-bottom: 4px;
+        }
+        
+        #targetDisplay {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #4263eb;
+        }
+        
+        .input-row {
+            font-size: 42px;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            color: #212529;
+            min-height: 60px;
+            word-wrap: break-word;
+            line-height: 1.2;
+        }
+        
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 18px;
+            border-top: 1px dashed #dee2e6;
+            padding-top: 4px;
+        }
+        
+        #totalDisplay {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            color: #40c057;
+        }
+        
+        /* Thông báo */
+        .result-toast {
+            background: #212529;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            border-radius: 30px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .result-toast.show {
+            opacity: 1;
+        }
+        
+        /* Bàn phím */
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            flex: 1;
+            padding-bottom: 8px;
+        }
+        
+        .key {
+            background: #f1f3f5;
+            border: none;
+            border-radius: 18px;
+            font-size: 26px;
+            font-weight: 600;
+            color: #212529;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.1s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            min-height: 60px;
+        }
+        
+        .key:active {
+            transform: scale(0.95);
+        }
+        
+        .key.delete { background: #ff8787; color: white; }
+        .key.add { background: #4dabf7; color: white; }
+        .key.subtract { background: #9775fa; color: white; }
+        .key.equals { background: #51cf66; color: white; }
+        .key.clear { background: #ff8787; color: white; }
+        .key.double-zero { background: #ff922b; color: white; }
+        .key.comma { background: #20c997; color: white; }
+        .key.dot { background: #9775fa; color: white; }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+            20%, 40%, 60%, 80% { transform: translateX(4px); }
+        }
+        .shake { animation: shake 0.4s ease-in-out; }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <!-- Header với menu -->
+        <div class="header">
+            <button class="menu-btn" id="menuBtn">⚙️</button>
+            <button class="menu-btn" id="historyBtn">📋</button>
+        </div>
+        
+        <!-- Menu cài đặt -->
+        <div class="menu-panel" id="menuPanel">
+            <div class="menu-item">
+                <span>Âm lượng</span>
+                <div class="volume-control">
+                    <button class="volume-btn" id="volDown">−</button>
+                    <span id="volumeValue">70%</span>
+                    <button class="volume-btn" id="volUp">+</button>
+                </div>
+            </div>
+            <div class="menu-item">
+                <span>Rung khi sai</span>
+                <label class="switch">
+                    <input type="checkbox" id="vibrateToggle" checked>
+                </label>
+            </div>
+        </div>
+        
+        <!-- Lịch sử -->
+        <div class="history-panel" id="historyPanel">
+            <div class="history-header">
+                <span>Lịch sử kiểm tra</span>
+                <button class="clear-history" id="clearHistory">Xóa</button>
+            </div>
+            <ul id="historyList"></ul>
+        </div>
+        
+        <!-- Màn hình -->
+        <div class="display">
+            <div class="target-row">
+                <span>Cần kiểm tra:</span>
+                <span id="targetDisplay">0</span>
+            </div>
+            <div class="input-row" id="inputDisplay">0</div>
+            <div class="total-row">
+                <span>Tổng:</span>
+                <span id="totalDisplay">0</span>
+            </div>
+        </div>
+        
+        <!-- Thông báo -->
+        <div class="result-toast" id="resultToast"></div>
+        
+        <!-- Bàn phím - layout gọn gàng -->
+        <div class="keypad">
+            <!-- Hàng 1: 7 8 9 ⌫ -->
+            <button class="key" data-value="7">7</button>
+            <button class="key" data-value="8">8</button>
+            <button class="key" data-value="9">9</button>
+            <button class="key delete" data-action="delete">⌫</button>
+            
+            <!-- Hàng 2: 4 5 6 + -->
+            <button class="key" data-value="4">4</button>
+            <button class="key" data-value="5">5</button>
+            <button class="key" data-value="6">6</button>
+            <button class="key add" data-action="add">+</button>
+            
+            <!-- Hàng 3: 1 2 3 − -->
+            <button class="key" data-value="1">1</button>
+            <button class="key" data-value="2">2</button>
+            <button class="key" data-value="3">3</button>
+            <button class="key subtract" data-action="subtract">−</button>
+            
+            <!-- Hàng 4: , 0 00 C -->
+            <button class="key comma" data-value=",">,</button>
+            <button class="key" data-value="0">0</button>
+            <button class="key double-zero" data-value="00">00</button>
+            <button class="key clear" data-action="clear">C</button>
+            
+            <!-- Hàng 5: = (2 ô) . (2 ô) -->
+            <button class="key equals" data-action="check" style="grid-column: span 2;">=</button>
+            <button class="key dot" data-value="." style="grid-column: span 2;">.</button>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let currentInput = '';
+        let total = 0;
+        let targetValue = 0;
+        let isTargetSet = false;
+        let itemCount = 0;
+        let volume = 70;
+        let vibrateEnabled = true;
+        
+        // Lịch sử
+        let history = JSON.parse(localStorage.getItem('calcHistory')) || [];
+        
+        // DOM elements
+        const inputDisplay = document.getElementById('inputDisplay');
+        const targetDisplay = document.getElementById('targetDisplay');
+        const totalDisplay = document.getElementById('totalDisplay');
+        const resultToast = document.getElementById('resultToast');
+        const calculator = document.querySelector('.calculator');
+        
+        // Menu
+        const menuBtn = document.getElementById('menuBtn');
+        const menuPanel = document.getElementById('menuPanel');
+        const historyBtn = document.getElementById('historyBtn');
+        const historyPanel = document.getElementById('historyPanel');
+        const volumeValue = document.getElementById('volumeValue');
+        const volUp = document.getElementById('volUp');
+        const volDown = document.getElementById('volDown');
+        const vibrateToggle = document.getElementById('vibrateToggle');
+        const historyList = document.getElementById('historyList');
+        const clearHistory = document.getElementById('clearHistory');
+        
+        // Audio
+        let audioContext = null;
+        
+        function initAudio() {
+            if (!audioContext && volume > 0) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContext?.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+        
+        // Menu toggle
+        menuBtn.addEventListener('click', () => {
+            menuPanel.classList.toggle('show');
+            historyPanel.classList.remove('show');
+        });
+        
+        historyBtn.addEventListener('click', () => {
+            historyPanel.classList.toggle('show');
+            menuPanel.classList.remove('show');
+            renderHistory();
+        });
+        
+        // Đóng menu khi click ra ngoài
+        document.addEventListener('click', (e) => {
+            if (!menuBtn.contains(e.target) && !menuPanel.contains(e.target)) {
+                menuPanel.classList.remove('show');
+            }
+            if (!historyBtn.contains(e.target) && !historyPanel.contains(e.target)) {
+                historyPanel.classList.remove('show');
+            }
+        });
+        
+        // Âm lượng
+        volUp.addEventListener('click', () => {
+            volume = Math.min(100, volume + 10);
+            volumeValue.textContent = volume + '%';
+        });
+        
+        volDown.addEventListener('click', () => {
+            volume = Math.max(0, volume - 10);
+            volumeValue.textContent = volume + '%';
+        });
+        
+        // Lịch sử
+        clearHistory.addEventListener('click', () => {
+            history = [];
+            localStorage.removeItem('calcHistory');
+            renderHistory();
+        });
+        
+        function renderHistory() {
+            if (history.length === 0) {
+                historyList.innerHTML = '<li style="text-align: center; color: #868e96;">Chưa có lịch sử</li>';
+                return;
+            }
+            
+            historyList.innerHTML = history.slice().reverse().map(item => {
+                const time = new Date(item.time).toLocaleTimeString('vi-VN');
+                return `
+                    <li>
+                        <span>${time}</span>
+                        <span>${item.target} → ${item.total}</span>
+                        <span style="color: ${item.success ? '#2b8a3e' : '#e03131'}">
+                            ${item.diff}
+                        </span>
+                    </li>
+                `;
+            }).join('');
+        }
+        
+        // Xử lý click phím
+        document.querySelectorAll('.key').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                initAudio();
+                
+                const value = btn.dataset.value;
+                const action = btn.dataset.action;
+                
+                if (value) {
+                    if (!isTargetSet) {
+                        appendTarget(value);
+                    } else {
+                        appendInput(value);
+                    }
+                } else if (action) {
+                    switch(action) {
+                        case 'delete':
+                            if (!isTargetSet) deleteTargetChar();
+                            else deleteInputChar();
+                            break;
+                        case 'add':
+                            addItem('+');
+                            break;
+                        case 'subtract':
+                            addItem('-');
+                            break;
+                        case 'check':
+                            checkTotal();
+                            break;
+                        case 'clear':
+                            clearAll();
+                            break;
+                    }
+                }
+            });
+        });
+        
+        function appendTarget(num) {
+            if (num === ',' || num === '.') {
+                if (!targetValue.toString().includes('.')) {
+                    targetValue = targetValue === 0 ? '0.' : targetValue + '.';
+                }
+            } else if (num === '00') {
+                targetValue = targetValue === 0 ? 0 : targetValue + '00';
+            } else {
+                targetValue = targetValue === 0 ? num : targetValue + num;
+            }
+            
+            targetValue = parseFloat(targetValue.toString().replace(/^0+/, '') || '0');
+            targetDisplay.textContent = formatNumber(targetValue);
+            hideToast();
+        }
+        
+        function appendInput(num) {
+            if (num === ',' || num === '.') {
+                if (!currentInput.includes('.')) {
+                    currentInput = currentInput === '' || currentInput === '0' ? '0.' : currentInput + '.';
+                }
+            } else if (num === '00') {
+                currentInput = currentInput === '' || currentInput === '0' ? '0' : currentInput + '00';
+            } else {
+                currentInput = currentInput === '0' ? num : currentInput + num;
+            }
+            
+            inputDisplay.textContent = formatNumber(currentInput || '0');
+            hideToast();
+        }
+        
+        function deleteTargetChar() {
+            let str = targetValue.toString();
+            if (str.length > 1) {
+                targetValue = parseFloat(str.slice(0, -1));
+            } else {
+                targetValue = 0;
+            }
+            targetDisplay.textContent = formatNumber(targetValue);
+        }
+        
+        function deleteInputChar() {
+            if (currentInput.length > 0) {
+                currentInput = currentInput.slice(0, -1);
+                inputDisplay.textContent = formatNumber(currentInput || '0');
+            }
+        }
+        
+        function addItem(operation) {
+            if (!isTargetSet) {
+                if (targetValue === 0) {
+                    showToast('Nhập số cần kiểm tra', 'warning');
+                    return;
+                }
+                isTargetSet = true;
+                targetDisplay.textContent = formatNumber(targetValue);
+                showToast('✓ Đã ghi nhớ', 'success');
+                return;
+            }
+            
+            if (currentInput === '' || currentInput === '0' || currentInput === '.') {
+                showToast('Nhập giá trị', 'warning');
+                return;
+            }
+            
+            const value = parseFloat(currentInput);
+            if (isNaN(value) || value <= 0) {
+                showToast('Không hợp lệ', 'warning');
+                return;
+            }
+            
+            if (operation === '+') {
+                total += value;
+            } else {
+                total -= value;
+            }
+            itemCount++;
+            
+            totalDisplay.textContent = formatNumber(total);
+            currentInput = '';
+            inputDisplay.textContent = '0';
+            
+            showToast(`${operation} ${formatNumber(value)}`, 'success');
+        }
+        
+        function checkTotal() {
+            if (!isTargetSet || targetValue === 0) {
+                showToast('Chưa có số kiểm tra', 'warning');
+                return;
+            }
+            
+            if (itemCount === 0) {
+                showToast('Chưa có mặt hàng', 'warning');
+                return;
+            }
+            
+            const diff = total - targetValue;
+            const isCorrect = Math.abs(diff) <= 0.01;
+            
+            // Lưu lịch sử
+            history.push({
+                time: Date.now(),
+                target: formatNumber(targetValue),
+                total: formatNumber(total),
+                diff: (diff > 0 ? '+' : '') + formatNumber(Math.abs(diff)),
+                success: isCorrect
+            });
+            
+            if (history.length > 50) history.shift();
+            localStorage.setItem('calcHistory', JSON.stringify(history));
+            
+            if (!isCorrect) {
+                calculator.classList.add('shake');
+                if (vibrateEnabled && navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+                playErrorSound();
+                
+                const diffText = (diff > 0 ? '+' : '') + formatNumber(Math.abs(diff));
+                showToast(`SAI! ${diffText}`, 'error');
+                
+                setTimeout(() => calculator.classList.remove('shake'), 400);
+            } else {
+                showToast('ĐÚNG!', 'success');
+            }
+        }
+        
+        function clearAll() {
+            currentInput = '';
+            total = 0;
+            targetValue = 0;
+            isTargetSet = false;
+            itemCount = 0;
+            
+            inputDisplay.textContent = '0';
+            targetDisplay.textContent = '0';
+            totalDisplay.textContent = '0';
+            hideToast();
+        }
+        
+        function formatNumber(num) {
+            if (num === 0) return '0';
+            return Number(num).toLocaleString('vi-VN');
+        }
+        
+        function showToast(message, type) {
+            resultToast.textContent = message;
+            resultToast.className = `result-toast show ${type}`;
+            setTimeout(() => hideToast(), 2000);
+        }
+        
+        function hideToast() {
+            resultToast.classList.remove('show');
+        }
+        
+        function playErrorSound() {
+            if (!audioContext || volume === 0) return;
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(volume / 500, audioContext.currentTime);
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.15);
+        }
+        
+        // Render history ban đầu
+        renderHistory();
+    </script>
+</body>
+</html>
