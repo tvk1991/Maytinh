@@ -2,12 +2,14 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <!-- Ẩn thanh địa chỉ trên mobile và cho phép fullscreen -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Máy Tính Tiền Pro</title>
+    <!-- Thêm icon cho màn hình chính -->
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%234263eb'/><text x='50' y='70' font-size='50' text-anchor='middle' fill='white' font-family='Arial'>💰</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50' y='80' font-size='80' text-anchor='middle' fill='%234263eb'>💰</text></svg>">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#4263eb">
-    <title>Máy Tính Pro</title>
     <style>
         * {
             box-sizing: border-box;
@@ -22,7 +24,9 @@
             height: 100%;
             overflow: hidden;
             position: fixed;
-            font-family: 'Roboto', 'Droid Sans', 'Segoe UI', sans-serif;
+            /* Font cho Android */
+            font-family: 'Roboto', 'Droid Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-weight: 400;
         }
 
         body {
@@ -30,64 +34,41 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 0;
+            margin: 0;
         }
         
         .calculator {
             background: white;
             width: 100vw;
             height: 100vh;
+            max-width: 100%;
+            max-height: 100%;
             display: flex;
             flex-direction: column;
-            padding: 2vh 2vw 1vh 2vw; /* dùng đơn vị viewport để co giãn */
+            padding: 16px;
+            padding-bottom: 8px;
             overflow: hidden;
+            position: relative;
         }
         
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5vh;
-            flex-shrink: 0;
-        }
-        
-        .mode-btn {
-            background: #f1f3f5;
-            border: none;
-            border-radius: 30px;
-            padding: 1vh 2vw;
-            font-size: min(3.5vw, 16px);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-        }
-        
-        .mode-indicator {
-            background: #4dabf7;
-            color: white;
-            padding: 0.8vh 2vw;
-            border-radius: 30px;
-            font-size: min(3vw, 14px);
-            font-weight: 500;
-        }
-        
-        /* Màn hình */
+        /* Màn hình hiển thị với viền động */
         .display {
             background: #f8f9fa;
-            border-radius: 24px;
-            padding: 2vh 2vw;
-            margin-bottom: 1.5vh;
+            border-radius: 28px;
+            padding: 16px;
+            margin-bottom: 12px;
             text-align: right;
             display: flex;
             flex-direction: column;
-            gap: 0.8vh;
+            gap: 6px;
             border: 2px solid #e9ecef;
-            position: relative;
             flex-shrink: 0;
+            position: relative;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
         
+        /* Viền động */
         .display::before {
             content: '';
             position: absolute;
@@ -95,7 +76,7 @@
             left: -4px;
             right: -4px;
             bottom: -4px;
-            border-radius: 28px;
+            border-radius: 32px;
             border: 3px solid transparent;
             pointer-events: none;
             transition: all 0.3s;
@@ -133,59 +114,66 @@
         .target-row {
             display: flex;
             justify-content: space-between;
-            font-size: min(3.5vw, 14px);
+            align-items: center;
+            font-size: 14px;
             color: #6c757d;
             border-bottom: 1px dashed #dee2e6;
-            padding-bottom: 0.5vh;
+            padding-bottom: 4px;
         }
         
         #targetDisplay {
-            font-family: 'Roboto Mono', monospace;
+            font-family: 'Roboto Mono', 'Courier New', monospace;
             font-weight: 600;
             color: #4263eb;
+            font-size: 15px;
         }
         
         .input-row {
-            font-size: min(8vw, 48px);
+            font-size: clamp(36px, 10vw, 48px);
             font-weight: 600;
-            font-family: 'Roboto Mono', monospace;
+            font-family: 'Roboto Mono', 'Courier New', monospace;
             color: #212529;
-            min-height: 8vh;
+            min-height: 60px;
             word-wrap: break-word;
             line-height: 1.2;
+            letter-spacing: 1px;
         }
         
         .total-row {
             display: flex;
             justify-content: space-between;
-            font-size: min(4vw, 18px);
+            align-items: center;
+            font-size: 18px;
             border-top: 1px dashed #dee2e6;
-            padding-top: 0.5vh;
+            padding-top: 4px;
         }
         
         .total-label {
             color: #6c757d;
             font-weight: 500;
+            font-size: 15px;
         }
         
         #totalDisplay {
-            font-family: 'Roboto Mono', monospace;
+            font-family: 'Roboto Mono', 'Courier New', monospace;
             font-weight: 700;
             color: #40c057;
+            font-size: clamp(20px, 6vw, 24px);
         }
         
-        /* Thông báo */
+        /* Thông báo kết quả */
         .result-toast {
             background: #212529;
             color: white;
             text-align: center;
-            padding: 1vh 2vw;
+            padding: 10px;
             border-radius: 30px;
-            margin-bottom: 1vh;
-            font-size: min(3.5vw, 14px);
+            margin-bottom: 12px;
+            font-weight: 500;
+            font-size: 14px;
             opacity: 0;
             transition: opacity 0.2s;
-            min-height: 5vh;
+            min-height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -196,36 +184,45 @@
             opacity: 1;
         }
         
-        .result-toast.success { background: #2b8a3e; }
-        .result-toast.error { background: #e03131; }
-        .result-toast.warning { background: #e8590c; }
+        .result-toast.success {
+            background: #2b8a3e;
+        }
         
-        /* Bàn phím - chiếm phần còn lại, chia đều 5 hàng */
+        .result-toast.error {
+            background: #e03131;
+        }
+        
+        .result-toast.warning {
+            background: #e8590c;
+        }
+        
+        /* Bàn phím */
         .keypad {
             display: grid;
-            grid-template-rows: repeat(5, 1fr);
             grid-template-columns: repeat(4, 1fr);
-            gap: 1vh 1vw;
+            gap: 8px;
             flex: 1;
-            min-height: 0;
-            padding-bottom: 0.5vh;
+            padding-bottom: 8px;
+            align-content: stretch;
         }
         
         .key {
             background: #f1f3f5;
             border: none;
-            border-radius: 2vh;
-            font-size: min(6vw, 32px);
+            border-radius: 18px;
+            font-size: clamp(22px, 7vw, 28px);
             font-weight: 600;
             color: #212529;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: 0.1s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.1s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
             width: 100%;
             height: 100%;
+            min-height: 60px;
+            font-family: 'Roboto', 'Segoe UI', sans-serif;
         }
         
         .key:active {
@@ -233,148 +230,212 @@
             background: #e9ecef;
         }
         
-        .key.operator { background: #4dabf7; color: white; }
-        .key.operator2 { background: #9775fa; color: white; }
-        .key.operator3 { background: #ff922b; color: white; }
-        .key.operator4 { background: #20c997; color: white; }
-        .key.delete { background: #ff8787; color: white; }
-        .key.equals { background: #51cf66; color: white; }
-        .key.clear { background: #ff8787; color: white; }
-        .key.double-zero { background: #ff922b; color: white; }
-        
-        @keyframes shake {
-            0%,100%{transform:translateX(0)}
-            10%,30%,50%,70%,90%{transform:translateX(-3px)}
-            20%,40%,60%,80%{transform:translateX(3px)}
+        /* Phím xóa */
+        .key.delete {
+            background: #ff8787;
+            color: white;
+            font-size: 24px;
         }
-        .shake { animation: shake 0.4s ease-in-out; }
         
-        /* Hỗ trợ safe area và fullscreen */
+        .key.delete:active {
+            background: #ff6b6b;
+        }
+        
+        /* Phím cộng */
+        .key.add {
+            background: #4dabf7;
+            color: white;
+        }
+        
+        .key.add:active {
+            background: #339af0;
+        }
+        
+        /* Phím bằng */
+        .key.equals {
+            background: #51cf66;
+            color: white;
+            font-size: 28px;
+        }
+        
+        .key.equals:active {
+            background: #40c057;
+        }
+        
+        /* Phím C */
+        .key.clear {
+            background: #ff8787;
+            color: white;
+        }
+        
+        .key.clear:active {
+            background: #ff6b6b;
+        }
+        
+        /* Phím 00 */
+        .key.double-zero {
+            background: #ff922b;
+            color: white;
+        }
+        
+        .key.double-zero:active {
+            background: #fd7e14;
+        }
+        
+        /* Phím chấm */
+        .key.dot {
+            background: #9775fa;
+            color: white;
+        }
+        
+        .key.dot:active {
+            background: #845ef7;
+        }
+        
+        /* Animation rung */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+            20%, 40%, 60%, 80% { transform: translateX(4px); }
+        }
+        
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+        
+        /* Điều chỉnh cho iPhone notch và Android */
         @supports (padding: max(0px)) {
             .calculator {
-                padding-left: max(2vw, env(safe-area-inset-left));
-                padding-right: max(2vw, env(safe-area-inset-right));
-                padding-top: max(2vh, env(safe-area-inset-top));
-                padding-bottom: max(1vh, env(safe-area-inset-bottom));
+                padding-left: max(16px, env(safe-area-inset-left));
+                padding-right: max(16px, env(safe-area-inset-right));
+                padding-top: max(16px, env(safe-area-inset-top));
+                padding-bottom: max(8px, env(safe-area-inset-bottom));
             }
         }
         
-        /* Ẩn thanh địa chỉ trên một số trình duyệt bằng cách cuộn trang */
-        /* (không cần thêm CSS, chỉ cần meta viewport) */
+        /* Màn hình nhỏ (iPhone SE, Android nhỏ) */
+        @media (max-height: 670px) {
+            .input-row {
+                font-size: 36px;
+                min-height: 50px;
+            }
+            
+            .key {
+                font-size: 22px;
+                min-height: 55px;
+            }
+        }
+        
+        /* Màn hình rất nhỏ */
+        @media (max-height: 570px) {
+            .calculator {
+                padding: 10px;
+            }
+            
+            .input-row {
+                font-size: 32px;
+                min-height: 45px;
+            }
+            
+            .key {
+                font-size: 20px;
+                min-height: 50px;
+            }
+        }
+        
+        /* Màn hình lớn (tablet) */
+        @media (min-height: 800px) {
+            .calculator {
+                max-width: 450px;
+                margin: 0 auto;
+            }
+            
+            .key {
+                font-size: 30px;
+            }
+        }
+        
+        /* Tối ưu cho Android */
+        @media (any-hover: none) {
+            .key {
+                -webkit-tap-highlight-color: transparent;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="calculator">
-        <div class="header">
-            <button class="mode-btn" id="modeBtn">
-                <span>🔄</span>
-                <span id="modeText">Máy tính tiền</span>
-            </button>
-            <span class="mode-indicator" id="modeIndicator">💰</span>
-        </div>
-
+        <!-- Màn hình hiển thị với viền động -->
         <div class="display" id="display">
-            <div class="target-row" id="targetRow">
-                <span id="targetLabel">Cần kiểm tra:</span>
+            <div class="target-row">
+                <span>Cần kiểm tra:</span>
                 <span id="targetDisplay">0</span>
             </div>
             <div class="input-row" id="inputDisplay">0</div>
-            <div class="total-row" id="totalRow">
-                <span class="total-label" id="totalLabel">Tổng:</span>
+            <div class="total-row">
+                <span class="total-label">Tổng:</span>
                 <span id="totalDisplay">0</span>
             </div>
         </div>
         
+        <!-- Thông báo kết quả -->
         <div class="result-toast" id="resultToast"></div>
         
-        <!-- Bàn phím 5 hàng, mỗi hàng 4 cột -->
+        <!-- Bàn phím -->
         <div class="keypad">
-            <!-- Hàng 1 -->
+            <!-- Hàng 1: 7 8 9 ⌫ -->
             <button class="key" data-value="7">7</button>
             <button class="key" data-value="8">8</button>
             <button class="key" data-value="9">9</button>
             <button class="key delete" data-action="delete">⌫</button>
             
-            <!-- Hàng 2 -->
+            <!-- Hàng 2: 4 5 6 + -->
             <button class="key" data-value="4">4</button>
             <button class="key" data-value="5">5</button>
             <button class="key" data-value="6">6</button>
-            <button class="key operator" data-action="add">+</button>
+            <button class="key add" data-action="add">+</button>
             
-            <!-- Hàng 3 -->
+            <!-- Hàng 3: 1 2 3 . -->
             <button class="key" data-value="1">1</button>
             <button class="key" data-value="2">2</button>
             <button class="key" data-value="3">3</button>
-            <button class="key operator2" data-action="subtract">−</button>
+            <button class="key dot" data-value=".">.</button>
             
-            <!-- Hàng 4 -->
+            <!-- Hàng 4: 0 00 C = -->
             <button class="key" data-value="0">0</button>
             <button class="key double-zero" data-value="00">00</button>
-            <button class="key operator3" data-action="multiply">×</button>
-            <button class="key operator4" data-action="divide">÷</button>
-            
-            <!-- Hàng 5 -->
             <button class="key clear" data-action="clear">C</button>
-            <button class="key equals" data-action="check" style="grid-column: span 3;">=</button>
+            <button class="key equals" data-action="check">=</button>
         </div>
     </div>
 
     <script>
-        let mode = 'cash'; // 'cash' hoặc 'calc'
-        let currentNumber = '';     // Số đang nhập (dùng cho cả 2 chế độ)
-        let expression = '';        // Biểu thức (chỉ dùng cho chế độ calc)
-        let total = 0;              // Tổng tiền (chế độ cash) hoặc kết quả (chế độ calc)
-        let targetValue = 0;         // Số cần kiểm tra (chế độ cash)
-        let isTargetSet = false;     // Đã set target chưa
-        let itemCount = 0;           // Số mặt hàng đã nhập
+        // State
+        let currentInput = '';
+        let total = 0;
+        let targetValue = 0;
+        let isTargetSet = false;   // true sau khi nhấn = lần đầu
+        let itemCount = 0;
         
         // DOM elements
         const display = document.getElementById('display');
         const inputDisplay = document.getElementById('inputDisplay');
         const targetDisplay = document.getElementById('targetDisplay');
         const totalDisplay = document.getElementById('totalDisplay');
-        const targetRow = document.getElementById('targetRow');
-        const totalLabel = document.getElementById('totalLabel');
         const resultToast = document.getElementById('resultToast');
         const calculator = document.querySelector('.calculator');
-        const modeBtn = document.getElementById('modeBtn');
-        const modeText = document.getElementById('modeText');
-        const modeIndicator = document.getElementById('modeIndicator');
         
+        // Audio
         let audioContext = null;
         
         function initAudio() {
             if (!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
             }
-            if (audioContext.state === 'suspended') audioContext.resume();
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
         }
-        
-        // Yêu cầu fullscreen khi chạm vào màn hình (tùy chọn)
-        document.body.addEventListener('touchstart', () => {
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen();
-            }
-        }, { once: true });
-        
-        // Chuyển mode
-        modeBtn.addEventListener('click', () => {
-            if (mode === 'cash') {
-                mode = 'calc';
-                modeText.textContent = 'Máy tính thường';
-                modeIndicator.textContent = '🧮';
-                targetRow.style.display = 'none';
-                totalLabel.textContent = 'Kết quả:';
-                clearAll();
-            } else {
-                mode = 'cash';
-                modeText.textContent = 'Máy tính tiền';
-                modeIndicator.textContent = '💰';
-                targetRow.style.display = 'flex';
-                totalLabel.textContent = 'Tổng:';
-                clearAll();
-            }
-        });
         
         // Xử lý click phím
         document.querySelectorAll('.key').forEach(btn => {
@@ -383,30 +444,29 @@
                 initAudio();
                 
                 const value = btn.dataset.value;
-                let action = btn.dataset.action;
+                const action = btn.dataset.action;
                 
                 if (value) {
-                    // Nhập số
-                    if (mode === 'cash' && !isTargetSet) {
+                    // Nếu chưa set target thì nhập vào target, ngược lại nhập vào input
+                    if (!isTargetSet) {
                         appendTarget(value);
                     } else {
-                        appendNumber(value);
+                        appendInput(value);
                     }
                 } else if (action) {
                     switch(action) {
                         case 'delete':
-                            if (mode === 'cash' && !isTargetSet) deleteTargetChar();
-                            else deleteChar();
+                            if (!isTargetSet) {
+                                deleteTargetChar();
+                            } else {
+                                deleteInputChar();
+                            }
                             break;
                         case 'add':
-                        case 'subtract':
-                        case 'multiply':
-                        case 'divide':
-                            handleOperator(action);
+                            addItem();           // chỉ thêm mặt hàng
                             break;
                         case 'check':
-                            if (mode === 'cash') handleCashCheck();
-                            else handleCalcEquals();
+                            handleCheckOrSet();  // xử lý = (set target hoặc kiểm tra)
                             break;
                         case 'clear':
                             clearAll();
@@ -416,38 +476,37 @@
             });
         });
         
-        // Nhập số target (chế độ cash, chưa set target)
+        // Nhập số target (khi chưa set target)
         function appendTarget(num) {
-            if (num === '00') {
+            if (num === '.') {
+                if (!targetValue.toString().includes('.')) {
+                    targetValue = targetValue === 0 ? '0.' : targetValue + '.';
+                }
+            } else if (num === '00') {
                 targetValue = targetValue === 0 ? 0 : targetValue + '00';
             } else {
                 targetValue = targetValue === 0 ? num : targetValue + num;
             }
+            
             targetValue = parseFloat(targetValue.toString().replace(/^0+/, '') || '0');
             targetDisplay.textContent = formatNumber(targetValue);
             hideToast();
             display.classList.remove('success', 'error', 'checking');
         }
         
-        // Nhập số (cả 2 chế độ)
-        function appendNumber(num) {
-            if (mode === 'cash') {
-                // Chế độ cash: chỉ nhập số đơn thuần
-                if (num === '00') {
-                    currentNumber = currentNumber === '' || currentNumber === '0' ? '0' : currentNumber + '00';
-                } else {
-                    currentNumber = currentNumber === '0' ? num : currentNumber + num;
+        // Nhập input mặt hàng (khi đã set target)
+        function appendInput(num) {
+            if (num === '.') {
+                if (!currentInput.includes('.')) {
+                    currentInput = currentInput === '' || currentInput === '0' ? '0.' : currentInput + '.';
                 }
-                inputDisplay.textContent = formatNumber(currentNumber || '0');
+            } else if (num === '00') {
+                currentInput = currentInput === '' || currentInput === '0' ? '0' : currentInput + '00';
             } else {
-                // Chế độ calc: xây dựng biểu thức
-                if (num === '00') {
-                    expression += '00';
-                } else {
-                    expression += num;
-                }
-                inputDisplay.textContent = expression;
+                currentInput = currentInput === '0' ? num : currentInput + num;
             }
+            
+            inputDisplay.textContent = formatNumber(currentInput || '0');
             hideToast();
             display.classList.remove('success', 'error', 'checking');
         }
@@ -463,78 +522,47 @@
             display.classList.remove('success', 'error', 'checking');
         }
         
-        function deleteChar() {
-            if (mode === 'cash') {
-                if (currentNumber.length > 0) {
-                    currentNumber = currentNumber.slice(0, -1);
-                    inputDisplay.textContent = formatNumber(currentNumber || '0');
-                }
-            } else {
-                if (expression.length > 0) {
-                    expression = expression.slice(0, -1);
-                    inputDisplay.textContent = expression || '0';
-                }
-            }
-            display.classList.remove('success', 'error', 'checking');
-        }
-        
-        function handleOperator(op) {
-            if (mode === 'cash') {
-                // Chế độ cash
-                if (!isTargetSet) {
-                    showToast('Hãy nhập số cần kiểm tra và nhấn = trước', 'warning');
-                    return;
-                }
-                if (currentNumber === '' || currentNumber === '0') {
-                    showToast('Nhập giá trị', 'warning');
-                    return;
-                }
-                const value = parseFloat(currentNumber);
-                if (isNaN(value) || value <= 0) {
-                    showToast('Không hợp lệ', 'warning');
-                    return;
-                }
-                if (op === 'add') total += value;
-                else if (op === 'subtract') total -= value;
-                else {
-                    showToast('Chỉ hỗ trợ + và -', 'warning');
-                    return;
-                }
-                itemCount++;
-                totalDisplay.textContent = formatNumber(total);
-                showToast(`${op === 'add' ? '+' : '−'} ${formatNumber(value)}`, 'success');
-                currentNumber = '';
-                inputDisplay.textContent = '0';
-            } else {
-                // Chế độ calc: thêm toán tử vào biểu thức
-                const lastChar = expression.slice(-1);
-                const opSymbol = getOperatorSymbol(op);
-                
-                // Không cho phép 2 toán tử liên tiếp
-                if (['+', '-', '×', '÷'].includes(lastChar)) {
-                    expression = expression.slice(0, -1) + opSymbol;
-                } else if (expression !== '') {
-                    expression += opSymbol;
-                } else {
-                    // Biểu thức rỗng, thêm 0 + toán tử
-                    expression = '0' + opSymbol;
-                }
-                inputDisplay.textContent = expression;
+        function deleteInputChar() {
+            if (currentInput.length > 0) {
+                currentInput = currentInput.slice(0, -1);
+                inputDisplay.textContent = formatNumber(currentInput || '0');
+                display.classList.remove('success', 'error', 'checking');
             }
         }
         
-        function getOperatorSymbol(op) {
-            switch(op) {
-                case 'add': return '+';
-                case 'subtract': return '-';
-                case 'multiply': return '×';
-                case 'divide': return '÷';
-                default: return '';
-            }
-        }
-        
-        function handleCashCheck() {
+        // Thêm mặt hàng (chỉ dùng khi đã set target)
+        function addItem() {
             if (!isTargetSet) {
+                showToast('Hãy nhập số cần kiểm tra và nhấn = trước', 'warning');
+                return;
+            }
+            
+            if (currentInput === '' || currentInput === '0' || currentInput === '.') {
+                showToast('Nhập giá trị', 'warning');
+                return;
+            }
+            
+            const value = parseFloat(currentInput);
+            if (isNaN(value) || value <= 0) {
+                showToast('Không hợp lệ', 'warning');
+                return;
+            }
+            
+            total += value;
+            itemCount++;
+            
+            totalDisplay.textContent = formatNumber(total);
+            
+            currentInput = '';
+            inputDisplay.textContent = '0';
+            
+            showToast(`+ ${formatNumber(value)}`, 'success');
+        }
+        
+        // Xử lý khi nhấn = 
+        function handleCheckOrSet() {
+            if (!isTargetSet) {
+                // Lần đầu: set target
                 if (targetValue === 0) {
                     showToast('Nhập số cần kiểm tra', 'warning');
                     return;
@@ -543,73 +571,60 @@
                 targetDisplay.textContent = formatNumber(targetValue);
                 showToast('✓ Đã ghi nhớ', 'success');
                 display.classList.add('checking');
-                currentNumber = '';
+                // Reset input để sẵn sàng nhập mặt hàng
+                currentInput = '';
                 inputDisplay.textContent = '0';
             } else {
-                if (targetValue === 0) {
-                    showToast('Chưa có số kiểm tra', 'warning');
-                    return;
-                }
-                if (itemCount === 0) {
-                    showToast('Chưa có mặt hàng', 'warning');
-                    return;
-                }
-                const diff = total - targetValue;
-                const isCorrect = Math.abs(diff) <= 0.01;
-                if (!isCorrect) {
-                    calculator.classList.add('shake');
-                    playErrorSound();
-                    display.classList.remove('success', 'checking');
-                    display.classList.add('error');
-                    const diffText = (diff > 0 ? '+' : '') + formatNumber(Math.abs(diff));
-                    showToast(`SAI! ${diffText}`, 'error');
-                    setTimeout(() => calculator.classList.remove('shake'), 400);
-                    setTimeout(() => display.classList.remove('error'), 1000);
-                } else {
-                    display.classList.remove('error', 'checking');
-                    display.classList.add('success');
-                    showToast('ĐÚNG!', 'success');
-                    setTimeout(() => display.classList.remove('success'), 1000);
-                }
+                // Các lần sau: kiểm tra tổng
+                checkTotal();
             }
         }
         
-        function handleCalcEquals() {
-            if (expression === '') {
-                showToast('Nhập biểu thức', 'warning');
+        // Kiểm tra tổng so với target
+        function checkTotal() {
+            if (targetValue === 0) {
+                showToast('Chưa có số kiểm tra', 'warning');
                 return;
             }
             
-            // Kiểm tra ký tự cuối không phải toán tử
-            const lastChar = expression.slice(-1);
-            if (['+', '-', '×', '÷'].includes(lastChar)) {
-                expression = expression.slice(0, -1);
-            }
-            
-            if (expression === '') {
-                showToast('Nhập biểu thức', 'warning');
+            if (itemCount === 0) {
+                showToast('Chưa có mặt hàng', 'warning');
                 return;
             }
             
-            // Thay × và ÷ bằng * và / để tính
-            let expr = expression.replace(/×/g, '*').replace(/÷/g, '/');
-            try {
-                if (!/^[0-9+\-*/.\s]+$/.test(expr)) throw new Error('Biểu thức không hợp lệ');
-                const result = eval(expr);
-                if (isNaN(result) || !isFinite(result)) throw new Error('Kết quả không xác định');
+            const diff = total - targetValue;
+            const isCorrect = Math.abs(diff) <= 0.01;
+            
+            if (!isCorrect) {
+                calculator.classList.add('shake');
+                playErrorSound();
                 
-                totalDisplay.textContent = formatNumber(result);
-                expression = result.toString();
-                inputDisplay.textContent = expression;
-                showToast(`= ${formatNumber(result)}`, 'success');
-            } catch (error) {
-                showToast('Lỗi biểu thức', 'error');
+                display.classList.remove('success', 'checking');
+                display.classList.add('error');
+                
+                const diffText = (diff > 0 ? '+' : '') + formatNumber(Math.abs(diff));
+                showToast(`SAI! ${diffText}`, 'error');
+                
+                setTimeout(() => {
+                    calculator.classList.remove('shake');
+                }, 400);
+                
+                setTimeout(() => {
+                    display.classList.remove('error');
+                }, 1000);
+            } else {
+                display.classList.remove('error', 'checking');
+                display.classList.add('success');
+                showToast('ĐÚNG!', 'success');
+                
+                setTimeout(() => {
+                    display.classList.remove('success');
+                }, 1000);
             }
         }
         
         function clearAll() {
-            currentNumber = '';
-            expression = '';
+            currentInput = '';
             total = 0;
             targetValue = 0;
             isTargetSet = false;
@@ -625,13 +640,16 @@
         
         function formatNumber(num) {
             if (num === 0) return '0';
-            return Number(num).toLocaleString('vi-VN', { maximumFractionDigits: 2 });
+            return Number(num).toLocaleString('vi-VN');
         }
         
-        function showToast(msg, type) {
-            resultToast.textContent = msg;
+        function showToast(message, type = 'info') {
+            resultToast.textContent = message;
             resultToast.className = `result-toast show ${type}`;
-           // setTimeout(() => resultToast.classList.remove('show'), 2000);
+            
+           // setTimeout(() => {
+           //     resultToast.classList.remove('show');
+          //  }, 2000);
         }
         
         function hideToast() {
@@ -641,11 +659,11 @@
         function playErrorSound() {
             if (!audioContext) return;
             const oscillator = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            oscillator.connect(gain);
-            gain.connect(audioContext.destination);
-            oscillator.frequency.value = 440;
-            gain.gain.value = 0.2;
+            const gainNode = audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
             oscillator.start();
             oscillator.stop(audioContext.currentTime + 0.15);
         }
