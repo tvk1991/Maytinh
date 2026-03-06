@@ -2,8 +2,8 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Máy Tính Tiền - Tối Ưu Mobile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Máy Tính Tiền Mini</title>
     <style>
         * {
             box-sizing: border-box;
@@ -13,553 +13,258 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            position: fixed;
-            font-family: 'Segoe UI', Arial, sans-serif;
-        }
-
         body {
+            background: #1a1a1a;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 0;
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            padding: 10px;
         }
         
-        .container {
+        .calculator {
             background: white;
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
             width: 100%;
-            max-width: 450px;
-            height: 95vh;
-            max-height: 850px;
+            max-width: 340px;
+            border-radius: 30px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        
+        /* Màn hình hiển thị */
+        .display {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: right;
+            min-height: 120px;
             display: flex;
             flex-direction: column;
-            padding: 16px;
-            margin: 8px;
-            overflow: hidden;
+            gap: 8px;
+            border: 1px solid #e9ecef;
         }
         
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 8px;
-            font-size: clamp(18px, 4vw, 22px);
+        .target-row {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            gap: 6px;
-            flex-shrink: 0;
-        }
-        
-        /* Header với số tiền cần kiểm tra */
-        .check-header {
-            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
-            padding: clamp(8px, 2vh, 12px);
-            border-radius: 14px;
-            margin-bottom: 8px;
-            color: white;
-            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
-            flex-shrink: 0;
-        }
-        
-        .check-label {
-            font-size: clamp(10px, 2.5vw, 12px);
-            opacity: 0.9;
-            margin-bottom: 2px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .check-value {
-            font-size: clamp(20px, 5vw, 26px);
-            font-weight: bold;
-            font-family: 'Courier New', monospace;
-            word-wrap: break-word;
-        }
-        
-        .target-section {
-            background: #f0f3ff;
-            padding: clamp(8px, 2vh, 12px);
-            border-radius: 14px;
-            margin-bottom: 8px;
-            border: 2px solid #e0e7ff;
-            flex-shrink: 0;
-        }
-        
-        .target-section label {
-            display: block;
-            margin-bottom: 4px;
-            color: #4f46e5;
-            font-weight: 600;
-            font-size: clamp(11px, 2.5vw, 13px);
-        }
-        
-        #expectedTotal {
-            width: 100%;
-            padding: clamp(8px, 2vh, 10px);
-            font-size: clamp(16px, 4vw, 18px);
-            border: 2px solid #c7d2fe;
-            border-radius: 10px;
-            background: white;
-            font-weight: bold;
-            color: #4f46e5;
-            text-align: right;
-            font-family: 'Courier New', monospace;
-        }
-        
-        #expectedTotal:focus {
-            outline: none;
-            border-color: #4f46e5;
-        }
-        
-        #expectedTotal::-webkit-outer-spin-button,
-        #expectedTotal::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        
-        #expectedTotal[type=number] {
-            -moz-appearance: textfield;
-            appearance: textfield;
-        }
-        
-        .display-section {
-            background: #f8fafc;
-            padding: clamp(8px, 2vh, 12px);
-            border-radius: 14px;
-            margin-bottom: 8px;
-            border: 2px solid #e2e8f0;
-            flex-shrink: 0;
-        }
-        
-        .current-input {
-            text-align: right;
-            font-size: clamp(24px, 6vw, 30px);
-            font-weight: bold;
-            color: #0f172a;
-            font-family: 'Courier New', monospace;
-            min-height: clamp(40px, 8vh, 50px);
-            word-wrap: break-word;
-            border-bottom: 2px dashed #cbd5e1;
+            font-size: 13px;
+            color: #6c757d;
+            border-bottom: 1px dashed #dee2e6;
             padding-bottom: 6px;
-            margin-bottom: 6px;
+        }
+        
+        #targetDisplay {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #4263eb;
+            font-size: 15px;
+        }
+        
+        .input-row {
+            font-size: 36px;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            color: #212529;
+            min-height: 50px;
+            word-wrap: break-word;
         }
         
         .total-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: clamp(13px, 3vw, 15px);
+            font-size: 18px;
+            border-top: 1px dashed #dee2e6;
+            padding-top: 6px;
         }
         
         .total-label {
-            color: #475569;
-            font-weight: 600;
+            color: #6c757d;
+            font-weight: 500;
+            font-size: 14px;
         }
         
         #totalDisplay {
-            font-size: clamp(18px, 4.5vw, 22px);
-            font-weight: bold;
-            color: #059669;
             font-family: 'Courier New', monospace;
+            font-weight: 700;
+            color: #40c057;
         }
         
-        .items-section {
-            background: white;
-            border: 2px solid #e2e8f0;
-            border-radius: 14px;
-            margin-bottom: 8px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            flex: 1 1 auto;
-            min-height: 0; /* Quan trọng cho flexbox */
-        }
-        
-        .items-header {
-            background: #f8fafc;
-            padding: clamp(6px, 1.5vh, 10px) clamp(10px, 2vw, 15px);
-            border-bottom: 2px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 600;
-            color: #334155;
-            font-size: clamp(12px, 3vw, 14px);
-            flex-shrink: 0;
-        }
-        
-        #itemCount {
-            background: #3b82f6;
+        /* Thông báo kết quả */
+        .result-toast {
+            background: #212529;
             color: white;
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-size: clamp(10px, 2.5vw, 12px);
-        }
-        
-        .items-list-container {
-            overflow-y: auto;
-            scrollbar-width: thin;
-            flex: 1 1 auto;
-            min-height: 0; /* Quan trọng */
-        }
-        
-        .items-list-container::-webkit-scrollbar {
-            width: 4px;
-        }
-        
-        .items-list-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        
-        .items-list-container::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 4px;
-        }
-        
-        #items {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        #items li {
-            display: flex;
-            justify-content: space-between;
-            padding: clamp(6px, 1.5vh, 10px) clamp(10px, 2vw, 15px);
-            border-bottom: 1px solid #e2e8f0;
-            color: #334155;
-            background: white;
-            font-size: clamp(13px, 3vw, 15px);
-        }
-        
-        .item-price {
-            font-weight: bold;
-            color: #059669;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .placeholder-item {
-            color: #94a3b8;
             text-align: center;
-            padding: clamp(15px, 4vh, 25px);
-            justify-content: center !important;
-            font-style: italic;
-        }
-        
-        .result-area {
-            margin-bottom: 8px;
-            min-height: clamp(30px, 5vh, 40px);
-            flex-shrink: 0;
-        }
-        
-        #result {
-            padding: clamp(6px, 1.5vh, 10px);
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: clamp(12px, 3vw, 14px);
-            text-align: center;
-            display: none;
-            animation: slideIn 0.3s ease;
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-5px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .success {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        
-        .info-message {
-            background: #e7f3ff;
-            color: #004085;
-        }
-        
-        /* Bàn phím - chiếm không gian còn lại */
-        .keypad {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: clamp(4px, 1.5vw, 8px);
-            margin-bottom: 8px;
-            flex-shrink: 0;
-        }
-        
-        .key {
-            background: #f1f5f9;
-            border: none;
-            padding: 0;
-            font-size: clamp(18px, 5vw, 24px);
-            font-weight: bold;
-            color: #0f172a;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.1s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 10px;
+            border-radius: 40px;
+            margin-bottom: 15px;
+            font-weight: 500;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            min-height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
-            aspect-ratio: 1;
-            border: 1px solid #e2e8f0;
-            width: 100%;
-            height: 100%;
+        }
+        
+        .result-toast.show {
+            opacity: 1;
+        }
+        
+        .result-toast.success {
+            background: #2b8a3e;
+        }
+        
+        .result-toast.error {
+            background: #e03131;
+        }
+        
+        .result-toast.warning {
+            background: #e8590c;
+        }
+        
+        /* Bàn phím - layout mới */
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+        
+        .key {
+            background: #f1f3f5;
+            border: none;
+            aspect-ratio: 1.2;
+            border-radius: 16px;
+            font-size: 24px;
+            font-weight: 600;
+            color: #212529;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.1s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .key:active {
             transform: scale(0.95);
-            background: #e2e8f0;
+            background: #e9ecef;
         }
         
-        .key-del {
-            background: #f97316;
+        .key.function {
+            background: #e9ecef;
+            color: #495057;
+            font-size: 22px;
+        }
+        
+        .key.operator {
+            background: #4263eb;
             color: white;
-            border-color: #ea580c;
         }
         
-        .key-del:active {
-            background: #ea580c;
+        .key.operator:active {
+            background: #3b5bdb;
         }
         
-        .key-add {
-            background: #3b82f6;
+        .key.equals {
+            background: #40c057;
             color: white;
-            border-color: #2563eb;
         }
         
-        .key-add:active {
-            background: #2563eb;
+        .key.equals:active {
+            background: #37b24d;
         }
         
-        .key-check {
-            background: #10b981;
+        .key.clear {
+            background: #ff6b6b;
             color: white;
-            border-color: #059669;
         }
         
-        .key-check:active {
-            background: #059669;
+        .key.clear:active {
+            background: #fa5252;
         }
         
-        .key-clear {
-            background: #ef4444;
+        .key.special {
+            background: #7950f2;
             color: white;
-            border-color: #dc2626;
         }
         
-        .key-clear:active {
-            background: #dc2626;
-        }
-        
-        .key-dot {
-            background: #64748b;
-            color: white;
-            border-color: #475569;
-        }
-        
-        .key-zero {
-            background: #8b5cf6;
-            color: white;
-            border-color: #7c3aed;
-        }
-        
-        .key-double-zero {
-            background: #8b5cf6;
-            color: white;
-            border-color: #7c3aed;
-        }
-        
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            padding: clamp(6px, 1.5vh, 10px) clamp(10px, 2vw, 15px);
-            background: #f8fafc;
-            border-radius: 30px;
-            font-size: clamp(12px, 3vw, 14px);
-            color: #475569;
-            border: 2px solid #e2e8f0;
-            flex-shrink: 0;
-        }
-        
-        .stats span {
-            font-weight: bold;
-            color: #0f172a;
-        }
-        
-        #diffAmount {
-            font-family: 'Courier New', monospace;
-            font-size: clamp(13px, 3.5vw, 16px);
-            font-weight: bold;
-        }
-        
+        /* Animation rung */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
             20%, 40%, 60%, 80% { transform: translateX(3px); }
         }
         
-        .shake-animation {
-            animation: shake 0.5s ease-in-out;
-        }
-        
-        .error-border {
-            border: 2px solid #ef4444 !important;
-            background-color: #fef2f2;
-        }
-        
-        /* Màn hình rất nhỏ */
-        @media (max-height: 600px) {
-            .container {
-                height: 98vh;
-                padding: 10px;
-            }
-            
-            .check-header {
-                padding: 4px 8px;
-            }
-            
-            .check-value {
-                font-size: 20px;
-            }
-            
-            .current-input {
-                font-size: 24px;
-                min-height: 35px;
-            }
-            
-            .key {
-                font-size: 18px;
-            }
-        }
-        
-        /* Màn hình rất to */
-        @media (min-height: 900px) {
-            .container {
-                height: 90vh;
-            }
-            
-            .items-list-container {
-                max-height: none;
-            }
+        .shake {
+            animation: shake 0.4s ease-in-out;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>
-            <span>🧮</span>
-            MÁY TÍNH TIỀN
-            <span>💰</span>
-        </h2>
-        
-        <!-- Header số cần kiểm tra -->
-        <div class="check-header">
-            <div class="check-label">🎯 CẦN KIỂM TRA</div>
-            <div class="check-value" id="displayExpectedTotal">0₫</div>
-        </div>
-        
-        <!-- Ô nhập số cần kiểm tra -->
-        <div class="target-section">
-            <label>✏️ Nhập số tiền</label>
-            <input type="number" id="expectedTotal" placeholder="0" value="" step="1000">
-        </div>
-        
-        <!-- Màn hình hiển thị -->
-        <div class="display-section">
-            <div class="current-input" id="currentInput">0</div>
+    <div class="calculator">
+        <!-- Màn hình hiển thị - gọn gàng -->
+        <div class="display">
+            <div class="target-row">
+                <span>Cần kiểm tra:</span>
+                <span id="targetDisplay">0</span>
+            </div>
+            <div class="input-row" id="inputDisplay">0</div>
             <div class="total-row">
-                <span class="total-label">Tổng tiền:</span>
-                <span id="totalDisplay">0₫</span>
+                <span class="total-label">Tổng:</span>
+                <span id="totalDisplay">0</span>
             </div>
         </div>
         
-        <!-- Danh sách mặt hàng với thanh cuộn -->
-        <div class="items-section">
-            <div class="items-header">
-                <span>📋 Mặt hàng</span>
-                <span id="itemCount">0</span>
-            </div>
-            <div class="items-list-container">
-                <ul id="items">
-                    <li class="placeholder-item">Chưa có mặt hàng</li>
-                </ul>
-            </div>
-        </div>
+        <!-- Thông báo kết quả -->
+        <div class="result-toast" id="resultToast"></div>
         
-        <!-- Khu vực kết quả -->
-        <div class="result-area">
-            <div id="result"></div>
-        </div>
-        
-        <!-- Bàn phím -->
+        <!-- Bàn phím - layout mới với C thay thế . -->
         <div class="keypad">
-            <!-- 7 8 9 ≤ -->
+            <!-- Hàng 1: 7 8 9 ⌫ -->
             <button class="key" data-value="7">7</button>
             <button class="key" data-value="8">8</button>
             <button class="key" data-value="9">9</button>
-            <button class="key key-del" data-action="delete">≤</button>
+            <button class="key function" data-action="delete">⌫</button>
             
-            <!-- 4 5 6 + -->
+            <!-- Hàng 2: 4 5 6 + -->
             <button class="key" data-value="4">4</button>
             <button class="key" data-value="5">5</button>
             <button class="key" data-value="6">6</button>
-            <button class="key key-add" data-action="add">+</button>
+            <button class="key operator" data-action="add">+</button>
             
-            <!-- 1 2 3 = -->
+            <!-- Hàng 3: 1 2 3 = -->
             <button class="key" data-value="1">1</button>
             <button class="key" data-value="2">2</button>
             <button class="key" data-value="3">3</button>
-            <button class="key key-check" data-action="check">=</button>
+            <button class="key equals" data-action="check">=</button>
             
-            <!-- . 0 00 C -->
-            <button class="key key-dot" data-value=".">.</button>
-            <button class="key key-zero" data-value="0">0</button>
-            <button class="key key-double-zero" data-value="00">00</button>
-            <button class="key key-clear" data-action="clear">C</button>
-        </div>
-        
-        <!-- Thống kê -->
-        <div class="stats">
-            <div>Số lượng: <span id="itemCount2">0</span></div>
-            <div>Chênh lệch: <span id="diffAmount">0₫</span></div>
+            <!-- Hàng 4: C 0 00 . (C thay vị trí dấu .) -->
+            <button class="key clear" data-action="clear">C</button>
+            <button class="key" data-value="0">0</button>
+            <button class="key special" data-value="00">00</button>
+            <button class="key special" data-value=".">.</button>
         </div>
     </div>
-    
+
     <script>
-        // State management
+        // State
         let currentInput = '';
-        let items = [];
         let total = 0;
-        let expectedTotalValue = 0;
+        let targetValue = 0;
+        let isTargetSet = false;
+        let itemCount = 0; // Chỉ đếm số lượng, không hiển thị chi tiết
         
         // DOM elements
-        const currentInputDisplay = document.getElementById('currentInput');
+        const inputDisplay = document.getElementById('inputDisplay');
+        const targetDisplay = document.getElementById('targetDisplay');
         const totalDisplay = document.getElementById('totalDisplay');
-        const displayExpectedTotal = document.getElementById('displayExpectedTotal');
-        const itemsList = document.getElementById('items');
-        const expectedTotalField = document.getElementById('expectedTotal');
-        const resultDiv = document.getElementById('result');
-        const container = document.querySelector('.container');
-        const itemCountSpan = document.getElementById('itemCount');
-        const itemCount2Span = document.getElementById('itemCount2');
-        const diffAmountSpan = document.getElementById('diffAmount');
+        const resultToast = document.getElementById('resultToast');
+        const calculator = document.querySelector('.calculator');
         
         // Audio
         let audioContext = null;
@@ -573,178 +278,185 @@
             }
         }
         
-        // Xử lý click bàn phím
-        document.querySelectorAll('.key').forEach(button => {
-            button.addEventListener('click', (e) => {
+        // Xử lý click phím
+        document.querySelectorAll('.key').forEach(btn => {
+            btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 initAudio();
                 
-                const value = button.dataset.value;
-                const action = button.dataset.action;
+                const value = btn.dataset.value;
+                const action = btn.dataset.action;
                 
                 if (value) {
-                    appendNumber(value);
+                    if (!isTargetSet) {
+                        appendTarget(value);
+                    } else {
+                        appendInput(value);
+                    }
                 } else if (action) {
                     switch(action) {
-                        case 'delete': deleteLastChar(); break;
-                        case 'add': addItem(); break;
-                        case 'check': checkTotal(); break;
-                        case 'clear': clearAll(); break;
+                        case 'delete':
+                            if (!isTargetSet) {
+                                deleteTargetChar();
+                            } else {
+                                deleteInputChar();
+                            }
+                            break;
+                        case 'add':
+                            addItem();
+                            break;
+                        case 'check':
+                            checkTotal();
+                            break;
+                        case 'clear':
+                            clearAll();
+                            break;
                     }
                 }
             });
         });
         
-        // Xử lý bàn phím cứng
-        document.addEventListener('keydown', (e) => {
-            const key = e.key;
-            
-            if (document.activeElement === expectedTotalField) {
-                if (key === 'Enter') {
-                    e.preventDefault();
-                    expectedTotalField.blur();
+        // Nhập số target
+        function appendTarget(num) {
+            if (num === '.') {
+                if (!targetValue.toString().includes('.')) {
+                    targetValue = targetValue === 0 ? '0.' : targetValue + '.';
                 }
+            } else if (num === '00') {
+                targetValue = targetValue === 0 ? 0 : targetValue + '00';
+            } else {
+                targetValue = targetValue === 0 ? num : targetValue + num;
+            }
+            
+            targetValue = parseFloat(targetValue.toString().replace(/^0+/, '') || '0');
+            targetDisplay.textContent = formatNumber(targetValue);
+            hideToast();
+        }
+        
+        // Nhập input mặt hàng
+        function appendInput(num) {
+            if (num === '.') {
+                if (!currentInput.includes('.')) {
+                    currentInput = currentInput === '' || currentInput === '0' ? '0.' : currentInput + '.';
+                }
+            } else if (num === '00') {
+                currentInput = currentInput === '' || currentInput === '0' ? '0' : currentInput + '00';
+            } else {
+                currentInput = currentInput === '0' ? num : currentInput + num;
+            }
+            
+            inputDisplay.textContent = formatNumber(currentInput || '0');
+            hideToast();
+        }
+        
+        function deleteTargetChar() {
+            let str = targetValue.toString();
+            if (str.length > 1) {
+                targetValue = parseFloat(str.slice(0, -1));
+            } else {
+                targetValue = 0;
+            }
+            targetDisplay.textContent = formatNumber(targetValue);
+        }
+        
+        function deleteInputChar() {
+            if (currentInput.length > 0) {
+                currentInput = currentInput.slice(0, -1);
+                inputDisplay.textContent = formatNumber(currentInput || '0');
+            }
+        }
+        
+        // Thêm mặt hàng
+        function addItem() {
+            if (!isTargetSet) {
+                if (targetValue === 0) {
+                    showToast('Nhập số cần kiểm tra', 'warning');
+                    return;
+                }
+                isTargetSet = true;
+                targetDisplay.textContent = formatNumber(targetValue);
+                showToast('✓ Đã ghi nhớ', 'success');
                 return;
             }
             
-            if (key >= '0' && key <= '9') {
-                e.preventDefault();
-                appendNumber(key);
-            }
-            else if (key === 'Backspace' || key === 'Delete') {
-                e.preventDefault();
-                deleteLastChar();
-            }
-            else if (key === 'Enter' || key === '=') {
-                e.preventDefault();
-                checkTotal();
-            }
-            else if (key === '+') {
-                e.preventDefault();
-                addItem();
-            }
-            else if (key === '.') {
-                e.preventDefault();
-                appendNumber('.');
-            }
-            else if (key === 'Escape') {
-                e.preventDefault();
-                clearAll();
-            }
-        });
-        
-        // Cập nhật số cần kiểm tra
-        expectedTotalField.addEventListener('input', (e) => {
-            let value = e.target.value;
-            
-            if (value.length > 1 && value[0] === '0' && value[1] !== '.') {
-                value = value.replace(/^0+/, '');
-                e.target.value = value;
+            if (currentInput === '' || currentInput === '0' || currentInput === '.') {
+                showToast('Nhập giá trị', 'warning');
+                return;
             }
             
-            expectedTotalValue = value === '' ? 0 : parseFloat(value);
-            if (isNaN(expectedTotalValue)) {
-                expectedTotalValue = 0;
-                e.target.value = '';
+            const value = parseFloat(currentInput);
+            if (isNaN(value) || value <= 0) {
+                showToast('Không hợp lệ', 'warning');
+                return;
             }
             
-            displayExpectedTotal.textContent = (expectedTotalValue > 0 ? expectedTotalValue.toLocaleString('vi-VN') : '0') + '₫';
-            updateStats();
-        });
-        
-        function appendNumber(num) {
-            if (num === '.') {
-                if (!currentInput.includes('.')) {
-                    if (currentInput === '' || currentInput === '0') {
-                        currentInput = '0.';
-                    } else {
-                        currentInput += '.';
-                    }
-                }
-            }
-            else if (num === '00') {
-                if (currentInput === '0') {
-                    currentInput = '0';
-                } else if (currentInput !== '' && currentInput !== '0') {
-                    currentInput += '00';
-                } else if (currentInput === '') {
-                    currentInput = '0';
-                }
-            }
-            else {
-                if (currentInput === '0') {
-                    currentInput = num;
-                } else {
-                    currentInput += num;
-                }
-            }
+            total += value;
+            itemCount++;
             
-            currentInputDisplay.textContent = currentInput || '0';
-            hideResult();
+            totalDisplay.textContent = formatNumber(total);
+            
+            currentInput = '';
+            inputDisplay.textContent = '0';
+            
+            showToast(`+ ${formatNumber(value)}`, 'success');
         }
         
-        function deleteLastChar() {
-            if (currentInput.length > 0) {
-                currentInput = currentInput.slice(0, -1);
-                if (currentInput === '' || currentInput === '-') {
-                    currentInput = '0';
-                }
-                currentInputDisplay.textContent = currentInput || '0';
-                hideResult();
-            }
-        }
-        
-        function updateItemsList() {
-            if (items.length === 0) {
-                itemsList.innerHTML = '<li class="placeholder-item">Chưa có mặt hàng</li>';
-            } else {
-                itemsList.innerHTML = '';
-                items.forEach((item, index) => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <span>${index + 1}</span>
-                        <span class="item-price">${item.toLocaleString('vi-VN')}₫</span>
-                    `;
-                    itemsList.appendChild(li);
-                });
+        // Kiểm tra tổng
+        function checkTotal() {
+            if (!isTargetSet || targetValue === 0) {
+                showToast('Chưa có số kiểm tra', 'warning');
+                return;
             }
             
-            const count = items.length;
-            itemCountSpan.textContent = count;
-            itemCount2Span.textContent = count;
+            if (itemCount === 0) {
+                showToast('Chưa có mặt hàng', 'warning');
+                return;
+            }
             
-            // Tự động cuộn xuống cuối
-            const container = document.querySelector('.items-list-container');
-            if (container) {
+            const diff = total - targetValue;
+            const isCorrect = Math.abs(diff) <= 0.01;
+            
+            if (!isCorrect) {
+                calculator.classList.add('shake');
+                playErrorSound();
+                
+                const diffText = (diff > 0 ? '+' : '') + formatNumber(Math.abs(diff));
+                showToast(`SAI! ${diffText}`, 'error');
+                
                 setTimeout(() => {
-                    container.scrollTop = container.scrollHeight;
-                }, 50);
+                    calculator.classList.remove('shake');
+                }, 400);
+            } else {
+                showToast('ĐÚNG!', 'success');
             }
         }
         
-        function updateStats() {
-            const diff = total - expectedTotalValue;
-            diffAmountSpan.textContent = (diff > 0 ? '+' : '') + diff.toLocaleString('vi-VN') + '₫';
+        function clearAll() {
+            currentInput = '';
+            total = 0;
+            targetValue = 0;
+            isTargetSet = false;
+            itemCount = 0;
             
-            if (diff === 0) diffAmountSpan.style.color = '#059669';
-            else if (diff > 0) diffAmountSpan.style.color = '#ef4444';
-            else diffAmountSpan.style.color = '#f59e0b';
+            inputDisplay.textContent = '0';
+            targetDisplay.textContent = '0';
+            totalDisplay.textContent = '0';
             
-            totalDisplay.textContent = total.toLocaleString('vi-VN') + '₫';
+            hideToast();
         }
         
-        function hideResult() {
-            resultDiv.style.display = 'none';
+        function formatNumber(num) {
+            if (num === 0) return '0';
+            return Number(num).toLocaleString('vi-VN');
         }
         
-        function showResult(message, type) {
-            resultDiv.textContent = message;
-            resultDiv.className = `result ${type}`;
-            resultDiv.style.display = 'block';
-            
-            //setTimeout(() => {
-          //      resultDiv.style.display = 'none';
-           // }, 90000);
+        function showToast(message, type = 'info') {
+            resultToast.textContent = message;
+            resultToast.className = `result-toast show ${type}`;
+        }
+        
+        function hideToast() {
+            resultToast.classList.remove('show');
         }
         
         function playErrorSound() {
@@ -758,93 +470,6 @@
             oscillator.start();
             oscillator.stop(audioContext.currentTime + 0.15);
         }
-        
-        function addItem() {
-            if (currentInput === '' || currentInput === '0' || currentInput === '.') {
-                showResult('⚠️ Nhập số tiền!', 'error');
-                return;
-            }
-            
-            const value = parseFloat(currentInput);
-            if (isNaN(value) || value <= 0) {
-                showResult('⚠️ Số không hợp lệ!', 'error');
-                return;
-            }
-            
-            items.push(value);
-            total += value;
-            
-            updateItemsList();
-            updateStats();
-            
-            currentInput = '0';
-            currentInputDisplay.textContent = '0';
-            
-            showResult(`✅ Đã thêm ${value.toLocaleString('vi-VN')}₫`, 'success');
-            
-            if (expectedTotalValue > 0) {
-                checkTotal(true);
-            }
-        }
-        
-        function checkTotal(silent = false) {
-            if (expectedTotalValue === 0) {
-                showResult('⚠️ Nhập số cần kiểm tra!', 'error');
-                expectedTotalField.focus();
-                return;
-            }
-            
-            if (items.length === 0) {
-                showResult('⚠️ Chưa có mặt hàng!', 'error');
-                return;
-            }
-            
-            const isCorrect = Math.abs(total - expectedTotalValue) <= 0.01;
-            
-            if (!isCorrect) {
-                container.classList.add('shake-animation');
-                totalDisplay.classList.add('error-border');
-                playErrorSound();
-                
-                const diff = (total - expectedTotalValue).toLocaleString('vi-VN');
-                showResult(`❌ Sai! Chênh lệch: ${diff}₫`, 'error');
-                
-                setTimeout(() => {
-                    container.classList.remove('shake-animation');
-                }, 500);
-            } else if (!silent) {
-                totalDisplay.classList.remove('error-border');
-                showResult(`✅ Đúng! ${total.toLocaleString('vi-VN')}₫`, 'success');
-            } else {
-                totalDisplay.classList.remove('error-border');
-            }
-        }
-        
-        function clearAll() {
-            currentInput = '0';
-            items = [];
-            total = 0;
-            expectedTotalField.value = '';
-            expectedTotalValue = 0;
-            
-            currentInputDisplay.textContent = '0';
-            displayExpectedTotal.textContent = '0₫';
-            updateItemsList();
-            updateStats();
-            
-            hideResult();
-            container.classList.remove('shake-animation');
-            totalDisplay.classList.remove('error-border');
-            
-            if (audioContext) {
-                audioContext.close();
-                audioContext = null;
-            }
-        }
-        
-        // Khởi tạo
-        updateItemsList();
-        updateStats();
     </script>
 </body>
-    </html>
+</html>
