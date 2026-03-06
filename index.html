@@ -2,7 +2,11 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <!-- Ẩn thanh địa chỉ trên mobile và cho phép fullscreen -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#4263eb">
     <title>Máy Tính Pro</title>
     <style>
         * {
@@ -34,7 +38,7 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            padding: 12px 12px 8px 12px;
+            padding: 2vh 2vw 1vh 2vw; /* dùng đơn vị viewport để co giãn */
             overflow: hidden;
         }
         
@@ -43,7 +47,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 1.5vh;
             flex-shrink: 0;
         }
         
@@ -51,8 +55,8 @@
             background: #f1f3f5;
             border: none;
             border-radius: 30px;
-            padding: 6px 12px;
-            font-size: 14px;
+            padding: 1vh 2vw;
+            font-size: min(3.5vw, 16px);
             font-weight: 600;
             display: flex;
             align-items: center;
@@ -60,29 +64,25 @@
             cursor: pointer;
         }
         
-        .mode-btn:active {
-            background: #dee2e6;
-        }
-        
         .mode-indicator {
             background: #4dabf7;
             color: white;
-            padding: 4px 10px;
+            padding: 0.8vh 2vw;
             border-radius: 30px;
-            font-size: 12px;
+            font-size: min(3vw, 14px);
             font-weight: 500;
         }
         
         /* Màn hình */
         .display {
             background: #f8f9fa;
-            border-radius: 20px;
-            padding: 14px;
-            margin-bottom: 12px;
+            border-radius: 24px;
+            padding: 2vh 2vw;
+            margin-bottom: 1.5vh;
             text-align: right;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 0.8vh;
             border: 2px solid #e9ecef;
             position: relative;
             flex-shrink: 0;
@@ -95,7 +95,7 @@
             left: -4px;
             right: -4px;
             bottom: -4px;
-            border-radius: 24px;
+            border-radius: 28px;
             border: 3px solid transparent;
             pointer-events: none;
             transition: all 0.3s;
@@ -133,10 +133,10 @@
         .target-row {
             display: flex;
             justify-content: space-between;
-            font-size: 13px;
+            font-size: min(3.5vw, 14px);
             color: #6c757d;
             border-bottom: 1px dashed #dee2e6;
-            padding-bottom: 3px;
+            padding-bottom: 0.5vh;
         }
         
         #targetDisplay {
@@ -146,11 +146,11 @@
         }
         
         .input-row {
-            font-size: clamp(28px, 8vw, 42px);
+            font-size: min(8vw, 48px);
             font-weight: 600;
             font-family: 'Roboto Mono', monospace;
             color: #212529;
-            min-height: 50px;
+            min-height: 8vh;
             word-wrap: break-word;
             line-height: 1.2;
         }
@@ -158,9 +158,9 @@
         .total-row {
             display: flex;
             justify-content: space-between;
-            font-size: 16px;
+            font-size: min(4vw, 18px);
             border-top: 1px dashed #dee2e6;
-            padding-top: 3px;
+            padding-top: 0.5vh;
         }
         
         .total-label {
@@ -179,13 +179,13 @@
             background: #212529;
             color: white;
             text-align: center;
-            padding: 8px;
+            padding: 1vh 2vw;
             border-radius: 30px;
-            margin-bottom: 10px;
-            font-size: 13px;
+            margin-bottom: 1vh;
+            font-size: min(3.5vw, 14px);
             opacity: 0;
             transition: opacity 0.2s;
-            min-height: 38px;
+            min-height: 5vh;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -200,22 +200,22 @@
         .result-toast.error { background: #e03131; }
         .result-toast.warning { background: #e8590c; }
         
-        /* Bàn phím - chiếm phần còn lại, chia đều các hàng */
+        /* Bàn phím - chiếm phần còn lại, chia đều 5 hàng */
         .keypad {
             display: grid;
             grid-template-rows: repeat(5, 1fr);
             grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
+            gap: 1vh 1vw;
             flex: 1;
-            min-height: 0; /* Quan trọng để grid co giãn */
-            padding-bottom: 4px;
+            min-height: 0;
+            padding-bottom: 0.5vh;
         }
         
         .key {
             background: #f1f3f5;
             border: none;
-            border-radius: 16px;
-            font-size: clamp(18px, 5vw, 26px);
+            border-radius: 2vh;
+            font-size: min(6vw, 32px);
             font-weight: 600;
             color: #212529;
             display: flex;
@@ -249,22 +249,18 @@
         }
         .shake { animation: shake 0.4s ease-in-out; }
         
-        /* Điều chỉnh cho các thiết bị rất nhỏ */
-        @media (max-height: 600px) {
-            .display { padding: 8px; }
-            .input-row { font-size: 24px; min-height: 36px; }
-            .key { font-size: 18px; }
-        }
-        
-        /* Hỗ trợ safe area */
+        /* Hỗ trợ safe area và fullscreen */
         @supports (padding: max(0px)) {
             .calculator {
-                padding-left: max(12px, env(safe-area-inset-left));
-                padding-right: max(12px, env(safe-area-inset-right));
-                padding-top: max(12px, env(safe-area-inset-top));
-                padding-bottom: max(8px, env(safe-area-inset-bottom));
+                padding-left: max(2vw, env(safe-area-inset-left));
+                padding-right: max(2vw, env(safe-area-inset-right));
+                padding-top: max(2vh, env(safe-area-inset-top));
+                padding-bottom: max(1vh, env(safe-area-inset-bottom));
             }
         }
+        
+        /* Ẩn thanh địa chỉ trên một số trình duyệt bằng cách cuộn trang */
+        /* (không cần thêm CSS, chỉ cần meta viewport) */
     </style>
 </head>
 <body>
@@ -353,6 +349,13 @@
             }
             if (audioContext.state === 'suspended') audioContext.resume();
         }
+        
+        // Yêu cầu fullscreen khi chạm vào màn hình (tùy chọn)
+        document.body.addEventListener('touchstart', () => {
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            }
+        }, { once: true });
         
         // Chuyển mode
         modeBtn.addEventListener('click', () => {
@@ -628,7 +631,7 @@
         function showToast(msg, type) {
             resultToast.textContent = msg;
             resultToast.className = `result-toast show ${type}`;
-            setTimeout(() => resultToast.classList.remove('show'), 2000);
+           // setTimeout(() => resultToast.classList.remove('show'), 2000);
         }
         
         function hideToast() {
