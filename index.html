@@ -39,20 +39,20 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            padding: 16px;
-            padding-bottom: 8px;
+            padding: 12px 12px 6px 12px; /* Giảm padding tổng thể */
             overflow: hidden;
         }
         
+        /* Màn hình hiển thị */
         .display {
             background: #f8f9fa;
-            border-radius: 28px;
-            padding: 16px;
-            margin-bottom: 12px;
+            border-radius: 24px;
+            padding: 14px 12px;
+            margin-bottom: 10px;
             text-align: right;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
             border: 2px solid #e9ecef;
             flex-shrink: 0;
             position: relative;
@@ -65,7 +65,7 @@
             left: -4px;
             right: -4px;
             bottom: -4px;
-            border-radius: 32px;
+            border-radius: 28px;
             border: 3px solid transparent;
             pointer-events: none;
             transition: all 0.3s;
@@ -103,24 +103,25 @@
         .target-row {
             display: flex;
             justify-content: space-between;
-            font-size: 14px;
+            font-size: clamp(12px, 3.5vw, 14px);
             color: #6c757d;
             border-bottom: 1px dashed #dee2e6;
-            padding-bottom: 4px;
+            padding-bottom: 3px;
         }
         
         #targetDisplay {
             font-family: 'Roboto Mono', monospace;
             font-weight: 600;
             color: #4263eb;
+            font-size: clamp(12px, 3.5vw, 14px);
         }
         
         .input-row {
-            font-size: clamp(36px, 10vw, 48px);
+            font-size: clamp(28px, 9vw, 44px);
             font-weight: 600;
             font-family: 'Roboto Mono', monospace;
             color: #212529;
-            min-height: 60px;
+            min-height: 1.2em;
             word-wrap: break-word;
             line-height: 1.2;
         }
@@ -128,9 +129,9 @@
         .total-row {
             display: flex;
             justify-content: space-between;
-            font-size: 18px;
+            font-size: clamp(14px, 4vw, 18px);
             border-top: 1px dashed #dee2e6;
-            padding-top: 4px;
+            padding-top: 3px;
         }
         
         .total-label {
@@ -142,19 +143,21 @@
             font-family: 'Roboto Mono', monospace;
             font-weight: 700;
             color: #40c057;
+            font-size: clamp(16px, 5vw, 22px);
         }
         
+        /* Thông báo */
         .result-toast {
             background: #212529;
             color: white;
             text-align: center;
-            padding: 10px;
+            padding: 8px 10px;
             border-radius: 30px;
-            margin-bottom: 12px;
-            font-size: 14px;
+            margin-bottom: 8px;
+            font-size: clamp(12px, 3.5vw, 14px);
             opacity: 0;
             transition: opacity 0.2s;
-            min-height: 44px;
+            min-height: 38px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -166,20 +169,22 @@
         .result-toast.error { background: #e03131; }
         .result-toast.warning { background: #e8590c; }
         
+        /* Bàn phím - dùng grid với tỷ lệ hàng linh hoạt */
         .keypad {
             display: grid;
+            grid-template-rows: repeat(4, 1fr);
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
+            gap: 6px;
             flex: 1;
-            padding-bottom: 8px;
-            align-content: stretch;
+            min-height: 0; /* Quan trọng để grid co giãn */
+            padding-bottom: 4px;
         }
         
         .key {
             background: #f1f3f5;
             border: none;
-            border-radius: 18px;
-            font-size: clamp(22px, 7vw, 28px);
+            border-radius: 16px;
+            font-size: clamp(18px, 6vw, 26px);
             font-weight: 600;
             color: #212529;
             display: flex;
@@ -187,8 +192,9 @@
             justify-content: center;
             cursor: pointer;
             transition: 0.1s;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            min-height: 60px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            height: 100%;
         }
         
         .key:active {
@@ -196,38 +202,64 @@
             background: #e9ecef;
         }
         
-        .key.delete { background: #ff8787; color: white; }  /* ⌫ */
-        .key.add { background: #4dabf7; color: white; }     /* + */
-        .key.equals { background: #51cf66; color: white; }   /* = */
-        .key.clear { background: #ff8787; color: white; }    /* C */
-        .key.double-zero { background: #ff922b; color: white; } /* 00 */
-        .key.dot { background: #9775fa; color: white; }      /* . */
+        /* Màu sắc phím chức năng */
+        .key.delete { background: #ff8787; color: white; }
+        .key.add { background: #4dabf7; color: white; }
+        .key.equals { background: #51cf66; color: white; }
+        .key.clear { background: #ff8787; color: white; }
+        .key.double-zero { background: #ff922b; color: white; }
+        .key.dot { background: #9775fa; color: white; }
         
+        /* Hiệu ứng rung */
         @keyframes shake {
             0%,100%{transform:translateX(0)}
-            10%,30%,50%,70%,90%{transform:translateX(-4px)}
-            20%,40%,60%,80%{transform:translateX(4px)}
+            10%,30%,50%,70%,90%{transform:translateX(-3px)}
+            20%,40%,60%,80%{transform:translateX(3px)}
         }
         .shake { animation: shake 0.4s ease-in-out; }
         
+        /* Hỗ trợ safe area */
         @supports (padding: max(0px)) {
             .calculator {
-                padding-left: max(16px, env(safe-area-inset-left));
-                padding-right: max(16px, env(safe-area-inset-right));
-                padding-top: max(16px, env(safe-area-inset-top));
-                padding-bottom: max(8px, env(safe-area-inset-bottom));
+                padding-left: max(12px, env(safe-area-inset-left));
+                padding-right: max(12px, env(safe-area-inset-right));
+                padding-top: max(12px, env(safe-area-inset-top));
+                padding-bottom: max(6px, env(safe-area-inset-bottom));
             }
         }
         
-        @media (max-height: 670px) {
-            .input-row { font-size: 36px; min-height: 50px; }
-            .key { font-size: 22px; min-height: 55px; }
+        /* Điều chỉnh cho màn hình rất nhỏ (dưới 600px chiều cao) */
+        @media (max-height: 600px) {
+            .display {
+                padding: 10px;
+                margin-bottom: 6px;
+            }
+            .input-row {
+                font-size: 26px;
+            }
+            .key {
+                font-size: 18px;
+            }
+            .result-toast {
+                padding: 5px;
+                min-height: 32px;
+                margin-bottom: 4px;
+            }
         }
         
-        @media (max-height: 570px) {
-            .calculator { padding: 10px; }
-            .input-row { font-size: 32px; min-height: 45px; }
-            .key { font-size: 20px; min-height: 50px; }
+        /* Màn hình nhỡ (600-700px) */
+        @media (min-height: 601px) and (max-height: 700px) {
+            .key {
+                font-size: 22px;
+            }
+        }
+        
+        /* Màn hình lớn (trên 800px) có thể giới hạn chiều rộng */
+        @media (min-height: 800px) {
+            .calculator {
+                max-width: 420px;
+                margin: 0 auto;
+            }
         }
     </style>
 </head>
@@ -247,9 +279,9 @@
         
         <div class="result-toast" id="resultToast"></div>
         
-        <!-- Bàn phím với C và ⌫ đổi chỗ -->
+        <!-- Bàn phím 4 hàng -->
         <div class="keypad">
-            <!-- Hàng 1: 7 8 9 C  (C thay cho ⌫) -->
+            <!-- Hàng 1: 7 8 9 C -->
             <button class="key" data-value="7">7</button>
             <button class="key" data-value="8">8</button>
             <button class="key" data-value="9">9</button>
@@ -267,7 +299,7 @@
             <button class="key" data-value="3">3</button>
             <button class="key dot" data-value=".">.</button>
             
-            <!-- Hàng 4: 0 00 ⌫ =  (⌫ xuống hàng cuối) -->
+            <!-- Hàng 4: 0 00 ⌫ = -->
             <button class="key" data-value="0">0</button>
             <button class="key double-zero" data-value="00">00</button>
             <button class="key delete" data-action="delete">⌫</button>
@@ -423,7 +455,6 @@
                     showToast('Không hợp lệ', 'warning');
                     return;
                 }
-                // Cộng vào tổng
                 total += value;
                 itemCount++;
                 totalDisplay.textContent = formatNumber(total);
@@ -449,7 +480,7 @@
                 const diffText = (diff > 0 ? '+' : '') + formatNumber(Math.abs(diff));
                 showToast(`SAI! ${diffText}`, 'error');
                 setTimeout(() => calculator.classList.remove('shake'), 400);
-             //   setTimeout(() => display.classList.remove('error'), 1000);
+               // setTimeout(() => display.classList.remove('error'), 1000);
             } else {
                 display.classList.remove('error', 'checking');
                 display.classList.add('success');
@@ -479,8 +510,7 @@
         function showToast(msg, type) {
             resultToast.textContent = msg;
             resultToast.className = `result-toast show ${type}`;
-            // Tự động ẩn sau 2 giây
-          //  setTimeout(() => resultToast.classList.remove('show'), 2000);
+           // setTimeout(() => resultToast.classList.remove('show'), 2000);
         }
         
         function hideToast() {
