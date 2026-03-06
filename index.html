@@ -2,8 +2,8 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Máy Tính Tiền - Bàn Phím 3x4</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Máy Tính Tiền - Tối Ưu Mobile</title>
     <style>
         * {
             box-sizing: border-box;
@@ -13,83 +13,98 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        body {
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
             font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body {
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            margin: 0;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 10px;
+            padding: 0;
         }
         
         .container {
             background: white;
-            padding: 20px;
             border-radius: 24px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            width: 450px;
-            max-width: 100%;
-            max-height: 95vh;
-            overflow-y: auto;
-            scrollbar-width: thin;
+            width: 100%;
+            max-width: 450px;
+            height: 95vh;
+            max-height: 850px;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            margin: 8px;
+            overflow: hidden;
+        }
+        
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: clamp(18px, 4vw, 22px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            flex-shrink: 0;
         }
         
         /* Header với số tiền cần kiểm tra */
         .check-header {
             background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
-            padding: 15px;
-            border-radius: 16px;
-            margin-bottom: 15px;
+            padding: clamp(8px, 2vh, 12px);
+            border-radius: 14px;
+            margin-bottom: 8px;
             color: white;
             box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+            flex-shrink: 0;
         }
         
         .check-label {
-            font-size: 13px;
+            font-size: clamp(10px, 2.5vw, 12px);
             opacity: 0.9;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
         
         .check-value {
-            font-size: 28px;
+            font-size: clamp(20px, 5vw, 26px);
             font-weight: bold;
             font-family: 'Courier New', monospace;
             word-wrap: break-word;
         }
         
-        .check-note {
-            font-size: 12px;
-            margin-top: 5px;
-            opacity: 0.8;
-            text-align: right;
-        }
-        
         .target-section {
             background: #f0f3ff;
-            padding: 15px;
-            border-radius: 16px;
-            margin-bottom: 15px;
+            padding: clamp(8px, 2vh, 12px);
+            border-radius: 14px;
+            margin-bottom: 8px;
             border: 2px solid #e0e7ff;
+            flex-shrink: 0;
         }
         
         .target-section label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
             color: #4f46e5;
             font-weight: 600;
-            font-size: 14px;
+            font-size: clamp(11px, 2.5vw, 13px);
         }
         
         #expectedTotal {
             width: 100%;
-            padding: 12px;
-            font-size: 18px;
+            padding: clamp(8px, 2vh, 10px);
+            font-size: clamp(16px, 4vw, 18px);
             border: 2px solid #c7d2fe;
-            border-radius: 12px;
+            border-radius: 10px;
             background: white;
             font-weight: bold;
             color: #4f46e5;
@@ -100,7 +115,6 @@
         #expectedTotal:focus {
             outline: none;
             border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
         }
         
         #expectedTotal::-webkit-outer-spin-button,
@@ -116,30 +130,31 @@
         
         .display-section {
             background: #f8fafc;
-            padding: 15px;
-            border-radius: 16px;
-            margin-bottom: 15px;
+            padding: clamp(8px, 2vh, 12px);
+            border-radius: 14px;
+            margin-bottom: 8px;
             border: 2px solid #e2e8f0;
+            flex-shrink: 0;
         }
         
         .current-input {
             text-align: right;
-            font-size: 32px;
+            font-size: clamp(24px, 6vw, 30px);
             font-weight: bold;
             color: #0f172a;
             font-family: 'Courier New', monospace;
-            min-height: 60px;
+            min-height: clamp(40px, 8vh, 50px);
             word-wrap: break-word;
             border-bottom: 2px dashed #cbd5e1;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
+            padding-bottom: 6px;
+            margin-bottom: 6px;
         }
         
         .total-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 16px;
+            font-size: clamp(13px, 3vw, 15px);
         }
         
         .total-label {
@@ -148,7 +163,7 @@
         }
         
         #totalDisplay {
-            font-size: 24px;
+            font-size: clamp(18px, 4.5vw, 22px);
             font-weight: bold;
             color: #059669;
             font-family: 'Courier New', monospace;
@@ -157,38 +172,45 @@
         .items-section {
             background: white;
             border: 2px solid #e2e8f0;
-            border-radius: 16px;
-            margin-bottom: 15px;
+            border-radius: 14px;
+            margin-bottom: 8px;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            min-height: 0; /* Quan trọng cho flexbox */
         }
         
         .items-header {
             background: #f8fafc;
-            padding: 12px 15px;
+            padding: clamp(6px, 1.5vh, 10px) clamp(10px, 2vw, 15px);
             border-bottom: 2px solid #e2e8f0;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-weight: 600;
             color: #334155;
+            font-size: clamp(12px, 3vw, 14px);
+            flex-shrink: 0;
         }
         
         #itemCount {
             background: #3b82f6;
             color: white;
-            padding: 3px 10px;
+            padding: 2px 8px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: clamp(10px, 2.5vw, 12px);
         }
         
         .items-list-container {
-            max-height: 150px;
             overflow-y: auto;
             scrollbar-width: thin;
+            flex: 1 1 auto;
+            min-height: 0; /* Quan trọng */
         }
         
         .items-list-container::-webkit-scrollbar {
-            width: 5px;
+            width: 4px;
         }
         
         .items-list-container::-webkit-scrollbar-track {
@@ -197,7 +219,7 @@
         
         .items-list-container::-webkit-scrollbar-thumb {
             background: #888;
-            border-radius: 5px;
+            border-radius: 4px;
         }
         
         #items {
@@ -209,14 +231,11 @@
         #items li {
             display: flex;
             justify-content: space-between;
-            padding: 12px 15px;
+            padding: clamp(6px, 1.5vh, 10px) clamp(10px, 2vw, 15px);
             border-bottom: 1px solid #e2e8f0;
             color: #334155;
             background: white;
-        }
-        
-        #items li:last-child {
-            border-bottom: none;
+            font-size: clamp(13px, 3vw, 15px);
         }
         
         .item-price {
@@ -228,21 +247,22 @@
         .placeholder-item {
             color: #94a3b8;
             text-align: center;
-            padding: 20px;
+            padding: clamp(15px, 4vh, 25px);
             justify-content: center !important;
             font-style: italic;
         }
         
         .result-area {
-            margin-bottom: 15px;
-            min-height: 50px;
+            margin-bottom: 8px;
+            min-height: clamp(30px, 5vh, 40px);
+            flex-shrink: 0;
         }
         
         #result {
-            padding: 12px;
-            border-radius: 12px;
+            padding: clamp(6px, 1.5vh, 10px);
+            border-radius: 10px;
             font-weight: 600;
-            font-size: 14px;
+            font-size: clamp(12px, 3vw, 14px);
             text-align: center;
             display: none;
             animation: slideIn 0.3s ease;
@@ -251,7 +271,7 @@
         @keyframes slideIn {
             from {
                 opacity: 0;
-                transform: translateY(-10px);
+                transform: translateY(-5px);
             }
             to {
                 opacity: 1;
@@ -262,37 +282,35 @@
         .success {
             background: #d4edda;
             color: #155724;
-            border: 1px solid #c3e6cb;
         }
         
         .error {
             background: #f8d7da;
             color: #721c24;
-            border: 1px solid #f5c6cb;
         }
         
         .info-message {
             background: #e7f3ff;
             color: #004085;
-            border: 1px solid #b8daff;
         }
         
-        /* Bàn phím 3x4 */
+        /* Bàn phím - chiếm không gian còn lại */
         .keypad {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            margin-bottom: 15px;
+            gap: clamp(4px, 1.5vw, 8px);
+            margin-bottom: 8px;
+            flex-shrink: 0;
         }
         
         .key {
             background: #f1f5f9;
             border: none;
-            padding: 16px 0;
-            font-size: 22px;
+            padding: 0;
+            font-size: clamp(18px, 5vw, 24px);
             font-weight: bold;
             color: #0f172a;
-            border-radius: 14px;
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.1s;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -301,6 +319,8 @@
             justify-content: center;
             aspect-ratio: 1;
             border: 1px solid #e2e8f0;
+            width: 100%;
+            height: 100%;
         }
         
         .key:active {
@@ -308,7 +328,6 @@
             background: #e2e8f0;
         }
         
-        /* Hàng 1: 7 8 9 ≤ */
         .key-del {
             background: #f97316;
             color: white;
@@ -319,7 +338,6 @@
             background: #ea580c;
         }
         
-        /* Hàng 2: 4 5 6 + */
         .key-add {
             background: #3b82f6;
             color: white;
@@ -330,7 +348,6 @@
             background: #2563eb;
         }
         
-        /* Hàng 3: 1 2 3 = */
         .key-check {
             background: #10b981;
             color: white;
@@ -341,7 +358,6 @@
             background: #059669;
         }
         
-        /* Hàng 4: . 0 00 C */
         .key-clear {
             background: #ef4444;
             color: white;
@@ -373,12 +389,13 @@
         .stats {
             display: flex;
             justify-content: space-between;
-            padding: 12px 15px;
+            padding: clamp(6px, 1.5vh, 10px) clamp(10px, 2vw, 15px);
             background: #f8fafc;
             border-radius: 30px;
-            font-size: 14px;
+            font-size: clamp(12px, 3vw, 14px);
             color: #475569;
             border: 2px solid #e2e8f0;
+            flex-shrink: 0;
         }
         
         .stats span {
@@ -388,14 +405,14 @@
         
         #diffAmount {
             font-family: 'Courier New', monospace;
-            font-size: 16px;
+            font-size: clamp(13px, 3.5vw, 16px);
             font-weight: bold;
         }
         
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+            20%, 40%, 60%, 80% { transform: translateX(3px); }
         }
         
         .shake-animation {
@@ -407,26 +424,39 @@
             background-color: #fef2f2;
         }
         
-        @media (max-width: 400px) {
+        /* Màn hình rất nhỏ */
+        @media (max-height: 600px) {
             .container {
-                padding: 15px;
+                height: 98vh;
+                padding: 10px;
             }
             
-            .key {
-                padding: 14px 0;
+            .check-header {
+                padding: 4px 8px;
+            }
+            
+            .check-value {
                 font-size: 20px;
             }
             
             .current-input {
-                font-size: 28px;
-            }
-            
-            #totalDisplay {
-                font-size: 22px;
-            }
-            
-            .check-value {
                 font-size: 24px;
+                min-height: 35px;
+            }
+            
+            .key {
+                font-size: 18px;
+            }
+        }
+        
+        /* Màn hình rất to */
+        @media (min-height: 900px) {
+            .container {
+                height: 90vh;
+            }
+            
+            .items-list-container {
+                max-height: none;
             }
         }
     </style>
@@ -439,18 +469,19 @@
             <span>💰</span>
         </h2>
         
-        <!-- Hiển thị số tiền cần kiểm tra - nhỏ hơn phần trên -->
+        <!-- Header số cần kiểm tra -->
         <div class="check-header">
-            <div class="check-label">🎯 SỐ TIỀN CẦN KIỂM TRA</div>
+            <div class="check-label">🎯 CẦN KIỂM TRA</div>
             <div class="check-value" id="displayExpectedTotal">0₫</div>
-            <div class="check-note">(Nhập ở ô bên dưới)</div>
         </div>
         
+        <!-- Ô nhập số cần kiểm tra -->
         <div class="target-section">
-            <label>✏️ Nhập số tiền cần kiểm tra</label>
+            <label>✏️ Nhập số tiền</label>
             <input type="number" id="expectedTotal" placeholder="0" value="" step="1000">
         </div>
         
+        <!-- Màn hình hiển thị -->
         <div class="display-section">
             <div class="current-input" id="currentInput">0</div>
             <div class="total-row">
@@ -459,51 +490,54 @@
             </div>
         </div>
         
+        <!-- Danh sách mặt hàng với thanh cuộn -->
         <div class="items-section">
             <div class="items-header">
-                <span>📋 Danh sách mặt hàng</span>
+                <span>📋 Mặt hàng</span>
                 <span id="itemCount">0</span>
             </div>
             <div class="items-list-container">
                 <ul id="items">
-                    <li class="placeholder-item">Chưa có mặt hàng nào</li>
+                    <li class="placeholder-item">Chưa có mặt hàng</li>
                 </ul>
             </div>
         </div>
         
+        <!-- Khu vực kết quả -->
         <div class="result-area">
             <div id="result"></div>
         </div>
         
-        <!-- Bàn phím 3x4: 7 8 9 ≤ | 4 5 6 + | 1 2 3 = | . 0 00 C -->
+        <!-- Bàn phím -->
         <div class="keypad">
-            <!-- Hàng 1: 7 8 9 ≤ -->
+            <!-- 7 8 9 ≤ -->
             <button class="key" data-value="7">7</button>
             <button class="key" data-value="8">8</button>
             <button class="key" data-value="9">9</button>
             <button class="key key-del" data-action="delete">≤</button>
             
-            <!-- Hàng 2: 4 5 6 + (phím + chỉ để thêm, không kiểm tra) -->
+            <!-- 4 5 6 + -->
             <button class="key" data-value="4">4</button>
             <button class="key" data-value="5">5</button>
             <button class="key" data-value="6">6</button>
             <button class="key key-add" data-action="add">+</button>
             
-            <!-- Hàng 3: 1 2 3 = (phím = để kiểm tra) -->
+            <!-- 1 2 3 = -->
             <button class="key" data-value="1">1</button>
             <button class="key" data-value="2">2</button>
             <button class="key" data-value="3">3</button>
             <button class="key key-check" data-action="check">=</button>
             
-            <!-- Hàng 4: . 0 00 C -->
+            <!-- . 0 00 C -->
             <button class="key key-dot" data-value=".">.</button>
             <button class="key key-zero" data-value="0">0</button>
             <button class="key key-double-zero" data-value="00">00</button>
             <button class="key key-clear" data-action="clear">C</button>
         </div>
         
+        <!-- Thống kê -->
         <div class="stats">
-            <div>Số mặt hàng: <span id="itemCount2">0</span></div>
+            <div>Số lượng: <span id="itemCount2">0</span></div>
             <div>Chênh lệch: <span id="diffAmount">0₫</span></div>
         </div>
     </div>
@@ -527,7 +561,7 @@
         const itemCount2Span = document.getElementById('itemCount2');
         const diffAmountSpan = document.getElementById('diffAmount');
         
-        // Audio context
+        // Audio
         let audioContext = null;
         
         function initAudio() {
@@ -539,7 +573,7 @@
             }
         }
         
-        // Handle keypad clicks
+        // Xử lý click bàn phím
         document.querySelectorAll('.key').forEach(button => {
             button.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -552,29 +586,20 @@
                     appendNumber(value);
                 } else if (action) {
                     switch(action) {
-                        case 'delete':
-                            deleteLastChar();
-                            break;
-                        case 'add':
-                            addItem();
-                            break;
-                        case 'check':
-                            checkTotal();
-                            break;
-                        case 'clear':
-                            clearAll();
-                            break;
+                        case 'delete': deleteLastChar(); break;
+                        case 'add': addItem(); break;
+                        case 'check': checkTotal(); break;
+                        case 'clear': clearAll(); break;
                     }
                 }
             });
         });
         
-        // Handle keyboard support
+        // Xử lý bàn phím cứng
         document.addEventListener('keydown', (e) => {
             const key = e.key;
-            const activeElement = document.activeElement;
             
-            if (activeElement === expectedTotalField) {
+            if (document.activeElement === expectedTotalField) {
                 if (key === 'Enter') {
                     e.preventDefault();
                     expectedTotalField.blur();
@@ -608,7 +633,7 @@
             }
         });
         
-        // Update expected total
+        // Cập nhật số cần kiểm tra
         expectedTotalField.addEventListener('input', (e) => {
             let value = e.target.value;
             
@@ -623,21 +648,9 @@
                 e.target.value = '';
             }
             
-            // Cập nhật hiển thị số tiền cần kiểm tra ở trên
-            updateDisplayExpectedTotal();
+            displayExpectedTotal.textContent = (expectedTotalValue > 0 ? expectedTotalValue.toLocaleString('vi-VN') : '0') + '₫';
             updateStats();
         });
-        
-        expectedTotalField.addEventListener('blur', () => {
-            if (expectedTotalValue > 0) {
-                expectedTotalField.value = expectedTotalValue;
-            }
-            updateDisplayExpectedTotal();
-        });
-        
-        function updateDisplayExpectedTotal() {
-            displayExpectedTotal.textContent = (expectedTotalValue > 0 ? expectedTotalValue.toLocaleString('vi-VN') : '0') + '₫';
-        }
         
         function appendNumber(num) {
             if (num === '.') {
@@ -666,7 +679,7 @@
                 }
             }
             
-            updateDisplay();
+            currentInputDisplay.textContent = currentInput || '0';
             hideResult();
         }
         
@@ -676,28 +689,20 @@
                 if (currentInput === '' || currentInput === '-') {
                     currentInput = '0';
                 }
-                updateDisplay();
+                currentInputDisplay.textContent = currentInput || '0';
                 hideResult();
             }
         }
         
-        function updateDisplay() {
-            currentInputDisplay.textContent = currentInput || '0';
-        }
-        
-        function updateTotal() {
-            totalDisplay.textContent = total.toLocaleString('vi-VN') + '₫';
-        }
-        
         function updateItemsList() {
             if (items.length === 0) {
-                itemsList.innerHTML = '<li class="placeholder-item">Chưa có mặt hàng nào</li>';
+                itemsList.innerHTML = '<li class="placeholder-item">Chưa có mặt hàng</li>';
             } else {
                 itemsList.innerHTML = '';
                 items.forEach((item, index) => {
                     const li = document.createElement('li');
                     li.innerHTML = `
-                        <span>Mặt hàng ${index + 1}</span>
+                        <span>${index + 1}</span>
                         <span class="item-price">${item.toLocaleString('vi-VN')}₫</span>
                     `;
                     itemsList.appendChild(li);
@@ -708,24 +713,24 @@
             itemCountSpan.textContent = count;
             itemCount2Span.textContent = count;
             
+            // Tự động cuộn xuống cuối
             const container = document.querySelector('.items-list-container');
             if (container) {
-                container.scrollTop = container.scrollHeight;
+                setTimeout(() => {
+                    container.scrollTop = container.scrollHeight;
+                }, 50);
             }
         }
         
         function updateStats() {
             const diff = total - expectedTotalValue;
-            const diffText = (diff > 0 ? '+' : '') + diff.toLocaleString('vi-VN') + '₫';
-            diffAmountSpan.textContent = diffText;
+            diffAmountSpan.textContent = (diff > 0 ? '+' : '') + diff.toLocaleString('vi-VN') + '₫';
             
-            if (diff === 0) {
-                diffAmountSpan.style.color = '#059669';
-            } else if (diff > 0) {
-                diffAmountSpan.style.color = '#ef4444';
-            } else {
-                diffAmountSpan.style.color = '#f59e0b';
-            }
+            if (diff === 0) diffAmountSpan.style.color = '#059669';
+            else if (diff > 0) diffAmountSpan.style.color = '#ef4444';
+            else diffAmountSpan.style.color = '#f59e0b';
+            
+            totalDisplay.textContent = total.toLocaleString('vi-VN') + '₫';
         }
         
         function hideResult() {
@@ -737,38 +742,32 @@
             resultDiv.className = `result ${type}`;
             resultDiv.style.display = 'block';
             
-            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            
             setTimeout(() => {
                 resultDiv.style.display = 'none';
-            }, 3000);
+            }, 2000);
         }
         
         function playErrorSound() {
             if (!audioContext) return;
-            
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
-            
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
-            
             oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
             gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-            
             oscillator.start();
             oscillator.stop(audioContext.currentTime + 0.15);
         }
         
         function addItem() {
             if (currentInput === '' || currentInput === '0' || currentInput === '.') {
-                showResult('⚠️ Vui lòng nhập số tiền!', 'error');
+                showResult('⚠️ Nhập số tiền!', 'error');
                 return;
             }
             
             const value = parseFloat(currentInput);
             if (isNaN(value) || value <= 0) {
-                showResult('⚠️ Số tiền không hợp lệ!', 'error');
+                showResult('⚠️ Số không hợp lệ!', 'error');
                 return;
             }
             
@@ -776,15 +775,13 @@
             total += value;
             
             updateItemsList();
-            updateTotal();
             updateStats();
             
             currentInput = '0';
-            updateDisplay();
+            currentInputDisplay.textContent = '0';
             
-            showResult(`✅ Đã thêm: ${value.toLocaleString('vi-VN')}₫`, 'success');
+            showResult(`✅ Đã thêm ${value.toLocaleString('vi-VN')}₫`, 'success');
             
-            // Tự động kiểm tra nếu đã có số cần kiểm tra
             if (expectedTotalValue > 0) {
                 checkTotal(true);
             }
@@ -792,36 +789,32 @@
         
         function checkTotal(silent = false) {
             if (expectedTotalValue === 0) {
-                showResult('⚠️ Vui lòng nhập số tiền cần kiểm tra!', 'error');
+                showResult('⚠️ Nhập số cần kiểm tra!', 'error');
                 expectedTotalField.focus();
                 return;
             }
             
             if (items.length === 0) {
-                showResult('⚠️ Chưa có mặt hàng nào!', 'error');
+                showResult('⚠️ Chưa có mặt hàng!', 'error');
                 return;
             }
             
-            const diff = Math.abs(total - expectedTotalValue);
-            const isCorrect = diff <= 0.01;
+            const isCorrect = Math.abs(total - expectedTotalValue) <= 0.01;
             
             if (!isCorrect) {
                 container.classList.add('shake-animation');
                 totalDisplay.classList.add('error-border');
                 playErrorSound();
                 
-                const difference = (total - expectedTotalValue).toLocaleString('vi-VN');
-                showResult(
-                    `❌ SAI! Cần: ${expectedTotalValue.toLocaleString('vi-VN')}₫ - Nhập: ${total.toLocaleString('vi-VN')}₫ (${difference > 0 ? '+' : ''}${difference}₫)`,
-                    'error'
-                );
+                const diff = (total - expectedTotalValue).toLocaleString('vi-VN');
+                showResult(`❌ Sai! Chênh lệch: ${diff}₫`, 'error');
                 
                 setTimeout(() => {
                     container.classList.remove('shake-animation');
                 }, 500);
             } else if (!silent) {
                 totalDisplay.classList.remove('error-border');
-                showResult(`✅ ĐÚNG! Tổng tiền: ${total.toLocaleString('vi-VN')}₫`, 'success');
+                showResult(`✅ Đúng! ${total.toLocaleString('vi-VN')}₫`, 'success');
             } else {
                 totalDisplay.classList.remove('error-border');
             }
@@ -834,11 +827,10 @@
             expectedTotalField.value = '';
             expectedTotalValue = 0;
             
-            updateDisplay();
-            updateTotal();
+            currentInputDisplay.textContent = '0';
+            displayExpectedTotal.textContent = '0₫';
             updateItemsList();
             updateStats();
-            updateDisplayExpectedTotal();
             
             hideResult();
             container.classList.remove('shake-animation');
@@ -848,16 +840,11 @@
                 audioContext.close();
                 audioContext = null;
             }
-            
-            showResult('🔄 Đã làm mới', 'info-message');
         }
         
-        // Initialize
-        updateDisplay();
-        updateTotal();
+        // Khởi tạo
         updateItemsList();
         updateStats();
-        updateDisplayExpectedTotal();
     </script>
 </body>
-</html>
+    </html>
