@@ -2,8 +2,8 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Máy Tính Tiền Mini</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Máy Tính Tiền Pro</title>
     <style>
         * {
             box-sizing: border-box;
@@ -13,44 +13,55 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
         body {
             background: #1a1a1a;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            padding: 10px;
+            padding: 0;
+            margin: 0;
         }
         
         .calculator {
             background: white;
-            width: 100%;
-            max-width: 340px;
-            border-radius: 30px;
+            width: 100vw;
+            height: 100vh;
+            max-width: 100%;
+            max-height: 100%;
+            display: flex;
+            flex-direction: column;
             padding: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            padding-bottom: 0;
+            overflow: hidden;
         }
         
         /* Màn hình hiển thị */
         .display {
             background: #f8f9fa;
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             text-align: right;
-            min-height: 120px;
             display: flex;
             flex-direction: column;
             gap: 8px;
             border: 1px solid #e9ecef;
+            flex-shrink: 0;
         }
         
         .target-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 13px;
+            font-size: 14px;
             color: #6c757d;
             border-bottom: 1px dashed #dee2e6;
             padding-bottom: 6px;
@@ -60,23 +71,24 @@
             font-family: 'Courier New', monospace;
             font-weight: 600;
             color: #4263eb;
-            font-size: 15px;
+            font-size: 16px;
         }
         
         .input-row {
-            font-size: 36px;
+            font-size: 48px;
             font-weight: 600;
             font-family: 'Courier New', monospace;
             color: #212529;
-            min-height: 50px;
+            min-height: 70px;
             word-wrap: break-word;
+            line-height: 1.2;
         }
         
         .total-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 18px;
+            font-size: 20px;
             border-top: 1px dashed #dee2e6;
             padding-top: 6px;
         }
@@ -84,13 +96,14 @@
         .total-label {
             color: #6c757d;
             font-weight: 500;
-            font-size: 14px;
+            font-size: 16px;
         }
         
         #totalDisplay {
             font-family: 'Courier New', monospace;
             font-weight: 700;
             color: #40c057;
+            font-size: 24px;
         }
         
         /* Thông báo kết quả */
@@ -98,17 +111,18 @@
             background: #212529;
             color: white;
             text-align: center;
-            padding: 10px;
+            padding: 12px;
             border-radius: 40px;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
             font-weight: 500;
-            font-size: 14px;
+            font-size: 15px;
             opacity: 0;
             transition: opacity 0.2s;
-            min-height: 40px;
+            min-height: 48px;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
         
         .result-toast.show {
@@ -127,19 +141,21 @@
             background: #e8590c;
         }
         
-        /* Bàn phím - layout mới */
+        /* Bàn phím - chiếm phần còn lại */
         .keypad {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
+            gap: 10px;
+            flex: 1;
+            padding-bottom: 20px;
+            align-content: stretch;
         }
         
         .key {
             background: #f1f3f5;
             border: none;
-            aspect-ratio: 1.2;
-            border-radius: 16px;
-            font-size: 24px;
+            border-radius: 20px;
+            font-size: 28px;
             font-weight: 600;
             color: #212529;
             display: flex;
@@ -147,7 +163,10 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.1s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 100%;
+            height: 100%;
+            min-height: 70px;
         }
         
         .key:active {
@@ -158,7 +177,7 @@
         .key.function {
             background: #e9ecef;
             color: #495057;
-            font-size: 22px;
+            font-size: 26px;
         }
         
         .key.operator {
@@ -173,6 +192,7 @@
         .key.equals {
             background: #40c057;
             color: white;
+            font-size: 32px;
         }
         
         .key.equals:active {
@@ -193,21 +213,69 @@
             color: white;
         }
         
+        .key.double-zero {
+            background: #fd7e14;
+            color: white;
+        }
+        
         /* Animation rung */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
-            20%, 40%, 60%, 80% { transform: translateX(3px); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+            20%, 40%, 60%, 80% { transform: translateX(4px); }
         }
         
         .shake {
             animation: shake 0.4s ease-in-out;
         }
+        
+        /* Điều chỉnh cho iPhone notch */
+        @supports (padding: max(0px)) {
+            .calculator {
+                padding-left: max(20px, env(safe-area-inset-left));
+                padding-right: max(20px, env(safe-area-inset-right));
+                padding-top: max(20px, env(safe-area-inset-top));
+            }
+        }
+        
+        /* Màn hình nhỏ (iPhone SE) */
+        @media (max-height: 670px) {
+            .input-row {
+                font-size: 40px;
+                min-height: 60px;
+            }
+            
+            .key {
+                font-size: 24px;
+                min-height: 60px;
+            }
+            
+            .key.equals {
+                font-size: 28px;
+            }
+        }
+        
+        /* Màn hình rất nhỏ */
+        @media (max-height: 570px) {
+            .calculator {
+                padding: 10px;
+            }
+            
+            .input-row {
+                font-size: 36px;
+                min-height: 50px;
+            }
+            
+            .key {
+                font-size: 22px;
+                min-height: 50px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="calculator">
-        <!-- Màn hình hiển thị - gọn gàng -->
+        <!-- Màn hình hiển thị -->
         <div class="display">
             <div class="target-row">
                 <span>Cần kiểm tra:</span>
@@ -223,7 +291,7 @@
         <!-- Thông báo kết quả -->
         <div class="result-toast" id="resultToast"></div>
         
-        <!-- Bàn phím - layout mới với C thay thế . -->
+        <!-- Bàn phím - layout mới với = ở hàng cuối -->
         <div class="keypad">
             <!-- Hàng 1: 7 8 9 ⌫ -->
             <button class="key" data-value="7">7</button>
@@ -237,17 +305,17 @@
             <button class="key" data-value="6">6</button>
             <button class="key operator" data-action="add">+</button>
             
-            <!-- Hàng 3: 1 2 3 = -->
+            <!-- Hàng 3: 1 2 3 C -->
             <button class="key" data-value="1">1</button>
             <button class="key" data-value="2">2</button>
             <button class="key" data-value="3">3</button>
-            <button class="key equals" data-action="check">=</button>
-            
-            <!-- Hàng 4: C 0 00 . (C thay vị trí dấu .) -->
             <button class="key clear" data-action="clear">C</button>
-            <button class="key" data-value="0">0</button>
-            <button class="key special" data-value="00">00</button>
+            
+            <!-- Hàng 4: . 0 00 = (đã di chuyển = xuống) -->
             <button class="key special" data-value=".">.</button>
+            <button class="key" data-value="0">0</button>
+            <button class="key double-zero" data-value="00">00</button>
+            <button class="key equals" data-action="check">=</button>
         </div>
     </div>
 
@@ -257,7 +325,7 @@
         let total = 0;
         let targetValue = 0;
         let isTargetSet = false;
-        let itemCount = 0; // Chỉ đếm số lượng, không hiển thị chi tiết
+        let itemCount = 0;
         
         // DOM elements
         const inputDisplay = document.getElementById('inputDisplay');
@@ -470,6 +538,13 @@
             oscillator.start();
             oscillator.stop(audioContext.currentTime + 0.15);
         }
+        
+        // Khóa xoay màn hình và thu phóng
+        window.addEventListener('touchmove', (e) => {
+            if (e.target.classList.contains('calculator')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
     </script>
 </body>
 </html>
