@@ -161,28 +161,45 @@
             font-size: clamp(20px, 6vw, 24px);
         }
         
-        /* Thông báo kết quả */
-        .result-toast {
-            background: #212529;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            border-radius: 30px;
-            margin-bottom: 12px;
-            font-weight: 500;
-            font-size: 14px;
-            opacity: 0;
-            transition: opacity 0.2s;
-            min-height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        
-        .result-toast.show {
-            opacity: 1;
-        }
+       /* Thông báo kết quả */
+.result-toast {
+    background: #212529;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    border-radius: 30px;
+    margin-bottom: 12px;
+    font-weight: 500;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.result-toast.show {
+    opacity: 1;
+}
+
+/* Màu xanh cho kết quả đúng */
+.result-toast.success {
+    background: #2b8a3e;  /* Màu xanh lá */
+    color: white;
+}
+
+/* Màu đỏ cho kết quả sai */
+.result-toast.error {
+    background: #e03131;  /* Màu đỏ */
+    color: white;
+}
+
+.result-toast.warning {
+    background: #e8590c;  /* Màu cam */
+    color: white;
+}
         
         /* Bàn phím */
         .keypad {
