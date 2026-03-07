@@ -74,42 +74,42 @@
             padding-top: 4px;
         }
         
-        /* XỬ LÝ KHI SỐ QUÁ DÀI Ở TARGET VÀ TOTAL */
+        /* Hiển thị số target và total - lớn và xuống dòng nếu dài */
         .target-row span:last-child,
         .total-row span:last-child {
-            max-width: 65%;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            max-width: 100%;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
             direction: rtl;
             text-align: left;
             font-size: 45px;
+            word-break: break-all;
+            font-weight: 600;
         }
         
         #targetDisplay {
-            font-weight: 600;
             color: #4263eb;
         }
         
-        /* Ô NHẬP LIỆU - XỬ LÝ SỐ DÀI */
+        /* Ô nhập liệu - xử lý số rất dài */
         .input-row {
-            font-size: clamp(28px, 8vw, 48px);
+            font-size: clamp(32px, 10vw, 60px);
             font-weight: 600;
             font-family: 'Roboto Mono', monospace;
             color: #212529;
-            min-height: 70px;
-            max-height: 120px;
+            min-height: 90px;
+            max-height: 160px;
             overflow-y: auto;
             word-wrap: break-word;
             word-break: break-all;
             text-align: right;
             line-height: 1.3;
             padding: 4px 0;
-            scrollbar-width: none; /* Ẩn thanh cuộn trên Firefox */
-            -ms-overflow-style: none; /* Ẩn trên IE/Edge */
+            scrollbar-width: none;
         }
         .input-row::-webkit-scrollbar {
-            display: none; /* Ẩn trên Chrome/Safari */
+            display: none;
         }
         
         #totalDisplay {
@@ -178,16 +178,14 @@
         }
         .shake { animation: shake 0.4s ease-in-out; }
         
-        /* RESPONSIVE CHO MÀN HÌNH NHỎ */
         @media (max-width: 360px) {
             .input-row {
-                font-size: clamp(20px, 7vw, 32px);
-                min-height: 60px;
+                font-size: clamp(24px, 8vw, 40px);
+                min-height: 70px;
             }
             .target-row span:last-child,
             .total-row span:last-child {
-                max-width: 55%;
-                font-size: 12px;
+                font-size: 16px;
             }
         }
     </style>
@@ -228,7 +226,7 @@
 
     <script>
         (function() {
-            // --- Chặn quảng cáo ---
+            // --- Chặn quảng cáo (cho AppsGeyser) ---
             const adSelectors = [
                 '.ads', '.ad', '.banner', '.adsbygoogle', '#ad', 
                 'iframe[src*="ads"]', 'div[id*="google_ads"]'
@@ -241,6 +239,115 @@
             const observer = new MutationObserver(removeAds);
             observer.observe(document.body, { childList: true, subtree: true });
             removeAds();
+
+            // --- Âm thanh ---
+            let audioContext = null;
+
+            function initAudio() {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+            }
+
+            function playClickSound() {
+                try {
+                    initAudio();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = 800;
+                    oscillator.type = 'sine';
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.05);
+                } catch (e) {}
+            }
+
+            function playSuccessSound() {
+                try {
+                    initAudio();
+                    // Âm thanh đúng: lên cao (dễ chịu)
+                    const now = audioContext.currentTime;
+                    
+                    const osc1 = audioContext.createOscillator();
+                    const gain1 = audioContext.createGain();
+                    osc1.connect(gain1);
+                    gain1.connect(audioContext.destination);
+                    osc1.frequency.value = 600;
+                    osc1.type = 'sine';
+                    gain1.gain.setValueAtTime(0.15, now);
+                    gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                    osc1.start(now);
+                    osc1.stop(now + 0.15);
+                    
+                    const osc2 = audioContext.createOscillator();
+                    const gain2 = audioContext.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(audioContext.destination);
+                    osc2.frequency.value = 900;
+                    osc2.type = 'sine';
+                    gain2.gain.setValueAtTime(0.15, now + 0.05);
+                    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                    osc2.start(now + 0.05);
+                    osc2.stop(now + 0.2);
+                } catch (e) {}
+            }
+
+            function playErrorSound() {
+                try {
+                    initAudio();
+                    // Âm thanh sai: xuống thấp (khó chịu nhẹ)
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = 400;
+                    oscillator.type = 'sawtooth'; // âm hơi rè
+                    gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.2);
+                } catch (e) {}
+            }
+
+            function playExceedSound() {
+                try {
+                    initAudio();
+                    // Âm thanh vượt quá: hai tiếng thấp nhanh (cảnh báo)
+                    const now = audioContext.currentTime;
+                    
+                    const osc1 = audioContext.createOscillator();
+                    const gain1 = audioContext.createGain();
+                    osc1.connect(gain1);
+                    gain1.connect(audioContext.destination);
+                    osc1.frequency.value = 300;
+                    osc1.type = 'triangle';
+                    gain1.gain.setValueAtTime(0.2, now);
+                    gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc1.start(now);
+                    osc1.stop(now + 0.1);
+                    
+                    const osc2 = audioContext.createOscillator();
+                    const gain2 = audioContext.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(audioContext.destination);
+                    osc2.frequency.value = 250;
+                    osc2.type = 'triangle';
+                    gain2.gain.setValueAtTime(0.2, now + 0.1);
+                    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                    osc2.start(now + 0.1);
+                    osc2.stop(now + 0.2);
+                } catch (e) {}
+            }
 
             // --- State ---
             let currentInput = '';
@@ -267,22 +374,26 @@
                 resultToast.classList.remove('show');
             }
 
-            // --- Hàm cộng có kiểm tra vượt + hiệu ứng ---
+            // --- Hàm cộng có kiểm tra vượt ---
             function tryAddValue(value) {
                 if (!isTargetSet) {
                     showToast('Hãy nhập số cần kiểm tra trước', 'warning');
+                    playErrorSound();
                     return false;
                 }
                 if (value <= 0 || isNaN(value)) {
                     showToast('Giá trị không hợp lệ', 'warning');
+                    playErrorSound();
                     return false;
                 }
                 if (total + value > targetValue) {
                     const exceed = (total + value) - targetValue;
                     showToast(`Vượt quá ${formatNumber(exceed)}!`, 'error');
                     
+                    // Hiệu ứng rung + viền đỏ + âm thanh vượt
                     calculator.classList.add('shake');
                     display.classList.add('error');
+                    playExceedSound();
                     setTimeout(() => {
                         calculator.classList.remove('shake');
                     }, 400);
@@ -294,6 +405,7 @@
                 return true;
             }
 
+            // --- Xử lý nhập liệu ---
             function appendTarget(num) {
                 if (num === '.') {
                     if (!targetValue.toString().includes('.')) {
@@ -349,10 +461,12 @@
             function addItem() {
                 if (!isTargetSet) {
                     showToast('Hãy nhập số cần kiểm tra và nhấn = trước', 'warning');
+                    playErrorSound();
                     return;
                 }
                 if (currentInput === '' || currentInput === '0' || currentInput === '.') {
                     showToast('Nhập giá trị', 'warning');
+                    playErrorSound();
                     return;
                 }
                 const value = parseFloat(currentInput);
@@ -360,6 +474,7 @@
                     currentInput = '';
                     inputDisplay.textContent = '0';
                     showToast(`+ ${formatNumber(value)}`, 'success');
+                    playClickSound(); // âm thanh bấm nút thành công
                 }
             }
 
@@ -374,11 +489,13 @@
                     display.classList.add('error');
                     const diffText = (diff > 0 ? '+' : '') + formatNumber(Math.abs(diff));
                     showToast(`SAI! ${diffText}`, 'error');
+                    playErrorSound();
                     setTimeout(() => calculator.classList.remove('shake'), 400);
                 } else {
                     display.classList.remove('error', 'checking');
                     display.classList.add('success');
                     showToast('ĐÚNG!', 'success');
+                    playSuccessSound();
                 }
             }
 
@@ -386,6 +503,7 @@
                 if (!isTargetSet) {
                     if (targetValue === 0) {
                         showToast('Nhập số cần kiểm tra', 'warning');
+                        playErrorSound();
                         return;
                     }
                     isTargetSet = true;
@@ -394,9 +512,11 @@
                     display.classList.add('checking');
                     currentInput = '';
                     inputDisplay.textContent = '0';
+                    playClickSound();
                 } else {
                     if (currentInput === '' || currentInput === '0' || currentInput === '.') {
                         showToast('Nhập giá trị', 'warning');
+                        playErrorSound();
                         return;
                     }
                     const value = parseFloat(currentInput);
@@ -418,12 +538,15 @@
                 totalDisplay.textContent = '0';
                 display.classList.remove('success', 'error', 'checking');
                 hideToast();
+                playClickSound();
             }
 
-            // --- Gắn sự kiện cho các nút ---
+            // --- Gắn sự kiện cho các nút (touchstart và mousedown) + âm thanh click ---
             document.querySelectorAll('.key').forEach(btn => {
                 const handler = (e) => {
                     e.preventDefault();
+                    playClickSound(); // âm thanh nút bấm
+                    
                     const value = btn.dataset.value;
                     const action = btn.dataset.action;
 
@@ -454,6 +577,4 @@
         })();
     </script>
 </body>
-
 </html>
-
