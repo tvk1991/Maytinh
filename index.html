@@ -2,13 +2,8 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Máy Tính Tiền Pro</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%234263eb'/><text x='50' y='70' font-size='50' text-anchor='middle' fill='white' font-family='Arial'>💰</text></svg>">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50' y='80' font-size='80' text-anchor='middle' fill='%234263eb'>💰</text></svg>">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#4263eb">
     <style>
         * {
             box-sizing: border-box;
@@ -16,23 +11,20 @@
             padding: 0;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
         }
-
         html, body {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            position: fixed;
-            font-family: 'Roboto', 'Droid Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: #1a1a1a;
+            font-family: 'Roboto', sans-serif;
         }
-
         body {
             display: flex;
             justify-content: center;
             align-items: center;
         }
-        
         .calculator {
             background: white;
             width: 100%;
@@ -40,117 +32,90 @@
             display: flex;
             flex-direction: column;
             padding: 16px;
-            padding-bottom: 0;
-            overflow: hidden;
-            /* Chiếm toàn bộ màn hình kể cả safe area */
-            padding-left: env(safe-area-inset-left, 16px);
-            padding-right: env(safe-area-inset-right, 16px);
-            padding-top: env(safe-area-inset-top, 16px);
-            padding-bottom: env(safe-area-inset-bottom, 8px);
         }
-        
-        /* Màn hình hiển thị */
         .display {
             background: #f8f9fa;
             border-radius: 28px;
             padding: 16px;
             margin-bottom: 12px;
-            text-align: right;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
             border: 2px solid #e9ecef;
-            flex-shrink: 0;
             position: relative;
+            flex-shrink: 0;
         }
-        
-        .display::before {
-            content: '';
-            position: absolute;
-            top: -4px;
-            left: -4px;
-            right: -4px;
-            bottom: -4px;
-            border-radius: 32px;
-            border: 3px solid transparent;
-            pointer-events: none;
-            transition: all 0.3s;
+        .display.checking {
+            box-shadow: 0 0 0 4px #4dabf7, 0 0 15px #4dabf7;
+            transition: box-shadow 0.2s;
         }
-        
-        .display.checking::before {
-            border-color: #4dabf7;
-            box-shadow: 0 0 15px #4dabf7;
-            animation: borderPulse 1.5s infinite;
+        .display.success {
+            box-shadow: 0 0 0 4px #40c057, 0 0 20px #40c057;
         }
-        
-        .display.success::before {
-            border-color: #40c057;
-            box-shadow: 0 0 20px #40c057;
-        }
-        
-        .display.error::before {
-            border-color: #e03131;
-            box-shadow: 0 0 20px #e03131;
+        .display.error {
+            box-shadow: 0 0 0 4px #e03131, 0 0 20px #e03131;
             animation: borderBlink 0.3s 3;
         }
-        
-        @keyframes borderPulse {
-            0% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.02); }
-            100% { opacity: 0.5; transform: scale(1); }
-        }
-        
         @keyframes borderBlink {
-            0% { opacity: 1; }
-            50% { opacity: 0.3; }
-            100% { opacity: 1; }
+            0% { box-shadow: 0 0 0 4px #e03131, 0 0 20px #e03131; }
+            50% { box-shadow: 0 0 0 4px #ff8787, 0 0 20px #ff8787; }
+            100% { box-shadow: 0 0 0 4px #e03131, 0 0 20px #e03131; }
         }
-        
-        .target-row {
+        .target-row, .total-row {
             display: flex;
             justify-content: space-between;
             font-size: 14px;
             color: #6c757d;
+            align-items: center;
+        }
+        .target-row {
             border-bottom: 1px dashed #dee2e6;
             padding-bottom: 4px;
         }
-        
-        #targetDisplay {
-            font-family: 'Roboto Mono', monospace;
-            font-weight: 600;
-            color: #4263eb;
-        }
-        
-        .input-row {
-            font-size: clamp(32px, 10vw, 48px);
-            font-weight: 600;
-            font-family: 'Roboto Mono', monospace;
-            color: #212529;
-            min-height: 60px;
-            word-wrap: break-word;
-            line-height: 1.2;
-        }
-        
         .total-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 18px;
             border-top: 1px dashed #dee2e6;
             padding-top: 4px;
         }
         
-        .total-label {
-            color: #6c757d;
-            font-weight: 500;
+        /* XỬ LÝ KHI SỐ QUÁ DÀI Ở TARGET VÀ TOTAL */
+        .target-row span:last-child,
+        .total-row span:last-child {
+            max-width: 65%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            direction: rtl;
+            text-align: left;
+            font-size: 100px;
+        }
+        
+        #targetDisplay {
+            font-weight: 600;
+            color: #4263eb;
+        }
+        
+        /* Ô NHẬP LIỆU - XỬ LÝ SỐ DÀI */
+        .input-row {
+            font-size: clamp(28px, 8vw, 48px);
+            font-weight: 600;
+            font-family: 'Roboto Mono', monospace;
+            color: #212529;
+            min-height: 70px;
+            max-height: 120px;
+            overflow-y: auto;
+            word-wrap: break-word;
+            word-break: break-all;
+            text-align: right;
+            line-height: 1.3;
+            padding: 4px 0;
+            scrollbar-width: none; /* Ẩn thanh cuộn trên Firefox */
+            -ms-overflow-style: none; /* Ẩn trên IE/Edge */
+        }
+        .input-row::-webkit-scrollbar {
+            display: none; /* Ẩn trên Chrome/Safari */
         }
         
         #totalDisplay {
-            font-family: 'Roboto Mono', monospace;
             font-weight: 700;
             color: #40c057;
         }
-        
-        /* Thông báo */
         .result-toast {
             background: #212529;
             color: white;
@@ -167,53 +132,45 @@
             justify-content: center;
             flex-shrink: 0;
         }
-        
         .result-toast.show { opacity: 1; }
         .result-toast.success { background: #2b8a3e; }
         .result-toast.error { background: #e03131; }
         .result-toast.warning { background: #e8590c; }
-        
-        /* Bàn phím - chiếm phần còn lại */
         .keypad {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 8px;
             flex: 1;
-            min-height: 0; /* Quan trọng: cho phép co giãn */
             padding-bottom: 8px;
-            align-content: stretch;
         }
-        
         .key {
             background: #f1f3f5;
             border: none;
             border-radius: 18px;
-            font-size: clamp(22px, 7vw, 28px);
+            font-size: 28px;
             font-weight: 600;
             color: #212529;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            transition: 0.1s;
             box-shadow: 0 2px 6px rgba(0,0,0,0.1);
             width: 100%;
             height: 100%;
-            min-height: 50px; /* Đảm bảo nút không quá nhỏ */
+            min-height: 60px;
+            touch-action: manipulation;
+            cursor: pointer;
+            transition: transform 0.05s, background 0.05s;
         }
-        
         .key:active {
             transform: scale(0.95);
             background: #e9ecef;
         }
-        
         .key.delete { background: #ff8787; color: white; }
         .key.add { background: #4dabf7; color: white; }
         .key.equals { background: #51cf66; color: white; }
         .key.clear { background: #ff8787; color: white; }
         .key.double-zero { background: #ff922b; color: white; }
         .key.dot { background: #9775fa; color: white; }
-        
         @keyframes shake {
             0%,100%{transform:translateX(0)}
             10%,30%,50%,70%,90%{transform:translateX(-4px)}
@@ -221,20 +178,17 @@
         }
         .shake { animation: shake 0.4s ease-in-out; }
         
-        /* Điều chỉnh cho màn hình nhỏ */
-        @media (max-height: 670px) {
-            .input-row { font-size: 32px; min-height: 50px; }
-            .key { font-size: 22px; min-height: 50px; }
-        }
-        
-        @media (max-height: 570px) {
-            .input-row { font-size: 28px; min-height: 45px; }
-            .key { font-size: 20px; min-height: 45px; }
-        }
-        
-        /* Hỗ trợ iPhone với màn hình lớn hơn */
-        @media (min-height: 800px) {
-            .key { font-size: 30px; }
+        /* RESPONSIVE CHO MÀN HÌNH NHỎ */
+        @media (max-width: 360px) {
+            .input-row {
+                font-size: clamp(20px, 7vw, 32px);
+                min-height: 60px;
+            }
+            .target-row span:last-child,
+            .total-row span:last-child {
+                max-width: 55%;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
@@ -251,26 +205,20 @@
                 <span id="totalDisplay">0</span>
             </div>
         </div>
-        
         <div class="result-toast" id="resultToast"></div>
-        
-        <!-- Bàn phím với C và ⌫ đã đổi chỗ -->
         <div class="keypad">
             <button class="key" data-value="7">7</button>
             <button class="key" data-value="8">8</button>
             <button class="key" data-value="9">9</button>
             <button class="key clear" data-action="clear">C</button>
-            
             <button class="key" data-value="4">4</button>
             <button class="key" data-value="5">5</button>
             <button class="key" data-value="6">6</button>
             <button class="key add" data-action="add">+</button>
-            
             <button class="key" data-value="1">1</button>
             <button class="key" data-value="2">2</button>
             <button class="key" data-value="3">3</button>
             <button class="key dot" data-value=".">.</button>
-            
             <button class="key" data-value="0">0</button>
             <button class="key double-zero" data-value="00">00</button>
             <button class="key delete" data-action="delete">⌫</button>
@@ -279,226 +227,231 @@
     </div>
 
     <script>
-        // State
-        let currentInput = '';
-        let total = 0;
-        let targetValue = 0;
-        let isTargetSet = false;
-        let itemCount = 0;
-        
-        const display = document.getElementById('display');
-        const inputDisplay = document.getElementById('inputDisplay');
-        const targetDisplay = document.getElementById('targetDisplay');
-        const totalDisplay = document.getElementById('totalDisplay');
-        const resultToast = document.getElementById('resultToast');
-        const calculator = document.querySelector('.calculator');
-        
-        let audioContext = null;
-        
-        function initAudio() {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        (function() {
+            // --- Chặn quảng cáo ---
+            const adSelectors = [
+                '.ads', '.ad', '.banner', '.adsbygoogle', '#ad', 
+                'iframe[src*="ads"]', 'div[id*="google_ads"]'
+            ];
+            function removeAds() {
+                adSelectors.forEach(selector => {
+                    document.querySelectorAll(selector).forEach(el => el && el.remove());
+                });
             }
-            if (audioContext.state === 'suspended') audioContext.resume();
-        }
-        
-        document.querySelectorAll('.key').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                initAudio();
-                
-                const value = btn.dataset.value;
-                const action = btn.dataset.action;
-                
-                if (value) {
-                    if (!isTargetSet) appendTarget(value);
-                    else appendInput(value);
-                } else if (action) {
-                    switch(action) {
-                        case 'delete':
-                            if (!isTargetSet) deleteTargetChar();
-                            else deleteInputChar();
-                            break;
-                        case 'add':
-                            addItem();
-                            break;
-                        case 'check':
-                            handleCheckOrSet();
-                            break;
-                        case 'clear':
-                            clearAll();
-                            break;
+            const observer = new MutationObserver(removeAds);
+            observer.observe(document.body, { childList: true, subtree: true });
+            removeAds();
+
+            // --- State ---
+            let currentInput = '';
+            let total = 0;
+            let targetValue = 0;
+            let isTargetSet = false;
+
+            const display = document.getElementById('display');
+            const inputDisplay = document.getElementById('inputDisplay');
+            const targetDisplay = document.getElementById('targetDisplay');
+            const totalDisplay = document.getElementById('totalDisplay');
+            const resultToast = document.getElementById('resultToast');
+            const calculator = document.querySelector('.calculator');
+
+            function formatNumber(num) {
+                if (num === 0) return '0';
+                return Number(num).toLocaleString('vi-VN');
+            }
+            function showToast(msg, type) {
+                resultToast.textContent = msg;
+                resultToast.className = `result-toast show ${type}`;
+            }
+            function hideToast() {
+                resultToast.classList.remove('show');
+            }
+
+            // --- Hàm cộng có kiểm tra vượt + hiệu ứng ---
+            function tryAddValue(value) {
+                if (!isTargetSet) {
+                    showToast('Hãy nhập số cần kiểm tra trước', 'warning');
+                    return false;
+                }
+                if (value <= 0 || isNaN(value)) {
+                    showToast('Giá trị không hợp lệ', 'warning');
+                    return false;
+                }
+                if (total + value > targetValue) {
+                    const exceed = (total + value) - targetValue;
+                    showToast(`Vượt quá ${formatNumber(exceed)}!`, 'error');
+                    
+                    calculator.classList.add('shake');
+                    display.classList.add('error');
+                    setTimeout(() => {
+                        calculator.classList.remove('shake');
+                    }, 400);
+                    
+                    return false;
+                }
+                total += value;
+                totalDisplay.textContent = formatNumber(total);
+                return true;
+            }
+
+            function appendTarget(num) {
+                if (num === '.') {
+                    if (!targetValue.toString().includes('.')) {
+                        targetValue = targetValue === 0 ? '0.' : targetValue + '.';
                     }
+                } else if (num === '00') {
+                    targetValue = targetValue === 0 ? 0 : targetValue + '00';
+                } else {
+                    targetValue = targetValue === 0 ? num : targetValue + num;
                 }
-            });
-        });
-        
-        function appendTarget(num) {
-            if (num === '.') {
-                if (!targetValue.toString().includes('.')) {
-                    targetValue = targetValue === 0 ? '0.' : targetValue + '.';
-                }
-            } else if (num === '00') {
-                targetValue = targetValue === 0 ? 0 : targetValue + '00';
-            } else {
-                targetValue = targetValue === 0 ? num : targetValue + num;
-            }
-            targetValue = parseFloat(targetValue.toString().replace(/^0+/, '') || '0');
-            targetDisplay.textContent = formatNumber(targetValue);
-            hideToast();
-            display.classList.remove('success', 'error', 'checking');
-        }
-        
-        function appendInput(num) {
-            if (num === '.') {
-                if (!currentInput.includes('.')) {
-                    currentInput = currentInput === '' || currentInput === '0' ? '0.' : currentInput + '.';
-                }
-            } else if (num === '00') {
-                currentInput = currentInput === '' || currentInput === '0' ? '0' : currentInput + '00';
-            } else {
-                currentInput = currentInput === '0' ? num : currentInput + num;
-            }
-            inputDisplay.textContent = formatNumber(currentInput || '0');
-            hideToast();
-            display.classList.remove('success', 'error', 'checking');
-        }
-        
-        function deleteTargetChar() {
-            let str = targetValue.toString();
-            if (str.length > 1) targetValue = parseFloat(str.slice(0, -1));
-            else targetValue = 0;
-            targetDisplay.textContent = formatNumber(targetValue);
-            display.classList.remove('success', 'error', 'checking');
-        }
-        
-        function deleteInputChar() {
-            if (currentInput.length > 0) {
-                currentInput = currentInput.slice(0, -1);
-                inputDisplay.textContent = formatNumber(currentInput || '0');
+                targetValue = parseFloat(targetValue.toString().replace(/^0+/, '') || '0');
+                targetDisplay.textContent = formatNumber(targetValue);
+                hideToast();
                 display.classList.remove('success', 'error', 'checking');
             }
-        }
-        
-        function addItem() {
-            if (!isTargetSet) {
-                showToast('Hãy nhập số cần kiểm tra và nhấn = trước', 'warning');
-                return;
+
+            function appendInput(num) {
+                if (num === '.') {
+                    if (!currentInput.includes('.')) {
+                        currentInput = currentInput === '' || currentInput === '0' ? '0.' : currentInput + '.';
+                    }
+                } else if (num === '00') {
+                    currentInput = currentInput === '' || currentInput === '0' ? '0' : currentInput + '00';
+                } else {
+                    currentInput = currentInput === '0' ? num : currentInput + num;
+                }
+                inputDisplay.textContent = formatNumber(currentInput || '0');
+                hideToast();
+                display.classList.remove('success', 'error', 'checking');
+                
+                // Tự động cuộn xuống cuối nếu nội dung dài
+                setTimeout(() => {
+                    inputDisplay.scrollTop = inputDisplay.scrollHeight;
+                }, 10);
             }
-            if (currentInput === '' || currentInput === '0' || currentInput === '.') {
-                showToast('Nhập giá trị', 'warning');
-                return;
+
+            function deleteTargetChar() {
+                let str = targetValue.toString();
+                if (str.length > 1) targetValue = parseFloat(str.slice(0, -1));
+                else targetValue = 0;
+                targetDisplay.textContent = formatNumber(targetValue);
+                display.classList.remove('success', 'error', 'checking');
             }
-            const value = parseFloat(currentInput);
-            if (isNaN(value) || value <= 0) {
-                showToast('Không hợp lệ', 'warning');
-                return;
+
+            function deleteInputChar() {
+                if (currentInput.length > 0) {
+                    currentInput = currentInput.slice(0, -1);
+                    inputDisplay.textContent = formatNumber(currentInput || '0');
+                    display.classList.remove('success', 'error', 'checking');
+                }
             }
-            total += value;
-            itemCount++;
-            totalDisplay.textContent = formatNumber(total);
-            currentInput = '';
-            inputDisplay.textContent = '0';
-            showToast(`+ ${formatNumber(value)}`, 'success');
-        }
-        
-        function handleCheckOrSet() {
-            if (!isTargetSet) {
-                // Lần đầu: set target
-                if (targetValue === 0) {
-                    showToast('Nhập số cần kiểm tra', 'warning');
+
+            function addItem() {
+                if (!isTargetSet) {
+                    showToast('Hãy nhập số cần kiểm tra và nhấn = trước', 'warning');
                     return;
                 }
-                isTargetSet = true;
-                targetDisplay.textContent = formatNumber(targetValue);
-                showToast('✓ Đã ghi nhớ', 'success');
-                display.classList.add('checking');
-                currentInput = '';
-                inputDisplay.textContent = '0';
-            } else {
-                // Các lần sau: cộng dồn và kiểm tra ngay
                 if (currentInput === '' || currentInput === '0' || currentInput === '.') {
                     showToast('Nhập giá trị', 'warning');
                     return;
                 }
                 const value = parseFloat(currentInput);
-                if (isNaN(value) || value <= 0) {
-                    showToast('Không hợp lệ', 'warning');
-                    return;
+                if (tryAddValue(value)) {
+                    currentInput = '';
+                    inputDisplay.textContent = '0';
+                    showToast(`+ ${formatNumber(value)}`, 'success');
                 }
-                total += value;
-                itemCount++;
-                totalDisplay.textContent = formatNumber(total);
+            }
+
+            function checkTotal() {
+                if (targetValue === 0) return;
+                const diff = total - targetValue;
+                const isCorrect = Math.abs(diff) <= 0.01;
+
+                if (!isCorrect) {
+                    calculator.classList.add('shake');
+                    display.classList.remove('success', 'checking');
+                    display.classList.add('error');
+                    const diffText = (diff > 0 ? '+' : '') + formatNumber(Math.abs(diff));
+                    showToast(`SAI! ${diffText}`, 'error');
+                    setTimeout(() => calculator.classList.remove('shake'), 400);
+                } else {
+                    display.classList.remove('error', 'checking');
+                    display.classList.add('success');
+                    showToast('ĐÚNG!', 'success');
+                }
+            }
+
+            function handleCheckOrSet() {
+                if (!isTargetSet) {
+                    if (targetValue === 0) {
+                        showToast('Nhập số cần kiểm tra', 'warning');
+                        return;
+                    }
+                    isTargetSet = true;
+                    targetDisplay.textContent = formatNumber(targetValue);
+                    showToast('✓ Đã ghi nhớ', 'success');
+                    display.classList.add('checking');
+                    currentInput = '';
+                    inputDisplay.textContent = '0';
+                } else {
+                    if (currentInput === '' || currentInput === '0' || currentInput === '.') {
+                        showToast('Nhập giá trị', 'warning');
+                        return;
+                    }
+                    const value = parseFloat(currentInput);
+                    if (tryAddValue(value)) {
+                        currentInput = '';
+                        inputDisplay.textContent = '0';
+                        checkTotal();
+                    }
+                }
+            }
+
+            function clearAll() {
                 currentInput = '';
+                total = 0;
+                targetValue = 0;
+                isTargetSet = false;
                 inputDisplay.textContent = '0';
-                
-                // Tự động kiểm tra
-                checkTotal();
+                targetDisplay.textContent = '0';
+                totalDisplay.textContent = '0';
+                display.classList.remove('success', 'error', 'checking');
+                hideToast();
             }
-        }
-        
-        function checkTotal() {
-            if (targetValue === 0) return;
-            
-            const diff = total - targetValue;
-            const isCorrect = Math.abs(diff) <= 0.01;
-            
-            if (!isCorrect) {
-                calculator.classList.add('shake');
-                playErrorSound();
-                display.classList.remove('success', 'checking');
-                display.classList.add('error');
-                const diffText = (diff > 0 ? '+' : '') + formatNumber(Math.abs(diff));
-                showToast(`SAI! ${diffText}`, 'error');
-                setTimeout(() => calculator.classList.remove('shake'), 400);
-                setTimeout(() => display.classList.remove('error'), 1000);
-            } else {
-                display.classList.remove('error', 'checking');
-                display.classList.add('success');
-                showToast('ĐÚNG!', 'success');
-              //  setTimeout(() => display.classList.remove('success'), 1000);
-            }
-        }
-        
-        function clearAll() {
-            currentInput = '';
-            total = 0;
-            targetValue = 0;
-            isTargetSet = false;
-            itemCount = 0;
-            inputDisplay.textContent = '0';
-            targetDisplay.textContent = '0';
-            totalDisplay.textContent = '0';
-           // display.classList.remove('success', 'error', 'checking');
-            hideToast();
-        }
-        
-        function formatNumber(num) {
-            if (num === 0) return '0';
-            return Number(num).toLocaleString('vi-VN');
-        }
-        
-        function showToast(msg, type) {
-            resultToast.textContent = msg;
-            resultToast.className = `result-toast show ${type}`;
-           // setTimeout(() => resultToast.classList.remove('show'), 2000);
-        }
-        
-        function hideToast() {
-            resultToast.classList.remove('show');
-        }
-        
-        function playErrorSound() {
-            if (!audioContext) return;
-            const oscillator = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            oscillator.connect(gain);
-            gain.connect(audioContext.destination);
-            oscillator.frequency.value = 440;
-            gain.gain.value = 0.2;
-            oscillator.start();
-            oscillator.stop(audioContext.currentTime + 0.15);
-        }
+
+            // --- Gắn sự kiện cho các nút ---
+            document.querySelectorAll('.key').forEach(btn => {
+                const handler = (e) => {
+                    e.preventDefault();
+                    const value = btn.dataset.value;
+                    const action = btn.dataset.action;
+
+                    if (value) {
+                        if (!isTargetSet) appendTarget(value);
+                        else appendInput(value);
+                    } else if (action) {
+                        switch(action) {
+                            case 'delete':
+                                if (!isTargetSet) deleteTargetChar();
+                                else deleteInputChar();
+                                break;
+                            case 'add':
+                                addItem();
+                                break;
+                            case 'check':
+                                handleCheckOrSet();
+                                break;
+                            case 'clear':
+                                clearAll();
+                                break;
+                        }
+                    }
+                };
+                btn.addEventListener('touchstart', handler, { passive: false });
+                btn.addEventListener('mousedown', handler);
+            });
+        })();
     </script>
 </body>
 </html>
