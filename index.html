@@ -5,7 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Máy tính kiểm tra kết quả</title>
     <style>
-        /* Giữ nguyên CSS (đã tối ưu) */
+        /* ===== CHỐNG CUỘN TOÀN TRANG ===== */
+        body {
+            height: 100vh;
+            overflow: hidden;          /* Ẩn cuộn trang */
+            overscroll-behavior: none; /* Chặn hiệu ứng kéo quá mức trên mobile */
+        }
+
+        .calculator {
+            height: 100vh;              /* Chiếm toàn bộ viewport */
+            max-height: 100vh;
+            overflow: hidden;           /* Không cuộn bên trong (các phần tử con tự xử lý) */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            /* Các thuộc tính khác giữ nguyên */
+        }
+
+        /* Các phần tử con không bị co lại quá mức */
+        .display-area {
+            flex-shrink: 0;
+        }
+
+        .buttons {
+            flex: 1 1 auto;             /* Chiếm không gian còn lại */
+            min-height: 0;               /* Đảm bảo flex hoạt động đúng */
+            overflow: hidden;            /* Ẩn cuộn nếu có (các nút cố định không cần cuộn) */
+        }
+
+        /* Giữ nguyên các CSS đã tối ưu trước đó */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -16,13 +44,11 @@
         body {
             font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
             background: linear-gradient(145deg, #2b3a4a 0%, #1d2a35 100%);
-            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 0;
-            padding: 0;
             touch-action: manipulation;
+            /* Đã thêm height, overflow, overscroll-behavior ở trên */
         }
 
         .calculator {
@@ -36,6 +62,7 @@
             will-change: transform;
             -webkit-touch-callout: none;
             user-select: none;
+            /* Đã thêm flex, height, overflow ở trên */
         }
 
         .display-area {
@@ -71,7 +98,7 @@
             transition: text-shadow 0.1s ease;
             min-height: 3rem;
             max-height: 6rem;
-            overflow-y: auto;
+            overflow-y: auto;            /* Cho phép cuộn nếu số quá dài */
             word-break: break-all;
             white-space: pre-wrap;
             line-height: 1.2;
@@ -315,6 +342,7 @@
     </style>
 </head>
 <body>
+    <!-- Phần HTML giữ nguyên -->
     <div class="calculator">
         <div class="display-area">
             <div class="main-screen">
@@ -356,6 +384,7 @@
     </div>
 
     <script>
+        // Toàn bộ JavaScript giữ nguyên
         (function() {
             "use strict";
 
@@ -384,7 +413,6 @@
                 if (decimalPart.length > MAX_DECIMAL_LENGTH) {
                     decimalPart = decimalPart.slice(0, MAX_DECIMAL_LENGTH);
                 }
-                // Giữ lại dấu chấm nếu có (kể cả phần thập phân rỗng)
                 if (parts.length > 1) {
                     return intPart + '.' + decimalPart;
                 } else {
@@ -392,7 +420,6 @@
                 }
             }
 
-            // Định dạng số để hiển thị (dùng cho kết quả)
             function formatNumber(num) {
                 if (num === null || num === undefined || num === '') return '0';
                 let rounded = Math.round(num * 1e10) / 1e10;
@@ -409,20 +436,16 @@
                 return decimalPart ? intPart + ',' + decimalPart : intPart;
             }
 
-            // Định dạng chuỗi nhập (currentInput) để hiển thị đẹp khi đang gõ
             function formatInputForDisplay(str) {
                 if (str === '') return '0';
-                // Tìm vị trí dấu chấm thập phân (chỉ một dấu)
                 let dotIndex = str.indexOf('.');
                 if (dotIndex === -1) {
-                    // Không có dấu chấm: chỉ phần nguyên
                     let intPart = str;
                     if (intPart.length > MAX_INTEGER_LENGTH) {
                         intPart = intPart.slice(0, MAX_INTEGER_LENGTH);
                     }
                     return intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
                 } else {
-                    // Có dấu chấm: tách phần nguyên và phần thập phân
                     let intPart = str.substring(0, dotIndex);
                     let decimalPart = str.substring(dotIndex + 1);
                     if (intPart.length > MAX_INTEGER_LENGTH) {
@@ -431,9 +454,7 @@
                     if (decimalPart.length > MAX_DECIMAL_LENGTH) {
                         decimalPart = decimalPart.slice(0, MAX_DECIMAL_LENGTH);
                     }
-                    // Format phần nguyên
                     intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-                    // Nếu phần thập phân rỗng, thêm dấu phẩy để báo hiệu đang chờ nhập thập phân
                     if (decimalPart === '') {
                         return intPart + ',';
                     } else {
@@ -471,7 +492,6 @@
                 return parseFloat(normalized);
             }
 
-            // Xử lý target input
             targetInput.addEventListener('input', function(e) {
                 let raw = e.target.value;
                 let num = parseInputString(raw);
@@ -503,8 +523,6 @@
                 }
             });
 
-            // ---------- HIỂN THỊ ----------
-            // Hiển thị khi đang nhập (có format đẹp)
             function updateDisplayInput() {
                 mainDisplay.textContent = formatInputForDisplay(currentInput);
                 mainDisplay.classList.add('led-flash-display');
@@ -514,7 +532,6 @@
                 mainDisplay.scrollTop = mainDisplay.scrollHeight;
             }
 
-            // Hiển thị kết quả sau khi tính toán (format số)
             function updateDisplayFormatted(value) {
                 let num = parseFloat(value);
                 if (isNaN(num)) num = 0;
@@ -542,7 +559,6 @@
                 }, 80);
             }
 
-            // ---------- NHẬP SỐ ----------
             function inputNumber(num) {
                 if (shouldResetDisplay) {
                     currentInput = '';
@@ -550,9 +566,7 @@
                 }
 
                 if (num === '.') {
-                    // Nếu đã có dấu chấm thì không thêm
                     if (currentInput.includes('.')) return;
-                    // Nếu chuỗi rỗng thì bắt đầu bằng "0."
                     if (currentInput === '') currentInput = '0';
                 }
 
@@ -566,7 +580,6 @@
                 updateDisplayInput();
             }
 
-            // ---------- CÁC HÀM TÍNH TOÁN ----------
             function handleOperator(op) {
                 if (operator && !shouldResetDisplay) {
                     calculate();
@@ -671,7 +684,6 @@
                 updateDisplayInput();
             }
 
-            // ---------- ÂM THANH ----------
             let audioContext = null;
 
             function initAudioContext() {
@@ -719,7 +731,6 @@
                 }, 300);
             }
 
-            // ---------- XỬ LÝ SỰ KIỆN (ngăn bàn phím ảo) ----------
             function handleButtonPress(e, callback) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -728,7 +739,6 @@
                 if (callback) callback();
             }
 
-            // Nút "="
             document.getElementById('equals').addEventListener('pointerdown', (e) => {
                 handleButtonPress(e, () => {
                     flashButton(e.target);
@@ -763,7 +773,6 @@
                 });
             });
 
-            // Các nút còn lại
             const buttons = document.querySelectorAll('.btn');
             buttons.forEach(btn => {
                 if (btn.id === 'equals') return;
@@ -775,7 +784,6 @@
                         if (id.match(/^\d+$/) || id === '00' || id === 'dot') {
                             if (id === 'dot') inputNumber('.');
                             else if (id === '00') {
-                                // Xử lý riêng "00"
                                 if (shouldResetDisplay) {
                                     currentInput = '';
                                     shouldResetDisplay = false;
@@ -806,7 +814,6 @@
                 });
             });
 
-            // Hỗ trợ bàn phím
             window.addEventListener('keydown', (e) => {
                 const key = e.key;
                 if (document.activeElement === targetInput) {
