@@ -5,340 +5,320 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Máy tính kiểm tra kết quả</title>
     <style>
-        /* ===== CHỐNG CUỘN TOÀN TRANG ===== */
-        body {
-            height: 100vh;
-            overflow: hidden;          /* Ẩn cuộn trang */
-            overscroll-behavior: none; /* Chặn hiệu ứng kéo quá mức trên mobile */
-        }
+       /* ===== CHỐNG CUỘN TOÀN TRANG ===== */
+html, body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+}
 
-        .calculator {
-            height: 100vh;              /* Chiếm toàn bộ viewport */
-            max-height: 100vh;
-            overflow: hidden;           /* Không cuộn bên trong (các phần tử con tự xử lý) */
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            /* Các thuộc tính khác giữ nguyên */
-        }
+body {
+    font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+    background: linear-gradient(145deg, #2b3a4a 0%, #1d2a35 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    touch-action: manipulation;
+}
 
-        /* Các phần tử con không bị co lại quá mức */
-        .display-area {
-            flex-shrink: 0;
-        }
+.calculator {
+    width: 100%;
+    max-width: 340px;                 /* Giữ chiều rộng vừa phải */
+    background: #1f2a34;
+    border-radius: 40px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.1);
+    padding: 10px 8px 14px;            /* Giảm padding dọc */
+    margin: 4px;                       /* Giữ một chút không gian viền */
+    will-change: transform;
+    -webkit-touch-callout: none;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    max-height: 98vh;                  /* Không chiếm quá 98% viewport */
+    overflow: hidden;
+}
 
-        .buttons {
-            flex: 1 1 auto;             /* Chiếm không gian còn lại */
-            min-height: 0;               /* Đảm bảo flex hoạt động đúng */
-            overflow: hidden;            /* Ẩn cuộn nếu có (các nút cố định không cần cuộn) */
-        }
+.display-area {
+    background: #1e282f;
+    border-radius: 24px;
+    padding: 8px 8px 6px;              /* Giảm padding dọc */
+    margin-bottom: 8px;                 /* Giảm khoảng cách */
+    box-shadow: inset 0 5px 10px rgba(0,0,0,0.6), 0 2px 5px rgba(255,255,255,0.05);
+    border: 1px solid #3a4a55;
+    flex-shrink: 0;
+}
 
-        /* Giữ nguyên các CSS đã tối ưu trước đó */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-        }
+.main-screen {
+    background: #121b22;
+    border-radius: 16px;
+    padding: 4px 8px;                   /* Giảm padding dọc */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+    border: 1px solid #3e5a68;
+    margin-bottom: 6px;                  /* Giảm margin */
+}
 
-        body {
-            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
-            background: linear-gradient(145deg, #2b3a4a 0%, #1d2a35 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            touch-action: manipulation;
-            /* Đã thêm height, overflow, overscroll-behavior ở trên */
-        }
+#display {
+    font-size: 1.8rem;                   /* Giảm cỡ chữ */
+    font-weight: 300;
+    color: #b0e0ff;
+    text-shadow: 0 0 12px #4aa3ff;
+    letter-spacing: 1px;
+    flex: 1;
+    text-align: right;
+    font-family: 'Courier New', monospace;
+    transition: text-shadow 0.1s ease;
+    min-height: 2.2rem;                  /* Giảm chiều cao tối thiểu */
+    max-height: 4rem;
+    overflow-y: auto;
+    word-break: break-all;
+    white-space: pre-wrap;
+    line-height: 1.2;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+#display::-webkit-scrollbar {
+    display: none;
+}
 
-        .calculator {
-            width: 100%;
-            max-width: 380px;
-            background: #1f2a34;
-            border-radius: 40px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.1);
-            padding: 16px 12px 20px;
-            margin: 8px;
-            will-change: transform;
-            -webkit-touch-callout: none;
-            user-select: none;
-            /* Đã thêm flex, height, overflow ở trên */
-        }
+.backspace-btn {
+    background: transparent;
+    border: none;
+    color: #a0c0d0;
+    font-size: 1.5rem;                   /* Giảm cỡ chữ */
+    cursor: pointer;
+    padding: 0 4px;
+    transition: opacity 0.1s, transform 0.1s;
+    line-height: 1;
+    text-shadow: 0 0 8px #4aa3ff;
+    opacity: 0.8;
+    min-width: 40px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    tab-index: -1;
+}
+.backspace-btn:active {
+    opacity: 1;
+    transform: scale(1.1);
+    color: #ffaa00;
+}
 
-        .display-area {
-            background: #1e282f;
-            border-radius: 24px;
-            padding: 14px 12px 10px;
-            margin-bottom: 14px;
-            box-shadow: inset 0 5px 10px rgba(0,0,0,0.6), 0 2px 5px rgba(255,255,255,0.05);
-            border: 1px solid #3a4a55;
-        }
+.target-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #121b22;
+    border-radius: 14px;
+    padding: 4px 8px;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
+    border: 1px solid #3e5a68;
+}
 
-        .main-screen {
-            background: #121b22;
-            border-radius: 16px;
-            padding: 8px 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
-            border: 1px solid #3e5a68;
-            margin-bottom: 10px;
-        }
+.target-label {
+    color: #aabbcc;
+    font-size: 0.8rem;                   /* Giảm cỡ chữ */
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    opacity: 0.8;
+    white-space: nowrap;
+    pointer-events: none;
+}
 
-        #display {
-            font-size: 2.2rem;
-            font-weight: 300;
-            color: #b0e0ff;
-            text-shadow: 0 0 12px #4aa3ff;
-            letter-spacing: 1px;
-            flex: 1;
-            text-align: right;
-            font-family: 'Courier New', monospace;
-            transition: text-shadow 0.1s ease;
-            min-height: 3rem;
-            max-height: 6rem;
-            overflow-y: auto;            /* Cho phép cuộn nếu số quá dài */
-            word-break: break-all;
-            white-space: pre-wrap;
-            line-height: 1.2;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-        #display::-webkit-scrollbar {
-            display: none;
-        }
+#targetInput {
+    flex: 1;
+    background: transparent;
+    border: none;
+    font-size: 1.4rem;                   /* Giảm cỡ chữ */
+    font-weight: 300;
+    color: #ffde9e;
+    text-shadow: 0 0 10px #ffb347;
+    text-align: right;
+    font-family: 'Courier New', monospace;
+    outline: none;
+    padding: 4px 0;
+    min-width: 0;
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-appearance: none;
+    appearance: none;
+}
+#targetInput::-webkit-outer-spin-button,
+#targetInput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
 
-        .backspace-btn {
-            background: transparent;
-            border: none;
-            color: #a0c0d0;
-            font-size: 1.6rem;
-            cursor: pointer;
-            padding: 0 4px;
-            transition: opacity 0.1s, transform 0.1s;
-            line-height: 1;
-            text-shadow: 0 0 8px #4aa3ff;
-            opacity: 0.8;
-            min-width: 44px;
-            min-height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-            tab-index: -1;
-        }
-        .backspace-btn:active {
-            opacity: 1;
-            transform: scale(1.1);
-            color: #ffaa00;
-        }
+#targetInput::placeholder {
+    color: #3f5563;
+    font-size: 1.1rem;
+    text-shadow: none;
+}
 
-        .target-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #121b22;
-            border-radius: 14px;
-            padding: 4px 10px;
-            box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
-            border: 1px solid #3e5a68;
-        }
+.message-area {
+    margin-top: 4px;                      /* Giảm margin */
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+    padding: 4px 6px;
+    border-radius: 40px;
+    background: #1a262e;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+    color: #ddd;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    border: 1px solid #3f5563;
+    min-height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    word-break: break-word;
+    will-change: background, box-shadow;
+}
 
-        .target-label {
-            color: #aabbcc;
-            font-size: 0.9rem;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            opacity: 0.8;
-            white-space: nowrap;
-            pointer-events: none;
-        }
+.message-area.success {
+    background: #1f4a3a;
+    color: #b0ffc0;
+    text-shadow: 0 0 10px #36d96b;
+    border-color: #58b87a;
+    box-shadow: 0 0 20px #2ecc71;
+}
 
-        #targetInput {
-            flex: 1;
-            background: transparent;
-            border: none;
-            font-size: 1.6rem;
-            font-weight: 300;
-            color: #ffde9e;
-            text-shadow: 0 0 10px #ffb347;
-            text-align: right;
-            font-family: 'Courier New', monospace;
-            outline: none;
-            padding: 4px 0;
-            min-width: 0;
-            -webkit-user-select: text;
-            user-select: text;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-        #targetInput::-webkit-outer-spin-button,
-        #targetInput::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
+.message-area.error {
+    background: #5a2e3a;
+    color: #ffb0b0;
+    text-shadow: 0 0 10px #ff4f4f;
+    border-color: #c45a5a;
+    box-shadow: 0 0 20px #e74c3c;
+}
 
-        #targetInput::placeholder {
-            color: #3f5563;
-            font-size: 1.2rem;
-            text-shadow: none;
-        }
+.message-area.vibrate {
+    animation: vibrate 0.3s ease-in-out;
+}
 
-        .message-area {
-            margin-top: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            text-align: center;
-            padding: 6px 6px;
-            border-radius: 40px;
-            background: #1a262e;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
-            color: #ddd;
-            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-            border: 1px solid #3f5563;
-            min-height: 2.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            word-break: break-word;
-            will-change: background, box-shadow;
-        }
+@keyframes vibrate {
+    0% { transform: translateX(0); filter: brightness(1); }
+    20% { transform: translateX(4px); filter: brightness(1.3); }
+    40% { transform: translateX(-4px); filter: brightness(0.9); }
+    60% { transform: translateX(2px); filter: brightness(1.2); }
+    80% { transform: translateX(-2px); filter: brightness(0.95); }
+    100% { transform: translateX(0); filter: brightness(1); }
+}
 
-        .message-area.success {
-            background: #1f4a3a;
-            color: #b0ffc0;
-            text-shadow: 0 0 10px #36d96b;
-            border-color: #58b87a;
-            box-shadow: 0 0 20px #2ecc71;
-        }
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;                            /* Giảm gap */
+    margin-top: 4px;                      /* Giảm margin */
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
 
-        .message-area.error {
-            background: #5a2e3a;
-            color: #ffb0b0;
-            text-shadow: 0 0 10px #ff4f4f;
-            border-color: #c45a5a;
-            box-shadow: 0 0 20px #e74c3c;
-        }
+.btn {
+    border: none;
+    background: #2c3e4c;
+    border-radius: 20px;
+    padding: 8px 2px;                     /* Giảm padding dọc */
+    font-size: 1.4rem;                    /* Giảm cỡ chữ */
+    font-weight: 500;
+    color: #eef5f9;
+    box-shadow: 0 4px 0 #15232b, 0 6px 10px rgba(0,0,0,0.4);
+    cursor: default;
+    transition: transform 0.05s linear, box-shadow 0.05s linear, background 0.05s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #4a6572;
+    text-shadow: 0 2px 3px black;
+    min-height: 40px;                     /* Giảm chiều cao tối thiểu */
+    touch-action: manipulation;
+    will-change: transform, box-shadow;
+    -webkit-tap-highlight-color: transparent;
+    pointer-events: auto;
+    tab-index: -1;
+}
 
-        .message-area.vibrate {
-            animation: vibrate 0.3s ease-in-out;
-        }
+.btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #15232b, 0 3px 6px rgba(0,0,0,0.4);
+    background: #3a5264;
+}
 
-        @keyframes vibrate {
-            0% { transform: translateX(0); filter: brightness(1); }
-            20% { transform: translateX(4px); filter: brightness(1.3); }
-            40% { transform: translateX(-4px); filter: brightness(0.9); }
-            60% { transform: translateX(2px); filter: brightness(1.2); }
-            80% { transform: translateX(-2px); filter: brightness(0.95); }
-            100% { transform: translateX(0); filter: brightness(1); }
-        }
+.btn.led-flash {
+    background: #ffd966;
+    color: #1a1a1a;
+    text-shadow: none;
+    box-shadow: 0 0 25px #ffee88;
+    transition: none;
+}
 
-        .buttons {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-            margin-top: 6px;
-        }
+.btn.operator {
+    background: #f09b3c;
+    border-color: #ffb45e;
+    color: #1e2b33;
+    text-shadow: 0 1px 2px white;
+}
 
-        .btn {
-            border: none;
-            background: #2c3e4c;
-            border-radius: 20px;
-            padding: 14px 2px;
-            font-size: 1.6rem;
-            font-weight: 500;
-            color: #eef5f9;
-            box-shadow: 0 4px 0 #15232b, 0 6px 10px rgba(0,0,0,0.4);
-            cursor: default;
-            transition: transform 0.05s linear, box-shadow 0.05s linear, background 0.05s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid #4a6572;
-            text-shadow: 0 2px 3px black;
-            min-height: 48px;
-            touch-action: manipulation;
-            will-change: transform, box-shadow;
-            -webkit-tap-highlight-color: transparent;
-            pointer-events: auto;
-            tab-index: -1;
-        }
+.btn.operator:active {
+    background: #ffb259;
+}
 
-        .btn:active {
-            transform: translateY(3px);
-            box-shadow: 0 1px 0 #15232b, 0 3px 6px rgba(0,0,0,0.4);
-            background: #3a5264;
-        }
+.btn.clear {
+    background: #5f4c4c;
+    border-color: #9b7a7a;
+    color: #ffe1c6;
+}
 
-        .btn.led-flash {
-            background: #ffd966;
-            color: #1a1a1a;
-            text-shadow: none;
-            box-shadow: 0 0 25px #ffee88;
-            transition: none;
-        }
+.btn.equals {
+    background: #3d8f6f;
+    border-color: #6fc9a3;
+    font-weight: 700;
+}
 
-        .btn.operator {
-            background: #f09b3c;
-            border-color: #ffb45e;
-            color: #1e2b33;
-            text-shadow: 0 1px 2px white;
-        }
+.btn.zero {
+    grid-column: span 2;
+}
 
-        .btn.operator:active {
-            background: #ffb259;
-        }
-
-        .btn.clear {
-            background: #5f4c4c;
-            border-color: #9b7a7a;
-            color: #ffe1c6;
-        }
-
-        .btn.equals {
-            background: #3d8f6f;
-            border-color: #6fc9a3;
-            font-weight: 700;
-        }
-
-        .btn.zero {
-            grid-column: span 2;
-        }
-
-        @media (max-width: 340px) {
-            .calculator {
-                max-width: 100%;
-                margin: 4px;
-                padding: 12px 8px 16px;
-            }
-            .btn {
-                padding: 12px 1px;
-                font-size: 1.5rem;
-                min-height: 44px;
-            }
-            #display {
-                font-size: 2rem;
-            }
-            #targetInput {
-                font-size: 1.4rem;
-            }
-            .target-label {
-                font-size: 0.8rem;
-            }
-            .message-area {
-                font-size: 0.9rem;
-                padding: 4px 4px;
-                min-height: 2.2rem;
-            }
-            .backspace-btn {
-                font-size: 1.4rem;
-                min-width: 40px;
-                min-height: 40px;
-            }
-        }
+/* Media query cho màn hình rất nhỏ (dưới 340px) */
+@media (max-width: 340px) {
+    .calculator {
+        max-width: 100%;
+        padding: 8px 6px 12px;
+    }
+    .btn {
+        padding: 6px 1px;
+        font-size: 1.3rem;
+        min-height: 38px;
+    }
+    #display {
+        font-size: 1.6rem;
+        min-height: 2rem;
+    }
+    #targetInput {
+        font-size: 1.2rem;
+    }
+    .target-label {
+        font-size: 0.75rem;
+    }
+    .message-area {
+        font-size: 0.8rem;
+        padding: 3px 4px;
+        min-height: 1.8rem;
+    }
+    .backspace-btn {
+        font-size: 1.3rem;
+        min-width: 38px;
+        min-height: 38px;
+    }
+}
     </style>
 </head>
 <body>
