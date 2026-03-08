@@ -2,578 +2,868 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Máy Tính Tiền Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Máy tính kiểm tra kết quả</title>
     <style>
+        /* Giữ nguyên CSS (đã tối ưu) */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            user-select: none;
             -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
         }
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: #1a1a1a;
-            font-family: 'Roboto', sans-serif;
-        }
+
         body {
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            background: linear-gradient(145deg, #2b3a4a 0%, #1d2a35 100%);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            margin: 0;
+            padding: 0;
+            touch-action: manipulation;
         }
+
         .calculator {
-            background: white;
             width: 100%;
-            height: 100%;
+            max-width: 380px;
+            background: #1f2a34;
+            border-radius: 40px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.1);
+            padding: 16px 12px 20px;
+            margin: 8px;
+            will-change: transform;
+            -webkit-touch-callout: none;
+            user-select: none;
+        }
+
+        .display-area {
+            background: #1e282f;
+            border-radius: 24px;
+            padding: 14px 12px 10px;
+            margin-bottom: 14px;
+            box-shadow: inset 0 5px 10px rgba(0,0,0,0.6), 0 2px 5px rgba(255,255,255,0.05);
+            border: 1px solid #3a4a55;
+        }
+
+        .main-screen {
+            background: #121b22;
+            border-radius: 16px;
+            padding: 8px 12px;
             display: flex;
-            flex-direction: column;
-            padding: 16px;
-        }
-        .display {
-            background: #f8f9fa;
-            border-radius: 28px;
-            padding: 16px;
-            margin-bottom: 12px;
-            border: 2px solid #e9ecef;
-            position: relative;
-            flex-shrink: 0;
-        }
-        .display.checking {
-            box-shadow: 0 0 0 4px #4dabf7, 0 0 15px #4dabf7;
-            transition: box-shadow 0.2s;
-        }
-        .display.success {
-            box-shadow: 0 0 0 4px #40c057, 0 0 20px #40c057;
-        }
-        .display.error {
-            box-shadow: 0 0 0 4px #e03131, 0 0 20px #e03131;
-            animation: borderBlink 0.3s 3;
-        }
-        @keyframes borderBlink {
-            0% { box-shadow: 0 0 0 4px #e03131, 0 0 20px #e03131; }
-            50% { box-shadow: 0 0 0 4px #ff8787, 0 0 20px #ff8787; }
-            100% { box-shadow: 0 0 0 4px #e03131, 0 0 20px #e03131; }
-        }
-        .target-row, .total-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-            color: #6c757d;
             align-items: center;
+            justify-content: space-between;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+            border: 1px solid #3e5a68;
+            margin-bottom: 10px;
         }
-        .target-row {
-            border-bottom: 1px dashed #dee2e6;
-            padding-bottom: 4px;
-        }
-        .total-row {
-            border-top: 1px dashed #dee2e6;
-            padding-top: 4px;
-        }
-        
-        /* Hiển thị số target và total - lớn và xuống dòng nếu dài */
-        .target-row span:last-child,
-        .total-row span:last-child {
-            max-width: 100%;
-            white-space: normal;
-            overflow: visible;
-            text-overflow: clip;
-            direction: rtl;
-            text-align: left;
-            font-size: 45px;
-            word-break: break-all;
-            font-weight: 600;
-        }
-        
-        #targetDisplay {
-            color: #4263eb;
-        }
-        
-        /* Ô nhập liệu - xử lý số rất dài */
-        .input-row {
-            font-size: clamp(32px, 10vw, 60px);
-            font-weight: 600;
-            font-family: 'Roboto Mono', monospace;
-            color: #212529;
-            min-height: 90px;
-            max-height: 160px;
-            overflow-y: auto;
-            word-wrap: break-word;
-            word-break: break-all;
+
+        #display {
+            font-size: 2.2rem;
+            font-weight: 300;
+            color: #b0e0ff;
+            text-shadow: 0 0 12px #4aa3ff;
+            letter-spacing: 1px;
+            flex: 1;
             text-align: right;
-            line-height: 1.3;
-            padding: 4px 0;
+            font-family: 'Courier New', monospace;
+            transition: text-shadow 0.1s ease;
+            min-height: 3rem;
+            max-height: 6rem;
+            overflow-y: auto;
+            word-break: break-all;
+            white-space: pre-wrap;
+            line-height: 1.2;
             scrollbar-width: none;
+            -ms-overflow-style: none;
         }
-        .input-row::-webkit-scrollbar {
+        #display::-webkit-scrollbar {
             display: none;
         }
-        
-        #totalDisplay {
-            font-weight: 700;
-            color: #40c057;
-        }
-        .result-toast {
-            background: #212529;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            border-radius: 30px;
-            margin-bottom: 12px;
-            font-size: 14px;
-            opacity: 0;
-            transition: opacity 0.2s;
+
+        .backspace-btn {
+            background: transparent;
+            border: none;
+            color: #a0c0d0;
+            font-size: 1.6rem;
+            cursor: pointer;
+            padding: 0 4px;
+            transition: opacity 0.1s, transform 0.1s;
+            line-height: 1;
+            text-shadow: 0 0 8px #4aa3ff;
+            opacity: 0.8;
+            min-width: 44px;
             min-height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            tab-index: -1;
         }
-        .result-toast.show { opacity: 1; }
-        .result-toast.success { background: #2b8a3e; }
-        .result-toast.error { background: #e03131; }
-        .result-toast.warning { background: #e8590c; }
-        .keypad {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
+        .backspace-btn:active {
+            opacity: 1;
+            transform: scale(1.1);
+            color: #ffaa00;
+        }
+
+        .target-row {
+            display: flex;
+            align-items: center;
             gap: 8px;
-            flex: 1;
-            padding-bottom: 8px;
+            background: #121b22;
+            border-radius: 14px;
+            padding: 4px 10px;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
+            border: 1px solid #3e5a68;
         }
-        .key {
-            background: #f1f3f5;
+
+        .target-label {
+            color: #aabbcc;
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            opacity: 0.8;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        #targetInput {
+            flex: 1;
+            background: transparent;
             border: none;
-            border-radius: 18px;
-            font-size: 28px;
+            font-size: 1.6rem;
+            font-weight: 300;
+            color: #ffde9e;
+            text-shadow: 0 0 10px #ffb347;
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            outline: none;
+            padding: 4px 0;
+            min-width: 0;
+            -webkit-user-select: text;
+            user-select: text;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        #targetInput::-webkit-outer-spin-button,
+        #targetInput::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        #targetInput::placeholder {
+            color: #3f5563;
+            font-size: 1.2rem;
+            text-shadow: none;
+        }
+
+        .message-area {
+            margin-top: 8px;
+            font-size: 1rem;
             font-weight: 600;
-            color: #212529;
+            text-align: center;
+            padding: 6px 6px;
+            border-radius: 40px;
+            background: #1a262e;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+            color: #ddd;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+            border: 1px solid #3f5563;
+            min-height: 2.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            width: 100%;
-            height: 100%;
-            min-height: 60px;
+            word-break: break-word;
+            will-change: background, box-shadow;
+        }
+
+        .message-area.success {
+            background: #1f4a3a;
+            color: #b0ffc0;
+            text-shadow: 0 0 10px #36d96b;
+            border-color: #58b87a;
+            box-shadow: 0 0 20px #2ecc71;
+        }
+
+        .message-area.error {
+            background: #5a2e3a;
+            color: #ffb0b0;
+            text-shadow: 0 0 10px #ff4f4f;
+            border-color: #c45a5a;
+            box-shadow: 0 0 20px #e74c3c;
+        }
+
+        .message-area.vibrate {
+            animation: vibrate 0.3s ease-in-out;
+        }
+
+        @keyframes vibrate {
+            0% { transform: translateX(0); filter: brightness(1); }
+            20% { transform: translateX(4px); filter: brightness(1.3); }
+            40% { transform: translateX(-4px); filter: brightness(0.9); }
+            60% { transform: translateX(2px); filter: brightness(1.2); }
+            80% { transform: translateX(-2px); filter: brightness(0.95); }
+            100% { transform: translateX(0); filter: brightness(1); }
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .btn {
+            border: none;
+            background: #2c3e4c;
+            border-radius: 20px;
+            padding: 14px 2px;
+            font-size: 1.6rem;
+            font-weight: 500;
+            color: #eef5f9;
+            box-shadow: 0 4px 0 #15232b, 0 6px 10px rgba(0,0,0,0.4);
+            cursor: default;
+            transition: transform 0.05s linear, box-shadow 0.05s linear, background 0.05s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #4a6572;
+            text-shadow: 0 2px 3px black;
+            min-height: 48px;
             touch-action: manipulation;
-            cursor: pointer;
-            transition: transform 0.05s, background 0.05s;
+            will-change: transform, box-shadow;
+            -webkit-tap-highlight-color: transparent;
+            pointer-events: auto;
+            tab-index: -1;
         }
-        .key:active {
-            transform: scale(0.95);
-            background: #e9ecef;
+
+        .btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #15232b, 0 3px 6px rgba(0,0,0,0.4);
+            background: #3a5264;
         }
-        .key.delete { background: #ff8787; color: white; }
-        .key.add { background: #4dabf7; color: white; }
-        .key.equals { background: #51cf66; color: white; }
-        .key.clear { background: #ff8787; color: white; }
-        .key.double-zero { background: #ff922b; color: white; }
-        .key.dot { background: #9775fa; color: white; }
-        @keyframes shake {
-            0%,100%{transform:translateX(0)}
-            10%,30%,50%,70%,90%{transform:translateX(-4px)}
-            20%,40%,60%,80%{transform:translateX(4px)}
+
+        .btn.led-flash {
+            background: #ffd966;
+            color: #1a1a1a;
+            text-shadow: none;
+            box-shadow: 0 0 25px #ffee88;
+            transition: none;
         }
-        .shake { animation: shake 0.4s ease-in-out; }
-        
-        @media (max-width: 360px) {
-            .input-row {
-                font-size: clamp(24px, 8vw, 40px);
-                min-height: 70px;
+
+        .btn.operator {
+            background: #f09b3c;
+            border-color: #ffb45e;
+            color: #1e2b33;
+            text-shadow: 0 1px 2px white;
+        }
+
+        .btn.operator:active {
+            background: #ffb259;
+        }
+
+        .btn.clear {
+            background: #5f4c4c;
+            border-color: #9b7a7a;
+            color: #ffe1c6;
+        }
+
+        .btn.equals {
+            background: #3d8f6f;
+            border-color: #6fc9a3;
+            font-weight: 700;
+        }
+
+        .btn.zero {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 340px) {
+            .calculator {
+                max-width: 100%;
+                margin: 4px;
+                padding: 12px 8px 16px;
             }
-            .target-row span:last-child,
-            .total-row span:last-child {
-                font-size: 16px;
+            .btn {
+                padding: 12px 1px;
+                font-size: 1.5rem;
+                min-height: 44px;
+            }
+            #display {
+                font-size: 2rem;
+            }
+            #targetInput {
+                font-size: 1.4rem;
+            }
+            .target-label {
+                font-size: 0.8rem;
+            }
+            .message-area {
+                font-size: 0.9rem;
+                padding: 4px 4px;
+                min-height: 2.2rem;
+            }
+            .backspace-btn {
+                font-size: 1.4rem;
+                min-width: 40px;
+                min-height: 40px;
             }
         }
     </style>
 </head>
 <body>
     <div class="calculator">
-        <div class="display" id="display">
+        <div class="display-area">
+            <div class="main-screen">
+                <div id="display">0</div>
+                <button class="backspace-btn" id="backspaceBtn" tabindex="-1">⌫</button>
+            </div>
             <div class="target-row">
-                <span>Cần kiểm tra:</span>
-                <span id="targetDisplay">0</span>
+                <span class="target-label">Số Kiểm Tra</span>
+                <input type="text" id="targetInput" placeholder="0" inputmode="numeric" pattern="[0-9,.]*">
             </div>
-            <div class="input-row" id="inputDisplay">0</div>
-            <div class="total-row">
-                <span class="total-label">Tổng:</span>
-                <span id="totalDisplay">0</span>
-            </div>
+            <div class="message-area" id="messageBox"></div>
         </div>
-        <div class="result-toast" id="resultToast"></div>
-        <div class="keypad">
-            <button class="key" data-value="7">7</button>
-            <button class="key" data-value="8">8</button>
-            <button class="key" data-value="9">9</button>
-            <button class="key clear" data-action="clear">C</button>
-            <button class="key" data-value="4">4</button>
-            <button class="key" data-value="5">5</button>
-            <button class="key" data-value="6">6</button>
-            <button class="key add" data-action="add">+</button>
-            <button class="key" data-value="1">1</button>
-            <button class="key" data-value="2">2</button>
-            <button class="key" data-value="3">3</button>
-            <button class="key dot" data-value=".">.</button>
-            <button class="key" data-value="0">0</button>
-            <button class="key double-zero" data-value="00">00</button>
-            <button class="key delete" data-action="delete">⌫</button>
-            <button class="key equals" data-action="check">=</button>
+
+        <div class="buttons">
+            <button class="btn clear" id="clear" tabindex="-1">C</button>
+            <button class="btn operator" id="dot" tabindex="-1">.</button>
+            <button class="btn operator" id="percent" tabindex="-1">%</button>
+            <button class="btn operator" id="divide" tabindex="-1">÷</button>
+
+            <button class="btn" id="7" tabindex="-1">7</button>
+            <button class="btn" id="8" tabindex="-1">8</button>
+            <button class="btn" id="9" tabindex="-1">9</button>
+            <button class="btn operator" id="multiply" tabindex="-1">×</button>
+
+            <button class="btn" id="4" tabindex="-1">4</button>
+            <button class="btn" id="5" tabindex="-1">5</button>
+            <button class="btn" id="6" tabindex="-1">6</button>
+            <button class="btn operator" id="subtract" tabindex="-1">−</button>
+
+            <button class="btn" id="1" tabindex="-1">1</button>
+            <button class="btn" id="2" tabindex="-1">2</button>
+            <button class="btn" id="3" tabindex="-1">3</button>
+            <button class="btn operator" id="add" tabindex="-1">+</button>
+
+            <button class="btn zero" id="0" tabindex="-1">0</button>
+            <button class="btn" id="00" tabindex="-1">00</button>
+            <button class="btn equals" id="equals" tabindex="-1">=</button>        
         </div>
     </div>
 
     <script>
         (function() {
-            // --- Chặn quảng cáo (cho AppsGeyser) ---
-            const adSelectors = [
-                '.ads', '.ad', '.banner', '.adsbygoogle', '#ad', 
-                'iframe[src*="ads"]', 'div[id*="google_ads"]'
-            ];
-            function removeAds() {
-                adSelectors.forEach(selector => {
-                    document.querySelectorAll(selector).forEach(el => el && el.remove());
-                });
-            }
-            const observer = new MutationObserver(removeAds);
-            observer.observe(document.body, { childList: true, subtree: true });
-            removeAds();
+            "use strict";
 
-            // --- Âm thanh ---
-            let audioContext = null;
+            const mainDisplay = document.getElementById('display');
+            const targetInput = document.getElementById('targetInput');
+            const messageBox = document.getElementById('messageBox');
+            const backspaceBtn = document.getElementById('backspaceBtn');
 
-            function initAudio() {
-                if (!audioContext) {
-                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            let currentInput = '0';
+            let previousInput = '';
+            let operator = null;
+            let shouldResetDisplay = false;
+            let lastResult = null;
+
+            // Giới hạn độ dài
+            const MAX_INTEGER_LENGTH = 12;
+            const MAX_DECIMAL_LENGTH = 4;
+
+            function limitNumberLength(numStr) {
+                let parts = numStr.split('.');
+                let intPart = parts[0];
+                if (intPart.length > MAX_INTEGER_LENGTH) {
+                    intPart = intPart.slice(0, MAX_INTEGER_LENGTH);
                 }
-                if (audioContext.state === 'suspended') {
-                    audioContext.resume();
+                let decimalPart = parts[1] || '';
+                if (decimalPart.length > MAX_DECIMAL_LENGTH) {
+                    decimalPart = decimalPart.slice(0, MAX_DECIMAL_LENGTH);
+                }
+                // Giữ lại dấu chấm nếu có (kể cả phần thập phân rỗng)
+                if (parts.length > 1) {
+                    return intPart + '.' + decimalPart;
+                } else {
+                    return intPart;
                 }
             }
 
-            function playClickSound() {
-                try {
-                    initAudio();
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-                    
-                    oscillator.frequency.value = 800;
-                    oscillator.type = 'sine';
-                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
-                    
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.05);
-                } catch (e) {}
-            }
-
-            function playSuccessSound() {
-                try {
-                    initAudio();
-                    // Âm thanh đúng: lên cao (dễ chịu)
-                    const now = audioContext.currentTime;
-                    
-                    const osc1 = audioContext.createOscillator();
-                    const gain1 = audioContext.createGain();
-                    osc1.connect(gain1);
-                    gain1.connect(audioContext.destination);
-                    osc1.frequency.value = 600;
-                    osc1.type = 'sine';
-                    gain1.gain.setValueAtTime(0.15, now);
-                    gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-                    osc1.start(now);
-                    osc1.stop(now + 0.15);
-                    
-                    const osc2 = audioContext.createOscillator();
-                    const gain2 = audioContext.createGain();
-                    osc2.connect(gain2);
-                    gain2.connect(audioContext.destination);
-                    osc2.frequency.value = 900;
-                    osc2.type = 'sine';
-                    gain2.gain.setValueAtTime(0.15, now + 0.05);
-                    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-                    osc2.start(now + 0.05);
-                    osc2.stop(now + 0.2);
-                } catch (e) {}
-            }
-
-            function playErrorSound() {
-                try {
-                    initAudio();
-                    // Âm thanh sai: xuống thấp (khó chịu nhẹ)
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-                    
-                    oscillator.frequency.value = 400;
-                    oscillator.type = 'sawtooth'; // âm hơi rè
-                    gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-                    
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.2);
-                } catch (e) {}
-            }
-
-            function playExceedSound() {
-                try {
-                    initAudio();
-                    // Âm thanh vượt quá: hai tiếng thấp nhanh (cảnh báo)
-                    const now = audioContext.currentTime;
-                    
-                    const osc1 = audioContext.createOscillator();
-                    const gain1 = audioContext.createGain();
-                    osc1.connect(gain1);
-                    gain1.connect(audioContext.destination);
-                    osc1.frequency.value = 300;
-                    osc1.type = 'triangle';
-                    gain1.gain.setValueAtTime(0.2, now);
-                    gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-                    osc1.start(now);
-                    osc1.stop(now + 0.1);
-                    
-                    const osc2 = audioContext.createOscillator();
-                    const gain2 = audioContext.createGain();
-                    osc2.connect(gain2);
-                    gain2.connect(audioContext.destination);
-                    osc2.frequency.value = 250;
-                    osc2.type = 'triangle';
-                    gain2.gain.setValueAtTime(0.2, now + 0.1);
-                    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-                    osc2.start(now + 0.1);
-                    osc2.stop(now + 0.2);
-                } catch (e) {}
-            }
-
-            // --- State ---
-            let currentInput = '';
-            let total = 0;
-            let targetValue = 0;
-            let isTargetSet = false;
-
-            const display = document.getElementById('display');
-            const inputDisplay = document.getElementById('inputDisplay');
-            const targetDisplay = document.getElementById('targetDisplay');
-            const totalDisplay = document.getElementById('totalDisplay');
-            const resultToast = document.getElementById('resultToast');
-            const calculator = document.querySelector('.calculator');
-
+            // Định dạng số để hiển thị (dùng cho kết quả)
             function formatNumber(num) {
-                if (num === 0) return '0';
-                return Number(num).toLocaleString('vi-VN');
-            }
-            function showToast(msg, type) {
-                resultToast.textContent = msg;
-                resultToast.className = `result-toast show ${type}`;
-            }
-            function hideToast() {
-                resultToast.classList.remove('show');
+                if (num === null || num === undefined || num === '') return '0';
+                let rounded = Math.round(num * 1e10) / 1e10;
+                let parts = rounded.toString().split('.');
+                let intPart = parts[0];
+                if (intPart.length > MAX_INTEGER_LENGTH) {
+                    intPart = intPart.slice(0, MAX_INTEGER_LENGTH);
+                }
+                intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                let decimalPart = parts[1] || '';
+                if (decimalPart.length > MAX_DECIMAL_LENGTH) {
+                    decimalPart = decimalPart.slice(0, MAX_DECIMAL_LENGTH);
+                }
+                return decimalPart ? intPart + ',' + decimalPart : intPart;
             }
 
-            // --- Hàm cộng có kiểm tra vượt ---
-            function tryAddValue(value) {
-                if (!isTargetSet) {
-                    showToast('Hãy nhập số cần kiểm tra trước', 'warning');
-                    playErrorSound();
-                    return false;
-                }
-                if (value <= 0 || isNaN(value)) {
-                    showToast('Giá trị không hợp lệ', 'warning');
-                    playErrorSound();
-                    return false;
-                }
-                if (total + value > targetValue) {
-                    const exceed = (total + value) - targetValue;
-                    showToast(`Vượt quá ${formatNumber(exceed)}!`, 'error');
-                    
-                    // Hiệu ứng rung + viền đỏ + âm thanh vượt
-                    calculator.classList.add('shake');
-                    display.classList.add('error');
-                    playExceedSound();
-                    setTimeout(() => {
-                        calculator.classList.remove('shake');
-                    }, 400);
-                    
-                    return false;
-                }
-                total += value;
-                totalDisplay.textContent = formatNumber(total);
-                return true;
-            }
-
-            // --- Xử lý nhập liệu ---
-            function appendTarget(num) {
-                if (num === '.') {
-                    if (!targetValue.toString().includes('.')) {
-                        targetValue = targetValue === 0 ? '0.' : targetValue + '.';
+            // Định dạng chuỗi nhập (currentInput) để hiển thị đẹp khi đang gõ
+            function formatInputForDisplay(str) {
+                if (str === '') return '0';
+                // Tìm vị trí dấu chấm thập phân (chỉ một dấu)
+                let dotIndex = str.indexOf('.');
+                if (dotIndex === -1) {
+                    // Không có dấu chấm: chỉ phần nguyên
+                    let intPart = str;
+                    if (intPart.length > MAX_INTEGER_LENGTH) {
+                        intPart = intPart.slice(0, MAX_INTEGER_LENGTH);
                     }
-                } else if (num === '00') {
-                    targetValue = targetValue === 0 ? 0 : targetValue + '00';
+                    return intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
                 } else {
-                    targetValue = targetValue === 0 ? num : targetValue + num;
+                    // Có dấu chấm: tách phần nguyên và phần thập phân
+                    let intPart = str.substring(0, dotIndex);
+                    let decimalPart = str.substring(dotIndex + 1);
+                    if (intPart.length > MAX_INTEGER_LENGTH) {
+                        intPart = intPart.slice(0, MAX_INTEGER_LENGTH);
+                    }
+                    if (decimalPart.length > MAX_DECIMAL_LENGTH) {
+                        decimalPart = decimalPart.slice(0, MAX_DECIMAL_LENGTH);
+                    }
+                    // Format phần nguyên
+                    intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                    // Nếu phần thập phân rỗng, thêm dấu phẩy để báo hiệu đang chờ nhập thập phân
+                    if (decimalPart === '') {
+                        return intPart + ',';
+                    } else {
+                        return intPart + ',' + decimalPart;
+                    }
                 }
-                targetValue = parseFloat(targetValue.toString().replace(/^0+/, '') || '0');
-                targetDisplay.textContent = formatNumber(targetValue);
-                hideToast();
-                display.classList.remove('success', 'error', 'checking');
             }
 
-            function appendInput(num) {
-                if (num === '.') {
-                    if (!currentInput.includes('.')) {
-                        currentInput = currentInput === '' || currentInput === '0' ? '0.' : currentInput + '.';
-                    }
-                } else if (num === '00') {
-                    currentInput = currentInput === '' || currentInput === '0' ? '0' : currentInput + '00';
-                } else {
-                    currentInput = currentInput === '0' ? num : currentInput + num;
+            function parseInputString(str) {
+                if (!str) return NaN;
+                let cleaned = str.replace(/[^\d.,]/g, '');
+                let lastComma = cleaned.lastIndexOf(',');
+                let lastDot = cleaned.lastIndexOf('.');
+                let decimalIndex = -1;
+                if (lastComma > lastDot) {
+                    decimalIndex = lastComma;
+                } else if (lastDot > lastComma) {
+                    decimalIndex = lastDot;
                 }
-                inputDisplay.textContent = formatNumber(currentInput || '0');
-                hideToast();
-                display.classList.remove('success', 'error', 'checking');
-                
-                // Tự động cuộn xuống cuối nếu nội dung dài
+                let integerPart = cleaned;
+                let decimalPart = '';
+                if (decimalIndex !== -1) {
+                    integerPart = cleaned.substring(0, decimalIndex).replace(/[.,]/g, '');
+                    decimalPart = cleaned.substring(decimalIndex + 1).replace(/[.,]/g, '');
+                } else {
+                    integerPart = cleaned.replace(/[.,]/g, '');
+                }
+                if (integerPart.length > MAX_INTEGER_LENGTH) {
+                    integerPart = integerPart.slice(0, MAX_INTEGER_LENGTH);
+                }
+                if (decimalPart.length > MAX_DECIMAL_LENGTH) {
+                    decimalPart = decimalPart.slice(0, MAX_DECIMAL_LENGTH);
+                }
+                let normalized = integerPart + (decimalPart ? '.' + decimalPart : '');
+                return parseFloat(normalized);
+            }
+
+            // Xử lý target input
+            targetInput.addEventListener('input', function(e) {
+                let raw = e.target.value;
+                let num = parseInputString(raw);
+                if (!isNaN(num)) {
+                    e.target.dataset.rawValue = num;
+                } else {
+                    delete e.target.dataset.rawValue;
+                }
+            });
+
+            targetInput.addEventListener('focus', function(e) {
+                if (e.target.dataset.rawValue !== undefined) {
+                    e.target.value = e.target.dataset.rawValue.toString();
+                }
+            });
+
+            targetInput.addEventListener('blur', function(e) {
+                let rawValue = e.target.dataset.rawValue;
+                if (rawValue !== undefined) {
+                    e.target.value = formatNumber(parseFloat(rawValue));
+                } else {
+                    let num = parseInputString(e.target.value);
+                    if (!isNaN(num)) {
+                        e.target.dataset.rawValue = num;
+                        e.target.value = formatNumber(num);
+                    } else {
+                        e.target.value = '';
+                    }
+                }
+            });
+
+            // ---------- HIỂN THỊ ----------
+            // Hiển thị khi đang nhập (có format đẹp)
+            function updateDisplayInput() {
+                mainDisplay.textContent = formatInputForDisplay(currentInput);
+                mainDisplay.classList.add('led-flash-display');
                 setTimeout(() => {
-                    inputDisplay.scrollTop = inputDisplay.scrollHeight;
-                }, 10);
+                    mainDisplay.classList.remove('led-flash-display');
+                }, 100);
+                mainDisplay.scrollTop = mainDisplay.scrollHeight;
             }
 
-            function deleteTargetChar() {
-                let str = targetValue.toString();
-                if (str.length > 1) targetValue = parseFloat(str.slice(0, -1));
-                else targetValue = 0;
-                targetDisplay.textContent = formatNumber(targetValue);
-                display.classList.remove('success', 'error', 'checking');
+            // Hiển thị kết quả sau khi tính toán (format số)
+            function updateDisplayFormatted(value) {
+                let num = parseFloat(value);
+                if (isNaN(num)) num = 0;
+                mainDisplay.textContent = formatNumber(num);
+                mainDisplay.classList.add('led-flash-display');
+                setTimeout(() => {
+                    mainDisplay.classList.remove('led-flash-display');
+                }, 100);
+                mainDisplay.scrollTop = mainDisplay.scrollHeight;
             }
 
-            function deleteInputChar() {
-                if (currentInput.length > 0) {
-                    currentInput = currentInput.slice(0, -1);
-                    inputDisplay.textContent = formatNumber(currentInput || '0');
-                    display.classList.remove('success', 'error', 'checking');
+            const style = document.createElement('style');
+            style.textContent = `
+                .led-flash-display {
+                    text-shadow: 0 0 20px #7df9ff !important;
                 }
+            `;
+            document.head.appendChild(style);
+
+            function flashButton(btn) {
+                if (!btn) return;
+                btn.classList.add('led-flash');
+                setTimeout(() => {
+                    btn.classList.remove('led-flash');
+                }, 80);
             }
 
-            function addItem() {
-                if (!isTargetSet) {
-                    showToast('Hãy nhập số cần kiểm tra và nhấn = trước', 'warning');
-                    playErrorSound();
-                    return;
-                }
-                if (currentInput === '' || currentInput === '0' || currentInput === '.') {
-                    showToast('Nhập giá trị', 'warning');
-                    playErrorSound();
-                    return;
-                }
-                const value = parseFloat(currentInput);
-                if (tryAddValue(value)) {
+            // ---------- NHẬP SỐ ----------
+            function inputNumber(num) {
+                if (shouldResetDisplay) {
                     currentInput = '';
-                    inputDisplay.textContent = '0';
-                    showToast(`+ ${formatNumber(value)}`, 'success');
-                    playClickSound(); // âm thanh bấm nút thành công
+                    shouldResetDisplay = false;
                 }
+
+                if (num === '.') {
+                    // Nếu đã có dấu chấm thì không thêm
+                    if (currentInput.includes('.')) return;
+                    // Nếu chuỗi rỗng thì bắt đầu bằng "0."
+                    if (currentInput === '') currentInput = '0';
+                }
+
+                if (currentInput === '0' && num !== '.') {
+                    currentInput = num;
+                } else {
+                    currentInput += num;
+                }
+
+                currentInput = limitNumberLength(currentInput);
+                updateDisplayInput();
             }
 
-            function checkTotal() {
-                if (targetValue === 0) return;
-                const diff = total - targetValue;
-                const isCorrect = Math.abs(diff) <= 0.01;
-
-                if (!isCorrect) {
-                    calculator.classList.add('shake');
-                    display.classList.remove('success', 'checking');
-                    display.classList.add('error');
-                    const diffText = (diff > 0 ? '+' : '') + formatNumber(Math.abs(diff));
-                    showToast(`SAI! ${diffText}`, 'error');
-                    playErrorSound();
-                    setTimeout(() => calculator.classList.remove('shake'), 400);
-                } else {
-                    display.classList.remove('error', 'checking');
-                    display.classList.add('success');
-                    showToast('ĐÚNG!', 'success');
-                    playSuccessSound();
+            // ---------- CÁC HÀM TÍNH TOÁN ----------
+            function handleOperator(op) {
+                if (operator && !shouldResetDisplay) {
+                    calculate();
                 }
+                previousInput = currentInput;
+                operator = op;
+                shouldResetDisplay = true;
             }
 
-            function handleCheckOrSet() {
-                if (!isTargetSet) {
-                    if (targetValue === 0) {
-                        showToast('Nhập số cần kiểm tra', 'warning');
-                        playErrorSound();
-                        return;
-                    }
-                    isTargetSet = true;
-                    targetDisplay.textContent = formatNumber(targetValue);
-                    showToast('✓ Đã ghi nhớ', 'success');
-                    display.classList.add('checking');
-                    currentInput = '';
-                    inputDisplay.textContent = '0';
-                    playClickSound();
+            function calculate() {
+                if (!operator || shouldResetDisplay) return;
+
+                let result;
+                const prev = parseFloat(previousInput);
+                const current = parseFloat(currentInput);
+
+                if (isNaN(prev) || isNaN(current)) return;
+
+                switch (operator) {
+                    case '+': result = prev + current; break;
+                    case '−': result = prev - current; break;
+                    case '×': result = prev * current; break;
+                    case '÷': 
+                        if (current === 0) {
+                            alert('Không thể chia cho 0');
+                            clearAll();
+                            return;
+                        }
+                        result = prev / current; 
+                        break;
+                    default: return;
+                }
+
+                currentInput = limitNumberLength(result.toString());
+                lastResult = result;
+                operator = null;
+                previousInput = '';
+                updateDisplayFormatted(currentInput);
+                shouldResetDisplay = true;
+            }
+
+            function calculatePercent() {
+                if (!operator || previousInput === '' || shouldResetDisplay) return;
+                const prev = parseFloat(previousInput);
+                const current = parseFloat(currentInput);
+                if (isNaN(prev) || isNaN(current)) return;
+                let result;
+                switch (operator) {
+                    case '+': result = prev + (prev * current / 100); break;
+                    case '−': result = prev - (prev * current / 100); break;
+                    case '×': result = prev * (current / 100); break;
+                    case '÷': 
+                        if (current === 0) {
+                            alert('Không thể chia cho 0');
+                            clearAll();
+                            return;
+                        }
+                        result = prev / (current / 100); 
+                        break;
+                    default: return;
+                }
+                currentInput = limitNumberLength(result.toString());
+                lastResult = result;
+                operator = null;
+                previousInput = '';
+                updateDisplayFormatted(currentInput);
+                shouldResetDisplay = true;
+            }
+
+            function handlePercent() {
+                if (operator && previousInput !== '' && !shouldResetDisplay) {
+                    calculatePercent();
                 } else {
-                    if (currentInput === '' || currentInput === '0' || currentInput === '.') {
-                        showToast('Nhập giá trị', 'warning');
-                        playErrorSound();
-                        return;
-                    }
-                    const value = parseFloat(currentInput);
-                    if (tryAddValue(value)) {
-                        currentInput = '';
-                        inputDisplay.textContent = '0';
-                        checkTotal();
+                    if (currentInput !== '0') {
+                        let val = parseFloat(currentInput) / 100;
+                        currentInput = limitNumberLength(val.toString());
+                        updateDisplayFormatted(currentInput);
+                        shouldResetDisplay = true;
                     }
                 }
             }
 
             function clearAll() {
-                currentInput = '';
-                total = 0;
-                targetValue = 0;
-                isTargetSet = false;
-                inputDisplay.textContent = '0';
-                targetDisplay.textContent = '0';
-                totalDisplay.textContent = '0';
-                display.classList.remove('success', 'error', 'checking');
-                hideToast();
-                playClickSound();
+                currentInput = '0';
+                previousInput = '';
+                operator = null;
+                shouldResetDisplay = false;
+                lastResult = null;
+                updateDisplayInput();
+                targetInput.value = '';
+                delete targetInput.dataset.rawValue;
+                messageBox.textContent = '';
+                messageBox.className = 'message-area';
             }
 
-            // --- Gắn sự kiện cho các nút (touchstart và mousedown) + âm thanh click ---
-            document.querySelectorAll('.key').forEach(btn => {
-                const handler = (e) => {
-                    e.preventDefault();
-                    playClickSound(); // âm thanh nút bấm
-                    
-                    const value = btn.dataset.value;
-                    const action = btn.dataset.action;
+            function backspace() {
+                if (currentInput.length > 1) {
+                    currentInput = currentInput.slice(0, -1);
+                } else {
+                    currentInput = '0';
+                }
+                updateDisplayInput();
+            }
 
-                    if (value) {
-                        if (!isTargetSet) appendTarget(value);
-                        else appendInput(value);
-                    } else if (action) {
-                        switch(action) {
-                            case 'delete':
-                                if (!isTargetSet) deleteTargetChar();
-                                else deleteInputChar();
-                                break;
-                            case 'add':
-                                addItem();
-                                break;
-                            case 'check':
-                                handleCheckOrSet();
-                                break;
-                            case 'clear':
-                                clearAll();
-                                break;
-                        }
+            // ---------- ÂM THANH ----------
+            let audioContext = null;
+
+            function initAudioContext() {
+                if (audioContext) return audioContext;
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.warn('Web Audio API không được hỗ trợ');
+                }
+                return audioContext;
+            }
+
+            function playSound(type) {
+                const ctx = initAudioContext();
+                if (!ctx) return;
+                if (ctx.state === 'suspended') ctx.resume();
+
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (type === 'success') {
+                    osc.frequency.value = 880;
+                    gain.gain.setValueAtTime(0.5, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                } else {
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.exponentialRampToValueAtTime(160, now + 0.15);
+                    osc.frequency.exponentialRampToValueAtTime(200, now + 0.3);
+                    gain.gain.setValueAtTime(0.6, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                }
+            }
+
+            function vibrateMessage() {
+                messageBox.classList.add('vibrate');
+                setTimeout(() => {
+                    messageBox.classList.remove('vibrate');
+                }, 300);
+            }
+
+            // ---------- XỬ LÝ SỰ KIỆN (ngăn bàn phím ảo) ----------
+            function handleButtonPress(e, callback) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation?.();
+                targetInput.blur();
+                if (callback) callback();
+            }
+
+            // Nút "="
+            document.getElementById('equals').addEventListener('pointerdown', (e) => {
+                handleButtonPress(e, () => {
+                    flashButton(e.target);
+
+                    if (operator) calculate();
+
+                    const currentValue = parseFloat(currentInput);
+                    let target = NaN;
+                    if (targetInput.dataset.rawValue !== undefined) {
+                        target = parseFloat(targetInput.dataset.rawValue);
+                    } else if (targetInput.value.trim() !== '') {
+                        target = parseInputString(targetInput.value);
                     }
-                };
-                btn.addEventListener('touchstart', handler, { passive: false });
-                btn.addEventListener('mousedown', handler);
+
+                    if (!isNaN(target)) {
+                        const diff = currentValue - target;
+                        if (Math.abs(diff) < 1e-10) {
+                            messageBox.textContent = '✅ Chính xác!';
+                            messageBox.className = 'message-area success';
+                            playSound('success');
+                        } else {
+                            const sign = diff > 0 ? '+' : '';
+                            messageBox.textContent = `❌ Sai. Đúng: ${formatNumber(target)} (${sign}${formatNumber(diff)})`;
+                            messageBox.className = 'message-area error';
+                            playSound('error');
+                        }
+                        vibrateMessage();
+                    } else {
+                        messageBox.textContent = targetInput.value ? 'Nhập số TK hợp lệ!' : '';
+                        messageBox.className = 'message-area';
+                    }
+                });
             });
+
+            // Các nút còn lại
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => {
+                if (btn.id === 'equals') return;
+                btn.addEventListener('pointerdown', (e) => {
+                    handleButtonPress(e, () => {
+                        const id = btn.id;
+                        flashButton(btn);
+
+                        if (id.match(/^\d+$/) || id === '00' || id === 'dot') {
+                            if (id === 'dot') inputNumber('.');
+                            else if (id === '00') {
+                                // Xử lý riêng "00"
+                                if (shouldResetDisplay) {
+                                    currentInput = '';
+                                    shouldResetDisplay = false;
+                                }
+                                if (currentInput === '0') {
+                                    currentInput = '00';
+                                } else {
+                                    currentInput += '00';
+                                }
+                                currentInput = limitNumberLength(currentInput);
+                                updateDisplayInput();
+                            } else inputNumber(id);
+                        }
+                        else if (id === 'add') handleOperator('+');
+                        else if (id === 'subtract') handleOperator('−');
+                        else if (id === 'multiply') handleOperator('×');
+                        else if (id === 'divide') handleOperator('÷');
+                        else if (id === 'percent') handlePercent();
+                        else if (id === 'clear') clearAll();
+                    });
+                });
+            });
+
+            backspaceBtn.addEventListener('pointerdown', (e) => {
+                handleButtonPress(e, () => {
+                    flashButton(backspaceBtn);
+                    backspace();
+                });
+            });
+
+            // Hỗ trợ bàn phím
+            window.addEventListener('keydown', (e) => {
+                const key = e.key;
+                if (document.activeElement === targetInput) {
+                    if (key === 'Enter') {
+                        e.preventDefault();
+                        document.getElementById('equals').click();
+                    }
+                    return;
+                }
+
+                e.preventDefault();
+
+                if (key >= '0' && key <= '9') {
+                    inputNumber(key);
+                    flashButton(document.getElementById(key));
+                }
+                else if (key === '.') {
+                    inputNumber('.');
+                    flashButton(document.getElementById('dot'));
+                }
+                else if (key === '+') {
+                    handleOperator('+');
+                    flashButton(document.getElementById('add'));
+                }
+                else if (key === '-') {
+                    handleOperator('−');
+                    flashButton(document.getElementById('subtract'));
+                }
+                else if (key === '*') {
+                    handleOperator('×');
+                    flashButton(document.getElementById('multiply'));
+                }
+                else if (key === '/') {
+                    e.preventDefault();
+                    handleOperator('÷');
+                    flashButton(document.getElementById('divide'));
+                }
+                else if (key === '%') {
+                    handlePercent();
+                    flashButton(document.getElementById('percent'));
+                }
+                else if (key === 'Enter' || key === '=') {
+                    e.preventDefault();
+                    document.getElementById('equals').click();
+                }
+                else if (key === 'Escape') {
+                    clearAll();
+                    flashButton(document.getElementById('clear'));
+                }
+                else if (key === 'Backspace') {
+                    e.preventDefault();
+                    backspace();
+                    flashButton(backspaceBtn);
+                }
+            });
+
+            clearAll();
         })();
     </script>
 </body>
