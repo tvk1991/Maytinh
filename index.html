@@ -292,40 +292,202 @@ body {
     min-height: 160px;                    /* Chiều cao cho nút + dài 2 hàng */
 }
 
-/* Media query cho màn hình rất nhỏ (dưới 340px) */
+/* ===== THÊM MEDIA QUERIES ĐỂ CO GIÃN CHO MỌI MÀN HÌNH ===== */
+/* iPhone SE, màn hình nhỏ (dưới 340px) */
 @media (max-width: 340px) {
     .calculator {
         max-width: 100%;
-        padding: 8px 6px 12px;
+        padding: 6px 4px 10px;
+        border-radius: 30px;
+        margin: 2px;
     }
     .btn {
-        padding: 6px 1px;
-        font-size: 1.3rem;
-        min-height: 38px;
+        padding: 4px 1px;
+        font-size: 1.5rem;
+        min-height: 60px;
+        border-radius: 16px;
     }
     .btn.plus-long {
-        min-height: 80px;
+        min-height: 124px;
     }
     #display {
         font-size: 1.6rem;
-        min-height: 2rem;
+        min-height: 1.9rem;
     }
     #targetInput {
         font-size: 1.2rem;
     }
     .target-label {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
     }
     .message-area {
         font-size: 0.8rem;
         padding: 3px 4px;
-        min-height: 1.8rem;
+        min-height: 1.7rem;
     }
     .backspace-btn {
         font-size: 1.3rem;
-        min-width: 38px;
-        min-height: 38px;
+        min-width: 36px;
+        min-height: 36px;
     }
+}
+
+/* Màn hình trung bình (340px - 380px) */
+@media (min-width: 341px) and (max-width: 380px) {
+    .calculator {
+        max-width: 95%;
+        padding: 8px 6px 12px;
+    }
+    .btn {
+        font-size: 1.7rem;
+        min-height: 70px;
+    }
+    .btn.plus-long {
+        min-height: 144px;
+    }
+    #display {
+        font-size: 1.8rem;
+    }
+}
+
+/* Màn hình lớn (381px - 450px) */
+@media (min-width: 381px) and (max-width: 450px) {
+    .calculator {
+        max-width: 380px;
+        padding: 12px 10px 16px;
+    }
+    .btn {
+        font-size: 2rem;
+        min-height: 85px;
+    }
+    .btn.plus-long {
+        min-height: 174px;
+    }
+    #display {
+        font-size: 2.2rem;
+        min-height: 2.8rem;
+    }
+    #targetInput {
+        font-size: 1.8rem;
+    }
+    .target-label {
+        font-size: 0.9rem;
+    }
+    .message-area {
+        font-size: 1rem;
+        min-height: 2.2rem;
+    }
+}
+
+/* Màn hình rất lớn (trên 450px) */
+@media (min-width: 451px) {
+    .calculator {
+        max-width: 420px;
+        padding: 15px 12px 20px;
+        border-radius: 50px;
+    }
+    .btn {
+        font-size: 2.2rem;
+        min-height: 95px;
+        border-radius: 25px;
+    }
+    .btn.plus-long {
+        min-height: 194px;
+    }
+    #display {
+        font-size: 2.5rem;
+        min-height: 3.2rem;
+    }
+    #targetInput {
+        font-size: 2rem;
+    }
+    .target-label {
+        font-size: 1rem;
+    }
+    .message-area {
+        font-size: 1.1rem;
+        min-height: 2.5rem;
+        padding: 6px 10px;
+    }
+    .backspace-btn {
+        font-size: 1.8rem;
+        min-width: 50px;
+        min-height: 50px;
+    }
+}
+
+/* Hỗ trợ màn hình gập và tablet nhỏ */
+@media (min-width: 600px) and (max-width: 800px) {
+    .calculator {
+        max-width: 500px;
+        padding: 20px 15px 25px;
+    }
+    .btn {
+        font-size: 2.5rem;
+        min-height: 110px;
+    }
+    .btn.plus-long {
+        min-height: 224px;
+    }
+}
+
+/* Điều chỉnh cho iPhone với notch/dynamic island */
+@supports (padding: max(0px)) {
+    .calculator {
+        padding-left: max(8px, env(safe-area-inset-left));
+        padding-right: max(8px, env(safe-area-inset-right));
+        padding-bottom: max(14px, env(safe-area-inset-bottom));
+    }
+}
+
+/* Tối ưu cho màn hình OLED Samsung */
+@media (display-mode: browser) {
+    .calculator {
+        background: #1a242e;
+    }
+}
+
+/* Hỗ trợ tỷ lệ khung hình dài (Sony, màn hình 21:9) */
+@media (min-aspect-ratio: 20/9) {
+    .calculator {
+        max-width: 380px;
+        padding: 8px 10px 15px;
+    }
+    .btn {
+        min-height: 75px;
+    }
+    .btn.plus-long {
+        min-height: 154px;
+    }
+}
+
+/* Tối ưu cho màn hình nhỏ nhưng cao (Huawei P series) */
+@media (max-width: 360px) and (min-height: 700px) {
+    .calculator {
+        max-width: 330px;
+        padding: 5px 5px 12px;
+    }
+    .btn {
+        min-height: 65px;
+    }
+    .btn.plus-long {
+        min-height: 134px;
+    }
+}
+
+/* Thêm class co giãn linh hoạt */
+.responsive-fix {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Đảm bảo không bị tràn trên bất kỳ thiết bị nào */
+* {
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
 }
     </style>
 </head>
