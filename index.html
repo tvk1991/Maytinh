@@ -287,6 +287,11 @@ body {
     grid-column: span 2;
 }
 
+.btn.plus-long {
+    grid-row: span 2;
+    min-height: 160px;                    /* Chiều cao cho nút + dài 2 hàng */
+}
+
 /* Media query cho màn hình rất nhỏ (dưới 340px) */
 @media (max-width: 340px) {
     .calculator {
@@ -297,6 +302,9 @@ body {
         padding: 6px 1px;
         font-size: 1.3rem;
         min-height: 38px;
+    }
+    .btn.plus-long {
+        min-height: 80px;
     }
     #display {
         font-size: 1.6rem;
@@ -337,26 +345,31 @@ body {
         </div>
 
         <div class="buttons">
+            <!-- Hàng 1: C, ., %, × -->
             <button class="btn clear" id="clear" tabindex="-1">C</button>
             <button class="btn operator" id="dot" tabindex="-1">.</button>
             <button class="btn operator" id="percent" tabindex="-1">%</button>
-            <button class="btn operator" id="divide" tabindex="-1">÷</button>
+            <button class="btn operator" id="multiply" tabindex="-1">×</button>
 
+            <!-- Hàng 2: 7, 8, 9, − -->
             <button class="btn" id="7" tabindex="-1">7</button>
             <button class="btn" id="8" tabindex="-1">8</button>
             <button class="btn" id="9" tabindex="-1">9</button>
-            <button class="btn operator" id="multiply" tabindex="-1">×</button>
+            <button class="btn operator" id="subtract" tabindex="-1">−</button>
 
+            <!-- Hàng 3: 4, 5, 6, + (bắt đầu của nút dài) -->
             <button class="btn" id="4" tabindex="-1">4</button>
             <button class="btn" id="5" tabindex="-1">5</button>
             <button class="btn" id="6" tabindex="-1">6</button>
-            <button class="btn operator" id="subtract" tabindex="-1">−</button>
+            <button class="btn operator plus-long" id="add" tabindex="-1">+</button>
 
+            <!-- Hàng 4: 1, 2, 3, (ô trống cho nút + dài) -->
             <button class="btn" id="1" tabindex="-1">1</button>
             <button class="btn" id="2" tabindex="-1">2</button>
             <button class="btn" id="3" tabindex="-1">3</button>
-            <button class="btn operator" id="add" tabindex="-1">+</button>
+            <!-- Ô thứ 4 hàng 4 để trống vì nút + đã chiếm 2 hàng -->
 
+            <!-- Hàng 5: 0, 00, = -->
             <button class="btn zero" id="0" tabindex="-1">0</button>
             <button class="btn" id="00" tabindex="-1">00</button>
             <button class="btn equals" id="equals" tabindex="-1">=</button>        
@@ -582,14 +595,6 @@ body {
                     case '+': result = prev + current; break;
                     case '−': result = prev - current; break;
                     case '×': result = prev * current; break;
-                    case '÷': 
-                        if (current === 0) {
-                            alert('Không thể chia cho 0');
-                            clearAll();
-                            return;
-                        }
-                        result = prev / current; 
-                        break;
                     default: return;
                 }
 
@@ -611,14 +616,6 @@ body {
                     case '+': result = prev + (prev * current / 100); break;
                     case '−': result = prev - (prev * current / 100); break;
                     case '×': result = prev * (current / 100); break;
-                    case '÷': 
-                        if (current === 0) {
-                            alert('Không thể chia cho 0');
-                            clearAll();
-                            return;
-                        }
-                        result = prev / (current / 100); 
-                        break;
                     default: return;
                 }
                 currentInput = limitNumberLength(result.toString());
@@ -780,7 +777,6 @@ body {
                         else if (id === 'add') handleOperator('+');
                         else if (id === 'subtract') handleOperator('−');
                         else if (id === 'multiply') handleOperator('×');
-                        else if (id === 'divide') handleOperator('÷');
                         else if (id === 'percent') handlePercent();
                         else if (id === 'clear') clearAll();
                     });
@@ -826,11 +822,6 @@ body {
                     handleOperator('×');
                     flashButton(document.getElementById('multiply'));
                 }
-                else if (key === '/') {
-                    e.preventDefault();
-                    handleOperator('÷');
-                    flashButton(document.getElementById('divide'));
-                }
                 else if (key === '%') {
                     handlePercent();
                     flashButton(document.getElementById('percent'));
@@ -855,8 +846,3 @@ body {
     </script>
 </body>
 </html>
-
-
-
-
-
