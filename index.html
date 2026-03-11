@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ClevCalc Ultimate Fixed</title>
+    <title>ClevCalc Fixed Pro Max</title>
     <style>
         :root {
             --bg-color: #ffffff;
@@ -14,11 +14,19 @@
             --danger: #e74c3c;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, system-ui, sans-serif; }
+        /* Ngăn chặn mọi hành vi chọn văn bản và thu phóng mặc định */
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            font-family: -apple-system, system-ui, sans-serif;
+            touch-action: manipulation; /* Ngăn chặn double-tap to zoom */
+            user-select: none; /* Ngăn chặn chọn văn bản khi nhấn giữ */
+        }
 
         html, body { 
             height: 100%; margin: 0; overflow: hidden; 
-            background-color: #1a1a1a; display: flex; justify-content: center; 
+            background-color: #1a1a1a; display: flex; justify-content: center;
+            position: fixed; width: 100%; /* Khóa cứng body */
         }
 
         .clevcalc-container {
@@ -34,9 +42,8 @@
             text-align: right; position: relative; background: white; z-index: 5;
         }
         
-        .history-btn { position: absolute; top: 50px; left: 20px; font-size: 1.5rem; cursor: pointer; color: #bdc3c7; z-index: 10; }
+        .history-btn { position: absolute; top: 50px; left: 20px; font-size: 1.5rem; color: #bdc3c7; z-index: 10; padding: 10px; }
 
-        /* Biểu thức có cuộn và tự điều chỉnh font */
         #expression { 
             font-size: 2.2rem; color: #7f8c8d; 
             max-height: 120px; overflow-y: auto; 
@@ -70,7 +77,8 @@
             font-size: 1.8rem; color: #333; outline: none;
             display: flex; justify-content: center; align-items: center;
         }
-        button:active { background: #f0f0f0; }
+        /* Hiệu ứng khi nhấn thông qua class thay vì :active để khớp với touchstart */
+        button.pressed { background: #f0f0f0; transform: scale(0.95); }
 
         .btn-op { color: var(--op-color); font-weight: 600; }
         .btn-func { color: var(--accent); font-weight: 600; }
@@ -93,58 +101,54 @@
         .history-list { flex: 1; overflow-y: auto; }
         .history-item { border-bottom: 1px solid #eee; padding: 15px 0; }
         .active-target { background: #e3f2fd !important; }
-
-        /* Ẩn scrollbar để giao diện sạch sẽ */
         #expression::-webkit-scrollbar { width: 0; background: transparent; }
     </style>
 </head>
-<body>
-
-<div class="clevcalc-container">
+<body oncontextmenu="return false;"> <div class="clevcalc-container">
     <div id="historyBox" class="history-box">
         <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
             <b style="color:var(--accent)">LỊCH SỬ</b>
-            <span onclick="toggleHistory()" style="font-size: 1.5rem; cursor:pointer">✖</span>
+            <span id="closeHistory" style="font-size: 1.5rem; cursor:pointer; padding: 10px;">✖</span>
         </div>
         <div id="historyList" class="history-list"></div>
-        <button onclick="clearHistory()" style="height:50px; background:#f2f2f2; font-size:1rem; border-radius: 8px;">Xóa lịch sử</button>
+        <button id="clearHistoryBtn" style="height:50px; background:#f2f2f2; font-size:1rem; border-radius: 8px;">Xóa lịch sử</button>
     </div>
 
     <div class="display-screen">
-        <div class="history-btn" onclick="toggleHistory()">🕒</div>
+        <div class="history-btn" id="openHistory">🕒</div>
         <div id="expression"></div>
         <div id="result-preview">0</div>
         <div id="comparison-msg"></div>
-        <div class="target-area" id="target-box" onclick="toggleTargetMode()">
+        <div class="target-area" id="target-box">
             <span class="target-label">KIỂM TRA:</span>
             <div id="target-display">0</div>
         </div>
     </div>
 
     <div class="keypad">
-        <button class="btn-clear" onclick="clearAll()">C</button>
-        <button class="btn-func" onclick="smartParenthesis()">()</button>
-        <button class="btn-func" onclick="applyPercent()">%</button>
-        <button class="btn-op" onclick="addOp('/')">÷</button>
+        <button class="btn-clear" data-val="C">C</button>
+        <button class="btn-func" data-val="()">()</button>
+        <button class="btn-func" data-val="%">%</button>
+        <button class="btn-op" data-val="/">÷</button>
 
-        <button onclick="handleInput('7')">7</button>
-        <button onclick="handleInput('8')">8</button>
-        <button onclick="handleInput('9')">9</button>
-        <button class="btn-op" onclick="addOp('*')">×</button>
+        <button data-val="7">7</button>
+        <button data-val="8">8</button>
+        <button data-val="9">9</button>
+        <button class="btn-op" data-val="*">×</button>
 
-        <button onclick="handleInput('4')">4</button>
-        <button onclick="handleInput('5')">5</button>
-        <button onclick="handleInput('6')">6</button>
-        <button class="btn-op btn-plus" onclick="addOp('+')">+</button>
+        <button data-val="4">4</button>
+        <button data-val="5">5</button>
+        <button onclick="" data-val="6">6</button>
+        <button class="btn-op btn-plus" data-val="+">+</button>
 
-        <button onclick="handleInput('1')">1</button>
-        <button onclick="handleInput('2')">2</button>
-        <button onclick="handleInput('3')">3</button>
+        <button data-val="1">1</button>
+        <button data-val="2">2</button>
+        <button data-val="3">3</button>
 
-        <button onclick="backspace()">⌫</button>
-        <button onclick="handleInput('0')">0</button>
-        <button onclick="handleInput('.')">,</button>
-        <button class="btn-equal" onclick="calculate()">=</button>
+        <button data-val="back">⌫</button>
+        <button data-val="0">0</button>
+        <button data-val=".">,</button>
+        <button class="btn-equal" data-val="=">=</button>
     </div>
 </div>
 
@@ -162,6 +166,45 @@
     const hBox = document.getElementById('historyBox');
     const hList = document.getElementById('historyList');
 
+    // --- LOGIC CẢM ỨNG SIÊU NHẠY (TOUCHSTART) ---
+    const buttons = document.querySelectorAll('button[data-val]');
+    buttons.forEach(btn => {
+        const handleAction = (e) => {
+            e.preventDefault(); // Chống zoom và trễ 300ms
+            btn.classList.add('pressed');
+            const val = btn.getAttribute('data-val');
+            
+            // Map giá trị nút tới hàm xử lý
+            if (val === 'C') clearAll();
+            else if (val === '()') smartParenthesis();
+            else if (val === '%') applyPercent();
+            else if (val === '/') addOp('/');
+            else if (val === '*') addOp('*');
+            else if (val === '+') addOp('+');
+            else if (val === 'back') backspace();
+            else if (val === '=') calculate();
+            else if (val === '.') handleInput('.');
+            else handleInput(val);
+
+            setTimeout(() => btn.classList.remove('pressed'), 100);
+        };
+
+        btn.addEventListener('touchstart', handleAction, {passive: false});
+        btn.addEventListener('mousedown', (e) => { if(e.button === 0) handleAction(e); });
+    });
+
+    // Các nút chức năng đặc biệt
+    document.getElementById('openHistory').addEventListener('touchstart', (e) => { e.preventDefault(); toggleHistory(); });
+    document.getElementById('closeHistory').addEventListener('touchstart', (e) => { e.preventDefault(); toggleHistory(); });
+    document.getElementById('clearHistoryBtn').addEventListener('touchstart', (e) => { e.preventDefault(); clearHistory(); });
+    targetBox.addEventListener('touchstart', (e) => { e.preventDefault(); toggleTargetMode(); });
+
+    // Ngăn chặn thu phóng bằng tay (Pinch to zoom)
+    document.addEventListener('touchstart', (e) => {
+        if (e.touches.length > 1) e.preventDefault();
+    }, { passive: false });
+
+    // --- LOGIC TÍNH TOÁN GIỮ NGUYÊN 100% ---
     function formatNumber(val) {
         if (!val && val !== 0) return "";
         let s = val.toString();
@@ -195,17 +238,12 @@
             displayStr = displayStr.replace(/(\d+(\.\d+)?)/g, (match) => formatNumber(match));
             exprDiv.innerText = displayStr;
 
-            // --- CẢI TIẾN: THU NHỎ CHỮ VÀ TỰ CUỘN ---
             const len = exprDiv.innerText.length;
             if (len > 40) exprDiv.style.fontSize = "1.2rem";
             else if (len > 20) exprDiv.style.fontSize = "1.6rem";
             else exprDiv.style.fontSize = "2.2rem";
 
-            // Luôn cuộn xuống cuối cùng
-            setTimeout(() => {
-                exprDiv.scrollTop = exprDiv.scrollHeight;
-            }, 10);
-            // ----------------------------------------
+            setTimeout(() => { exprDiv.scrollTop = exprDiv.scrollHeight; }, 10);
         }
         targetDiv.innerText = formatNumber(targetInput) || "0";
     }
