@@ -3,1008 +3,273 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Máy tính kiểm tra kết quả</title>
+    <title>ClevCalc Pro - History & Audit</title>
     <style>
-       /* ===== CHỐNG CUỘN TOÀN TRANG ===== */
-html, body {
-    height: 100%;
-    overflow: hidden;
-    overscroll-behavior: none;
-}
+        :root {
+            --bg-color: #f2f3f5;
+            --accent: #2ecc71;
+            --text-main: #2c3e50;
+            --op-color: #f39c12;
+            --target-color: #3498db;
+            --danger: #e74c3c;
+        }
 
-body {
-    font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
-    background: linear-gradient(145deg, #2b3a4a 0%, #1d2a35 100%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0;
-    padding: 0;
-    touch-action: manipulation;
-}
+        html, body { height: 100%; margin: 0; overflow: hidden; background-color: #000; }
+        body { font-family: -apple-system, system-ui, sans-serif; display: flex; justify-content: center; align-items: center; }
 
-.calculator {
-    width: 100%;
-    max-width: 340px;                 /* Giữ chiều rộng vừa phải */
-    background: #1f2a34;
-    border-radius: 40px;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.1);
-    padding: 10px 8px 14px;            /* Giảm padding dọc */
-    margin: 4px;                       /* Giữ một chút không gian viền */
-    will-change: transform;
-    -webkit-touch-callout: none;
-    user-select: none;
-    display: flex;
-    flex-direction: column;
-    max-height: 98vh;                  /* Không chiếm quá 98% viewport */
-    overflow: hidden;
-}
+        .clevcalc-container {
+            width: 100vw; height: 100vh; max-width: 500px;
+            background: white; display: flex; flex-direction: column;
+            padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
+            position: relative;
+        }
 
-.display-area {
-    background: #1e282f;
-    border-radius: 24px;
-    padding: 8px 8px 6px;              /* Giảm padding dọc */
-    margin-bottom: 8px;                 /* Giảm khoảng cách */
-    box-shadow: inset 0 5px 10px rgba(0,0,0,0.6), 0 2px 5px rgba(255,255,255,0.05);
-    border: 1px solid #3a4a55;
-    flex-shrink: 0;
-}
+        /* Màn hình hiển thị */
+        .display-screen { flex: 1; padding: 15px 20px; display: flex; flex-direction: column; justify-content: flex-end; text-align: right; position: relative; }
+        
+        /* Nút lịch sử */
+        .history-btn { position: absolute; top: 20px; left: 20px; font-size: 1.5rem; cursor: pointer; color: #95a5a6; z-index: 10; }
 
-.main-screen {
-    background: #121b22;
-    border-radius: 16px;
-    padding: 4px 8px;                   /* Giảm padding dọc */
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
-    border: 1px solid #3e5a68;
-    margin-bottom: 6px;                  /* Giảm margin */
-}
+        #expression { font-size: 1.8rem; color: #7f8c8d; word-wrap: break-word; word-break: break-all; line-height: 1.2; margin-bottom: 5px; max-height: 80px; overflow-y: auto; }
+        #result-preview { font-size: 3rem; font-weight: 300; color: var(--text-main); margin-bottom: 10px; }
 
-#display {
-    font-size: 1.8rem;                   /* Giảm cỡ chữ */
-    font-weight: 300;
-    color: #b0e0ff;
-    text-shadow: 0 0 12px #4aa3ff;
-    letter-spacing: 1px;
-    flex: 1;
-    text-align: right;
-    font-family: 'Courier New', monospace;
-    transition: text-shadow 0.1s ease;
-    min-height: 2.2rem;                  /* Giảm chiều cao tối thiểu */
-    max-height: 4rem;
-    overflow-y: auto;
-    word-break: break-all;
-    white-space: pre-wrap;
-    line-height: 1.2;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-#display::-webkit-scrollbar {
-    display: none;
-}
+        .target-area { display: flex; align-items: center; background: #f8f9fa; border-radius: 12px; padding: 8px 15px; border: 1px dashed var(--target-color); }
+        .target-label { font-size: 0.8rem; color: var(--target-color); font-weight: bold; margin-right: 10px; }
+        #target-display { flex: 1; font-size: 1.5rem; color: var(--target-color); font-family: monospace; font-weight: bold; }
+        
+        /* Hiệu ứng rung khi lệch */
+        #comparison-msg { font-size: 0.9rem; font-weight: bold; text-align: center; height: 20px; margin-top: 5px; transition: all 0.3s; }
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
 
-.backspace-btn {
-    background: transparent;
-    border: none;
-    color: #a0c0d0;
-    font-size: 1.5rem;                   /* Giảm cỡ chữ */
-    cursor: pointer;
-    padding: 0 4px;
-    transition: opacity 0.1s, transform 0.1s;
-    line-height: 1;
-    text-shadow: 0 0 8px #4aa3ff;
-    opacity: 0.8;
-    min-width: 40px;
-    min-height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-    tab-index: -1;
-}
-.backspace-btn:active {
-    opacity: 1;
-    transform: scale(1.1);
-    color: #ffaa00;
-}
+        /* Hộp lịch sử */
+        .history-box {
+            position: absolute; top: 0; left: 0; width: 100%; height: 50%;
+            background: rgba(255,255,255,0.95); z-index: 100;
+            display: none; flex-direction: column; padding: 20px; box-sizing: border-box;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-bottom: 2px solid var(--accent);
+        }
+        .history-list { flex: 1; overflow-y: auto; list-style: none; padding: 0; margin: 0; }
+        .history-item { border-bottom: 1px solid #eee; padding: 10px 0; font-size: 0.9rem; }
+        .history-item .h-expr { color: #7f8c8d; }
+        .history-item .h-res { color: var(--text-main); font-weight: bold; text-align: right; }
 
-.target-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: #121b22;
-    border-radius: 14px;
-    padding: 4px 8px;
-    box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
-    border: 1px solid #3e5a68;
-}
-
-.target-label {
-    color: #aabbcc;
-    font-size: 0.8rem;                   /* Giảm cỡ chữ */
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    opacity: 0.8;
-    white-space: nowrap;
-    pointer-events: none;
-}
-
-#targetInput {
-    flex: 1;
-    background: transparent;
-    border: none;
-    font-size: 1.4rem;                   /* Giảm cỡ chữ */
-    font-weight: 300;
-    color: #ffde9e;
-    text-shadow: 0 0 10px #ffb347;
-    text-align: right;
-    font-family: 'Courier New', monospace;
-    outline: none;
-    padding: 4px 0;
-    min-width: 0;
-    -webkit-user-select: text;
-    user-select: text;
-    -webkit-appearance: none;
-    appearance: none;
-}
-#targetInput::-webkit-outer-spin-button,
-#targetInput::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-#targetInput::placeholder {
-    color: #3f5563;
-    font-size: 1.1rem;
-    text-shadow: none;
-}
-
-.message-area {
-    margin-top: 4px;                      /* Giảm margin */
-    font-size: 0.9rem;
-    font-weight: 600;
-    text-align: center;
-    padding: 4px 6px;
-    border-radius: 40px;
-    background: #1a262e;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
-    color: #ddd;
-    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-    border: 1px solid #3f5563;
-    min-height: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    word-break: break-word;
-    will-change: background, box-shadow;
-}
-
-.message-area.success {
-    background: #1f4a3a;
-    color: #b0ffc0;
-    text-shadow: 0 0 10px #36d96b;
-    border-color: #58b87a;
-    box-shadow: 0 0 20px #2ecc71;
-}
-
-.message-area.error {
-    background: #5a2e3a;
-    color: #ffb0b0;
-    text-shadow: 0 0 10px #ff4f4f;
-    border-color: #c45a5a;
-    box-shadow: 0 0 20px #e74c3c;
-}
-
-.message-area.vibrate {
-    animation: vibrate 0.3s ease-in-out;
-}
-
-@keyframes vibrate {
-    0% { transform: translateX(0); filter: brightness(1); }
-    20% { transform: translateX(4px); filter: brightness(1.3); }
-    40% { transform: translateX(-4px); filter: brightness(0.9); }
-    60% { transform: translateX(2px); filter: brightness(1.2); }
-    80% { transform: translateX(-2px); filter: brightness(0.95); }
-    100% { transform: translateX(0); filter: brightness(1); }
-}
-
-.buttons {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 4px;                            /* Giảm gap */
-    margin-top: 4px;                      /* Giảm margin */
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow: hidden;
-}
-
-.btn {
-    border: none;
-    background: #2c3e4c;
-    border-radius: 20px;
-    padding: 8px 2px;                     /* Giảm padding dọc */
-    font-size: 1.8rem;                    /* Giảm cỡ chữ */
-    font-weight: 500;
-    color: #eef5f9;
-    box-shadow: 0 4px 0 #15232b, 0 6px 10px rgba(0,0,0,0.4);
-    cursor: default;
-    transition: transform 0.05s linear, box-shadow 0.05s linear, background 0.05s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #4a6572;
-    text-shadow: 0 2px 3px black;
-    min-height: 78px;                     /* Giảm chiều cao tối thiểu */
-    touch-action: manipulation;
-    will-change: transform, box-shadow;
-    -webkit-tap-highlight-color: transparent;
-    pointer-events: auto;
-    tab-index: -1;
-}
-
-.btn:active {
-    transform: translateY(3px);
-    box-shadow: 0 1px 0 #15232b, 0 3px 6px rgba(0,0,0,0.4);
-    background: #3a5264;
-}
-
-.btn.led-flash {
-    background: #ffd966;
-    color: #1a1a1a;
-    text-shadow: none;
-    box-shadow: 0 0 25px #ffee88;
-    transition: none;
-}
-
-.btn.operator {
-    background: #f09b3c;
-    border-color: #ffb45e;
-    color: #1e2b33;
-    text-shadow: 0 1px 2px white;
-}
-
-.btn.operator:active {
-    background: #ffb259;
-}
-
-.btn.clear {
-    background: #5f4c4c;
-    border-color: #9b7a7a;
-    color: #ffe1c6;
-}
-
-.btn.equals {
-    background: #3d8f6f;
-    border-color: #6fc9a3;
-    font-weight: 700;
-}
-
-.btn.zero {
-    grid-column: span 2;
-}
-
-.btn.plus-long {
-    grid-row: span 2;
-    min-height: 160px;                    /* Chiều cao cho nút + dài 2 hàng */
-}
-
-/* ===== THÊM MEDIA QUERIES ĐỂ CO GIÃN CHO MỌI MÀN HÌNH ===== */
-/* iPhone SE, màn hình nhỏ (dưới 340px) */
-@media (max-width: 340px) {
-    .calculator {
-        max-width: 100%;
-        padding: 6px 4px 10px;
-        border-radius: 30px;
-        margin: 2px;
-    }
-    .btn {
-        padding: 4px 1px;
-        font-size: 1.5rem;
-        min-height: 60px;
-        border-radius: 16px;
-    }
-    .btn.plus-long {
-        min-height: 124px;
-    }
-    #display {
-        font-size: 1.6rem;
-        min-height: 1.9rem;
-    }
-    #targetInput {
-        font-size: 1.2rem;
-    }
-    .target-label {
-        font-size: 0.7rem;
-    }
-    .message-area {
-        font-size: 0.8rem;
-        padding: 3px 4px;
-        min-height: 1.7rem;
-    }
-    .backspace-btn {
-        font-size: 1.3rem;
-        min-width: 36px;
-        min-height: 36px;
-    }
-}
-
-/* Màn hình trung bình (340px - 380px) */
-@media (min-width: 341px) and (max-width: 380px) {
-    .calculator {
-        max-width: 95%;
-        padding: 8px 6px 12px;
-    }
-    .btn {
-        font-size: 1.7rem;
-        min-height: 70px;
-    }
-    .btn.plus-long {
-        min-height: 144px;
-    }
-    #display {
-        font-size: 1.8rem;
-    }
-}
-
-/* Màn hình lớn (381px - 450px) */
-@media (min-width: 381px) and (max-width: 450px) {
-    .calculator {
-        max-width: 380px;
-        padding: 12px 10px 16px;
-    }
-    .btn {
-        font-size: 2rem;
-        min-height: 85px;
-    }
-    .btn.plus-long {
-        min-height: 174px;
-    }
-    #display {
-        font-size: 2.2rem;
-        min-height: 2.8rem;
-    }
-    #targetInput {
-        font-size: 1.8rem;
-    }
-    .target-label {
-        font-size: 0.9rem;
-    }
-    .message-area {
-        font-size: 1rem;
-        min-height: 2.2rem;
-    }
-}
-
-/* Màn hình rất lớn (trên 450px) */
-@media (min-width: 451px) {
-    .calculator {
-        max-width: 420px;
-        padding: 15px 12px 20px;
-        border-radius: 50px;
-    }
-    .btn {
-        font-size: 2.2rem;
-        min-height: 95px;
-        border-radius: 25px;
-    }
-    .btn.plus-long {
-        min-height: 194px;
-    }
-    #display {
-        font-size: 2.5rem;
-        min-height: 3.2rem;
-    }
-    #targetInput {
-        font-size: 2rem;
-    }
-    .target-label {
-        font-size: 1rem;
-    }
-    .message-area {
-        font-size: 1.1rem;
-        min-height: 2.5rem;
-        padding: 6px 10px;
-    }
-    .backspace-btn {
-        font-size: 1.8rem;
-        min-width: 50px;
-        min-height: 50px;
-    }
-}
-
-/* Hỗ trợ màn hình gập và tablet nhỏ */
-@media (min-width: 600px) and (max-width: 800px) {
-    .calculator {
-        max-width: 500px;
-        padding: 20px 15px 25px;
-    }
-    .btn {
-        font-size: 2.5rem;
-        min-height: 110px;
-    }
-    .btn.plus-long {
-        min-height: 224px;
-    }
-}
-
-/* Điều chỉnh cho iPhone với notch/dynamic island */
-@supports (padding: max(0px)) {
-    .calculator {
-        padding-left: max(8px, env(safe-area-inset-left));
-        padding-right: max(8px, env(safe-area-inset-right));
-        padding-bottom: max(14px, env(safe-area-inset-bottom));
-    }
-}
-
-/* Tối ưu cho màn hình OLED Samsung */
-@media (display-mode: browser) {
-    .calculator {
-        background: #1a242e;
-    }
-}
-
-/* Hỗ trợ tỷ lệ khung hình dài (Sony, màn hình 21:9) */
-@media (min-aspect-ratio: 20/9) {
-    .calculator {
-        max-width: 380px;
-        padding: 8px 10px 15px;
-    }
-    .btn {
-        min-height: 75px;
-    }
-    .btn.plus-long {
-        min-height: 154px;
-    }
-}
-
-/* Tối ưu cho màn hình nhỏ nhưng cao (Huawei P series) */
-@media (max-width: 360px) and (min-height: 700px) {
-    .calculator {
-        max-width: 330px;
-        padding: 5px 5px 12px;
-    }
-    .btn {
-        min-height: 65px;
-    }
-    .btn.plus-long {
-        min-height: 134px;
-    }
-}
-
-/* Thêm class co giãn linh hoạt */
-.responsive-fix {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* Đảm bảo không bị tràn trên bất kỳ thiết bị nào */
-* {
-    box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-}
+        /* Keypad */
+        .keypad { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); background: #e0e0e0; gap: 1px; height: 60%; }
+        button { width: 100%; height: 100%; border: none; background: #fff; font-size: 1.6rem; color: #333; outline: none; display: flex; justify-content: center; align-items: center; -webkit-tap-highlight-color: transparent; }
+        button:active { background: #f0f0f0; transform: scale(0.96); }
+        .btn-op { color: var(--op-color); font-weight: 600; background: #fafafa; }
+        .btn-func { color: var(--accent); font-weight: 600; background: #fafafa; }
+        .btn-clear { color: var(--danger); background: #fafafa; }
+        .btn-equal { background: var(--accent); color: white; font-size: 2.2rem; }
+        .btn-plus { grid-row: span 2; color: var(--op-color); font-weight: 600; }
+        .active-target { background: #e3f2fd !important; border: 2px solid var(--target-color) !important; }
     </style>
 </head>
 <body>
-    <!-- Phần HTML giữ nguyên -->
-    <div class="calculator">
-        <div class="display-area">
-            <div class="main-screen">
-                <div id="display">0</div>
-                <button class="backspace-btn" id="backspaceBtn" tabindex="-1">⌫</button>
-            </div>
-            <div class="target-row">
-                <span class="target-label">Số Kiểm Tra</span>
-                <input type="text" id="targetInput" placeholder="0" inputmode="numeric" pattern="[0-9,.]*">
-            </div>
-            <div class="message-area" id="messageBox"></div>
+
+<div class="clevcalc-container">
+    <div id="historyBox" class="history-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <b style="color: var(--accent)">LỊCH SỬ TÍNH TOÁN</b>
+            <span onclick="toggleHistory()" style="cursor:pointer; font-size: 1.2rem;">✖</span>
         </div>
+        <ul id="historyList" class="history-list"></ul>
+        <button onclick="clearHistory()" style="height: 40px; font-size: 0.8rem; margin-top: 10px; background: #f8f9fa;">Xóa lịch sử</button>
+    </div>
 
-        <div class="buttons">
-            <!-- Hàng 1: C, ., %, × -->
-            <button class="btn clear" id="clear" tabindex="-1">C</button>
-            <button class="btn operator" id="dot" tabindex="-1">.</button>
-            <button class="btn operator" id="percent" tabindex="-1">%</button>
-            <button class="btn operator" id="multiply" tabindex="-1">×</button>
-
-            <!-- Hàng 2: 7, 8, 9, − -->
-            <button class="btn" id="7" tabindex="-1">7</button>
-            <button class="btn" id="8" tabindex="-1">8</button>
-            <button class="btn" id="9" tabindex="-1">9</button>
-            <button class="btn operator" id="subtract" tabindex="-1">−</button>
-
-            <!-- Hàng 3: 4, 5, 6, + (bắt đầu của nút dài) -->
-            <button class="btn" id="4" tabindex="-1">4</button>
-            <button class="btn" id="5" tabindex="-1">5</button>
-            <button class="btn" id="6" tabindex="-1">6</button>
-            <button class="btn operator plus-long" id="add" tabindex="-1">+</button>
-
-            <!-- Hàng 4: 1, 2, 3, (ô trống cho nút + dài) -->
-            <button class="btn" id="1" tabindex="-1">1</button>
-            <button class="btn" id="2" tabindex="-1">2</button>
-            <button class="btn" id="3" tabindex="-1">3</button>
-            <!-- Ô thứ 4 hàng 4 để trống vì nút + đã chiếm 2 hàng -->
-
-            <!-- Hàng 5: 0, 00, = -->
-            <button class="btn zero" id="0" tabindex="-1">0</button>
-            <button class="btn" id="00" tabindex="-1">00</button>
-            <button class="btn equals" id="equals" tabindex="-1">=</button>        
+    <div class="display-screen">
+        <div class="history-btn" onclick="toggleHistory()">🕒</div>
+        <div id="expression"></div>
+        <div id="result-preview">0</div>
+        <div id="comparison-msg"></div>
+        <div class="target-area" id="target-box" onclick="toggleTargetMode()">
+            <span class="target-label">SỐ KIỂM TRA:</span>
+            <div id="target-display">0</div>
         </div>
     </div>
 
-    <script>
-        // Toàn bộ JavaScript giữ nguyên
-        (function() {
-            "use strict";
+    <div class="keypad">
+        <button class="btn-clear" onclick="clearAll()">C</button>
+        <button class="btn-func" onclick="smartParenthesis()">()</button>
+        <button class="btn-func" onclick="applyPercent()">%</button>
+        <button class="btn-op" onclick="addOp('/')">÷</button>
 
-            const mainDisplay = document.getElementById('display');
-            const targetInput = document.getElementById('targetInput');
-            const messageBox = document.getElementById('messageBox');
-            const backspaceBtn = document.getElementById('backspaceBtn');
+        <button onclick="handleInput('7')">7</button>
+        <button onclick="handleInput('8')">8</button>
+        <button onclick="handleInput('9')">9</button>
+        <button class="btn-op" onclick="addOp('*')">×</button>
 
-            let currentInput = '0';
-            let previousInput = '';
-            let operator = null;
-            let shouldResetDisplay = false;
-            let lastResult = null;
+        <button onclick="handleInput('4')">4</button>
+        <button onclick="handleInput('5')">5</button>
+        <button onclick="handleInput('6')">6</button>
+        <button class="btn-op btn-plus" onclick="addOp('+')">+</button>
 
-            // Giới hạn độ dài
-            const MAX_INTEGER_LENGTH = 12;
-            const MAX_DECIMAL_LENGTH = 4;
+        <button onclick="handleInput('1')">1</button>
+        <button onclick="handleInput('2')">2</button>
+        <button onclick="handleInput('3')">3</button>
 
-            function limitNumberLength(numStr) {
-                let parts = numStr.split('.');
-                let intPart = parts[0];
-                if (intPart.length > MAX_INTEGER_LENGTH) {
-                    intPart = intPart.slice(0, MAX_INTEGER_LENGTH);
-                }
-                let decimalPart = parts[1] || '';
-                if (decimalPart.length > MAX_DECIMAL_LENGTH) {
-                    decimalPart = decimalPart.slice(0, MAX_DECIMAL_LENGTH);
-                }
-                if (parts.length > 1) {
-                    return intPart + '.' + decimalPart;
+        <button onclick="backspace()">⌫</button>
+        <button onclick="handleInput('0')">0</button>
+        <button onclick="handleInput('.')">,</button>
+        <button class="btn-equal" onclick="calculate()">=</button>
+    </div>
+</div>
+
+<script>
+    let historyExpr = "";
+    let targetInput = "";
+    let isTargetMode = false;
+    let calculationHistory = []; // Mảng lưu lịch sử
+    
+    const exprDiv = document.getElementById('expression');
+    const resDiv = document.getElementById('result-preview');
+    const targetDiv = document.getElementById('target-display');
+    const targetBox = document.getElementById('target-box');
+    const msgDiv = document.getElementById('comparison-msg');
+    const hBox = document.getElementById('historyBox');
+    const hList = document.getElementById('historyList');
+
+    function formatNumber(val) {
+        if (!val && val !== 0) return "";
+        let s = val.toString();
+        let parts = s.split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        return parts.length > 1 ? parts[0] + "," + parts[1] : parts[0];
+    }
+
+    function toggleHistory() {
+        hBox.style.display = hBox.style.display === 'flex' ? 'none' : 'flex';
+        renderHistory();
+    }
+
+    function renderHistory() {
+        hList.innerHTML = calculationHistory.map(item => `
+            <li class="history-item">
+                <div class="h-expr">${item.expr} =</div>
+                <div class="h-res">${formatNumber(item.res)}</div>
+            </li>
+        `).reverse().join('');
+    }
+
+    function clearHistory() { calculationHistory = []; renderHistory(); }
+
+    function toggleTargetMode() {
+        isTargetMode = !isTargetMode;
+        if (isTargetMode) {
+            targetBox.classList.add('active-target');
+            msgDiv.innerText = "Đang nhập số kiểm tra...";
+            msgDiv.style.color = "var(--target-color)";
+        } else {
+            targetBox.classList.remove('active-target');
+            msgDiv.innerText = "";
+        }
+    }
+
+    function renderDisplay() {
+        if (!isTargetMode) {
+            let displayStr = historyExpr.replace(/\*/g, ' × ').replace(/\//g, ' ÷ ').replace(/\+/g, ' + ').replace(/\-/g, ' − ');
+            displayStr = displayStr.replace(/(\d+(\.\d+)?)/g, (match) => formatNumber(match));
+            exprDiv.innerText = displayStr;
+            exprDiv.scrollTop = exprDiv.scrollHeight;
+        }
+        targetDiv.innerText = formatNumber(targetInput) || "0";
+    }
+
+    function handleInput(n) {
+        if (isTargetMode) { if (n === '.' && targetInput.includes('.')) return; targetInput += n; }
+        else { historyExpr += n; autoPreview(); }
+        renderDisplay();
+    }
+
+    function smartParenthesis() {
+        if (isTargetMode) return;
+        let openCount = (historyExpr.match(/\(/g) || []).length;
+        let closeCount = (historyExpr.match(/\)/g) || []).length;
+        const lastChar = historyExpr.slice(-1);
+        if (openCount > closeCount && !['+','-','*','/','('].includes(lastChar)) historyExpr += ")";
+        else historyExpr += "(";
+        renderDisplay();
+        autoPreview();
+    }
+
+    function addOp(op) {
+        if (isTargetMode) { isTargetMode = false; targetBox.classList.remove('active-target'); }
+        if (historyExpr === "" && op !== '-') return;
+        const last = historyExpr.slice(-1);
+        if (['+','-','*','/'].includes(last)) historyExpr = historyExpr.slice(0, -1) + op;
+        else historyExpr += op;
+        renderDisplay();
+    }
+
+    function applyPercent() {
+        if (isTargetMode) return;
+        try {
+            let parts = historyExpr.split(/([\+\-\*\/])/);
+            let lastPart = parts.pop();
+            let op = parts.pop();
+            let base = eval(parts.join("") || "0");
+            let val = (op === '+' || op === '-') ? base * (parseFloat(lastPart) / 100) : parseFloat(lastPart) / 100;
+            historyExpr = parts.join("") + (op || "") + val;
+            renderDisplay(); autoPreview();
+        } catch(e) {}
+    }
+
+    function autoPreview() {
+        try {
+            let temp = historyExpr;
+            if (!temp) { resDiv.innerText = "0"; return; }
+            let open = (temp.match(/\(/g) || []).length;
+            let close = (temp.match(/\)/g) || []).length;
+            if (open > close) temp += ")".repeat(open - close);
+            resDiv.innerText = formatNumber(Math.round(eval(temp) * 1000000) / 1000000);
+        } catch(e) {}
+    }
+
+    function calculate() {
+        if (isTargetMode) { isTargetMode = false; targetBox.classList.remove('active-target'); return; }
+        try {
+            let finalRes = Math.round(eval(historyExpr) * 1000000) / 1000000;
+            
+            // Lưu lịch sử trước khi xóa màn hình
+            calculationHistory.push({ expr: exprDiv.innerText, res: finalRes });
+            
+            resDiv.innerText = formatNumber(finalRes);
+            if (targetInput !== "") {
+                let targetVal = parseFloat(targetInput);
+                msgDiv.classList.remove('shake');
+                void msgDiv.offsetWidth; // Trigger reflow
+                if (Math.abs(finalRes - targetVal) < 0.00001) {
+                    msgDiv.innerText = "✅ KẾT QUẢ KHỚP";
+                    msgDiv.style.color = "var(--accent)";
                 } else {
-                    return intPart;
+                    msgDiv.innerText = `❌ LỆCH: ${formatNumber(Math.round((finalRes - targetVal) * 100) / 100)}`;
+                    msgDiv.style.color = "var(--danger)";
+                    msgDiv.classList.add('shake');
                 }
             }
+            historyExpr = finalRes.toString();
+            exprDiv.innerText = "";
+        } catch(e) { resDiv.innerText = "Lỗi"; }
+    }
 
-            function formatNumber(num) {
-                if (num === null || num === undefined || num === '') return '0';
-                let rounded = Math.round(num * 1e10) / 1e10;
-                let parts = rounded.toString().split('.');
-                let intPart = parts[0];
-                if (intPart.length > MAX_INTEGER_LENGTH) {
-                    intPart = intPart.slice(0, MAX_INTEGER_LENGTH);
-                }
-                intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-                let decimalPart = parts[1] || '';
-                if (decimalPart.length > MAX_DECIMAL_LENGTH) {
-                    decimalPart = decimalPart.slice(0, MAX_DECIMAL_LENGTH);
-                }
-                return decimalPart ? intPart + ',' + decimalPart : intPart;
-            }
+    function clearAll() {
+        if (isTargetMode) targetInput = "";
+        else { historyExpr = ""; targetInput = ""; msgDiv.innerText = ""; msgDiv.classList.remove('shake'); }
+        resDiv.innerText = "0";
+        renderDisplay();
+    }
 
-            function formatInputForDisplay(str) {
-                if (str === '') return '0';
-                let dotIndex = str.indexOf('.');
-                if (dotIndex === -1) {
-                    let intPart = str;
-                    if (intPart.length > MAX_INTEGER_LENGTH) {
-                        intPart = intPart.slice(0, MAX_INTEGER_LENGTH);
-                    }
-                    return intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-                } else {
-                    let intPart = str.substring(0, dotIndex);
-                    let decimalPart = str.substring(dotIndex + 1);
-                    if (intPart.length > MAX_INTEGER_LENGTH) {
-                        intPart = intPart.slice(0, MAX_INTEGER_LENGTH);
-                    }
-                    if (decimalPart.length > MAX_DECIMAL_LENGTH) {
-                        decimalPart = decimalPart.slice(0, MAX_DECIMAL_LENGTH);
-                    }
-                    intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-                    if (decimalPart === '') {
-                        return intPart + ',';
-                    } else {
-                        return intPart + ',' + decimalPart;
-                    }
-                }
-            }
-
-            function parseInputString(str) {
-                if (!str) return NaN;
-                let cleaned = str.replace(/[^\d.,]/g, '');
-                let lastComma = cleaned.lastIndexOf(',');
-                let lastDot = cleaned.lastIndexOf('.');
-                let decimalIndex = -1;
-                if (lastComma > lastDot) {
-                    decimalIndex = lastComma;
-                } else if (lastDot > lastComma) {
-                    decimalIndex = lastDot;
-                }
-                let integerPart = cleaned;
-                let decimalPart = '';
-                if (decimalIndex !== -1) {
-                    integerPart = cleaned.substring(0, decimalIndex).replace(/[.,]/g, '');
-                    decimalPart = cleaned.substring(decimalIndex + 1).replace(/[.,]/g, '');
-                } else {
-                    integerPart = cleaned.replace(/[.,]/g, '');
-                }
-                if (integerPart.length > MAX_INTEGER_LENGTH) {
-                    integerPart = integerPart.slice(0, MAX_INTEGER_LENGTH);
-                }
-                if (decimalPart.length > MAX_DECIMAL_LENGTH) {
-                    decimalPart = decimalPart.slice(0, MAX_DECIMAL_LENGTH);
-                }
-                let normalized = integerPart + (decimalPart ? '.' + decimalPart : '');
-                return parseFloat(normalized);
-            }
-
-            targetInput.addEventListener('input', function(e) {
-                let raw = e.target.value;
-                let num = parseInputString(raw);
-                if (!isNaN(num)) {
-                    e.target.dataset.rawValue = num;
-                } else {
-                    delete e.target.dataset.rawValue;
-                }
-            });
-
-            targetInput.addEventListener('focus', function(e) {
-                if (e.target.dataset.rawValue !== undefined) {
-                    e.target.value = e.target.dataset.rawValue.toString();
-                }
-            });
-
-            targetInput.addEventListener('blur', function(e) {
-                let rawValue = e.target.dataset.rawValue;
-                if (rawValue !== undefined) {
-                    e.target.value = formatNumber(parseFloat(rawValue));
-                } else {
-                    let num = parseInputString(e.target.value);
-                    if (!isNaN(num)) {
-                        e.target.dataset.rawValue = num;
-                        e.target.value = formatNumber(num);
-                    } else {
-                        e.target.value = '';
-                    }
-                }
-            });
-
-            function updateDisplayInput() {
-                mainDisplay.textContent = formatInputForDisplay(currentInput);
-                mainDisplay.classList.add('led-flash-display');
-                setTimeout(() => {
-                    mainDisplay.classList.remove('led-flash-display');
-                }, 100);
-                mainDisplay.scrollTop = mainDisplay.scrollHeight;
-            }
-
-            function updateDisplayFormatted(value) {
-                let num = parseFloat(value);
-                if (isNaN(num)) num = 0;
-                mainDisplay.textContent = formatNumber(num);
-                mainDisplay.classList.add('led-flash-display');
-                setTimeout(() => {
-                    mainDisplay.classList.remove('led-flash-display');
-                }, 100);
-                mainDisplay.scrollTop = mainDisplay.scrollHeight;
-            }
-
-            const style = document.createElement('style');
-            style.textContent = `
-                .led-flash-display {
-                    text-shadow: 0 0 20px #7df9ff !important;
-                }
-            `;
-            document.head.appendChild(style);
-
-            function flashButton(btn) {
-                if (!btn) return;
-                btn.classList.add('led-flash');
-                setTimeout(() => {
-                    btn.classList.remove('led-flash');
-                }, 80);
-            }
-
-            function inputNumber(num) {
-                if (shouldResetDisplay) {
-                    currentInput = '';
-                    shouldResetDisplay = false;
-                }
-
-                if (num === '.') {
-                    if (currentInput.includes('.')) return;
-                    if (currentInput === '') currentInput = '0';
-                }
-
-                if (currentInput === '0' && num !== '.') {
-                    currentInput = num;
-                } else {
-                    currentInput += num;
-                }
-
-                currentInput = limitNumberLength(currentInput);
-                updateDisplayInput();
-            }
-
-            function handleOperator(op) {
-                if (operator && !shouldResetDisplay) {
-                    calculate();
-                }
-                previousInput = currentInput;
-                operator = op;
-                shouldResetDisplay = true;
-            }
-
-            function calculate() {
-                if (!operator || shouldResetDisplay) return;
-
-                let result;
-                const prev = parseFloat(previousInput);
-                const current = parseFloat(currentInput);
-
-                if (isNaN(prev) || isNaN(current)) return;
-
-                switch (operator) {
-                    case '+': result = prev + current; break;
-                    case '−': result = prev - current; break;
-                    case '×': result = prev * current; break;
-                    default: return;
-                }
-
-                currentInput = limitNumberLength(result.toString());
-                lastResult = result;
-                operator = null;
-                previousInput = '';
-                updateDisplayFormatted(currentInput);
-                shouldResetDisplay = true;
-            }
-
-            function calculatePercent() {
-                if (!operator || previousInput === '' || shouldResetDisplay) return;
-                const prev = parseFloat(previousInput);
-                const current = parseFloat(currentInput);
-                if (isNaN(prev) || isNaN(current)) return;
-                let result;
-                switch (operator) {
-                    case '+': result = prev + (prev * current / 100); break;
-                    case '−': result = prev - (prev * current / 100); break;
-                    case '×': result = prev * (current / 100); break;
-                    default: return;
-                }
-                currentInput = limitNumberLength(result.toString());
-                lastResult = result;
-                operator = null;
-                previousInput = '';
-                updateDisplayFormatted(currentInput);
-                shouldResetDisplay = true;
-            }
-
-            function handlePercent() {
-                if (operator && previousInput !== '' && !shouldResetDisplay) {
-                    calculatePercent();
-                } else {
-                    if (currentInput !== '0') {
-                        let val = parseFloat(currentInput) / 100;
-                        currentInput = limitNumberLength(val.toString());
-                        updateDisplayFormatted(currentInput);
-                        shouldResetDisplay = true;
-                    }
-                }
-            }
-
-            function clearAll() {
-                currentInput = '0';
-                previousInput = '';
-                operator = null;
-                shouldResetDisplay = false;
-                lastResult = null;
-                updateDisplayInput();
-                targetInput.value = '';
-                delete targetInput.dataset.rawValue;
-                messageBox.textContent = '';
-                messageBox.className = 'message-area';
-            }
-
-            function backspace() {
-                if (currentInput.length > 1) {
-                    currentInput = currentInput.slice(0, -1);
-                } else {
-                    currentInput = '0';
-                }
-                updateDisplayInput();
-            }
-
-            let audioContext = null;
-
-            function initAudioContext() {
-                if (audioContext) return audioContext;
-                try {
-                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                } catch (e) {
-                    console.warn('Web Audio API không được hỗ trợ');
-                }
-                return audioContext;
-            }
-
-            function playSound(type) {
-                const ctx = initAudioContext();
-                if (!ctx) return;
-                if (ctx.state === 'suspended') ctx.resume();
-
-                const now = ctx.currentTime;
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-
-                if (type === 'success') {
-                    osc.frequency.value = 880;
-                    gain.gain.setValueAtTime(0.5, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-                    osc.start(now);
-                    osc.stop(now + 0.2);
-                } else {
-                    osc.frequency.setValueAtTime(220, now);
-                    osc.frequency.exponentialRampToValueAtTime(160, now + 0.15);
-                    osc.frequency.exponentialRampToValueAtTime(200, now + 0.3);
-                    gain.gain.setValueAtTime(0.6, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-                    osc.start(now);
-                    osc.stop(now + 0.4);
-                }
-            }
-
-            function vibrateMessage() {
-                messageBox.classList.add('vibrate');
-                setTimeout(() => {
-                    messageBox.classList.remove('vibrate');
-                }, 300);
-            }
-
-            function handleButtonPress(e, callback) {
-                e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation?.();
-                targetInput.blur();
-                if (callback) callback();
-            }
-
-            document.getElementById('equals').addEventListener('pointerdown', (e) => {
-                handleButtonPress(e, () => {
-                    flashButton(e.target);
-
-                    if (operator) calculate();
-
-                    const currentValue = parseFloat(currentInput);
-                    let target = NaN;
-                    if (targetInput.dataset.rawValue !== undefined) {
-                        target = parseFloat(targetInput.dataset.rawValue);
-                    } else if (targetInput.value.trim() !== '') {
-                        target = parseInputString(targetInput.value);
-                    }
-
-                    if (!isNaN(target)) {
-                        const diff = currentValue - target;
-                        if (Math.abs(diff) < 1e-10) {
-                            messageBox.textContent = '✅ Chính xác!';
-                            messageBox.className = 'message-area success';
-                            playSound('success');
-                        } else {
-                            const sign = diff > 0 ? '+' : '';
-                            messageBox.textContent = `❌ Sai. Đúng: ${formatNumber(target)} (${sign}${formatNumber(diff)})`;
-                            messageBox.className = 'message-area error';
-                            playSound('error');
-                        }
-                        vibrateMessage();
-                    } else {
-                        messageBox.textContent = targetInput.value ? 'Nhập số TK hợp lệ!' : '';
-                        messageBox.className = 'message-area';
-                    }
-                });
-            });
-
-            const buttons = document.querySelectorAll('.btn');
-            buttons.forEach(btn => {
-                if (btn.id === 'equals') return;
-                btn.addEventListener('pointerdown', (e) => {
-                    handleButtonPress(e, () => {
-                        const id = btn.id;
-                        flashButton(btn);
-
-                        if (id.match(/^\d+$/) || id === '00' || id === 'dot') {
-                            if (id === 'dot') inputNumber('.');
-                            else if (id === '00') {
-                                if (shouldResetDisplay) {
-                                    currentInput = '';
-                                    shouldResetDisplay = false;
-                                }
-                                if (currentInput === '0') {
-                                    currentInput = '00';
-                                } else {
-                                    currentInput += '00';
-                                }
-                                currentInput = limitNumberLength(currentInput);
-                                updateDisplayInput();
-                            } else inputNumber(id);
-                        }
-                        else if (id === 'add') handleOperator('+');
-                        else if (id === 'subtract') handleOperator('−');
-                        else if (id === 'multiply') handleOperator('×');
-                        else if (id === 'percent') handlePercent();
-                        else if (id === 'clear') clearAll();
-                    });
-                });
-            });
-
-            backspaceBtn.addEventListener('pointerdown', (e) => {
-                handleButtonPress(e, () => {
-                    flashButton(backspaceBtn);
-                    backspace();
-                });
-            });
-
-            window.addEventListener('keydown', (e) => {
-                const key = e.key;
-                if (document.activeElement === targetInput) {
-                    if (key === 'Enter') {
-                        e.preventDefault();
-                        document.getElementById('equals').click();
-                    }
-                    return;
-                }
-
-                e.preventDefault();
-
-                if (key >= '0' && key <= '9') {
-                    inputNumber(key);
-                    flashButton(document.getElementById(key));
-                }
-                else if (key === '.') {
-                    inputNumber('.');
-                    flashButton(document.getElementById('dot'));
-                }
-                else if (key === '+') {
-                    handleOperator('+');
-                    flashButton(document.getElementById('add'));
-                }
-                else if (key === '-') {
-                    handleOperator('−');
-                    flashButton(document.getElementById('subtract'));
-                }
-                else if (key === '*') {
-                    handleOperator('×');
-                    flashButton(document.getElementById('multiply'));
-                }
-                else if (key === '%') {
-                    handlePercent();
-                    flashButton(document.getElementById('percent'));
-                }
-                else if (key === 'Enter' || key === '=') {
-                    e.preventDefault();
-                    document.getElementById('equals').click();
-                }
-                else if (key === 'Escape') {
-                    clearAll();
-                    flashButton(document.getElementById('clear'));
-                }
-                else if (key === 'Backspace') {
-                    e.preventDefault();
-                    backspace();
-                    flashButton(backspaceBtn);
-                }
-            });
-
-            clearAll();
-        })();
-    </script>
+    function backspace() {
+        if (isTargetMode) targetInput = targetInput.slice(0, -1);
+        else { historyExpr = historyExpr.slice(0, -1); autoPreview(); }
+        renderDisplay();
+    }
+</script>
 </body>
 </html>
