@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ClevCalc Pro - History & Audit</title>
+    <title>ClevCalc Ultimate Fixed</title>
     <style>
         :root {
-            --bg-color: #f2f3f5;
+            --bg-color: #ffffff;
             --accent: #2ecc71;
             --text-main: #2c3e50;
             --op-color: #f39c12;
@@ -14,73 +14,100 @@
             --danger: #e74c3c;
         }
 
-        html, body { height: 100%; margin: 0; overflow: hidden; background-color: #000; }
-        body { font-family: -apple-system, system-ui, sans-serif; display: flex; justify-content: center; align-items: center; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, system-ui, sans-serif; }
+
+        html, body { 
+            height: 100%; margin: 0; overflow: hidden; 
+            background-color: #1a1a1a; display: flex; justify-content: center; 
+        }
 
         .clevcalc-container {
-            width: 100vw; height: 100vh; max-width: 500px;
-            background: white; display: flex; flex-direction: column;
-            padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
-            position: relative;
+            width: 100vw; height: 100dvh; max-width: 500px;
+            background: var(--bg-color); position: relative;
+            display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* Màn hình hiển thị */
-        .display-screen { flex: 1; padding: 15px 20px; display: flex; flex-direction: column; justify-content: flex-end; text-align: right; position: relative; }
+        .display-screen {
+            height: 40%; width: 100%;
+            padding: 40px 20px 10px;
+            display: flex; flex-direction: column; justify-content: flex-end; 
+            text-align: right; position: relative; background: white; z-index: 5;
+        }
         
-        /* Nút lịch sử */
-        .history-btn { position: absolute; top: 20px; left: 20px; font-size: 1.5rem; cursor: pointer; color: #95a5a6; z-index: 10; }
+        .history-btn { position: absolute; top: 50px; left: 20px; font-size: 1.5rem; cursor: pointer; color: #bdc3c7; z-index: 10; }
 
-        #expression { font-size: 1.8rem; color: #7f8c8d; word-wrap: break-word; word-break: break-all; line-height: 1.2; margin-bottom: 5px; max-height: 80px; overflow-y: auto; }
-        #result-preview { font-size: 3rem; font-weight: 300; color: var(--text-main); margin-bottom: 10px; }
-
-        .target-area { display: flex; align-items: center; background: #f8f9fa; border-radius: 12px; padding: 8px 15px; border: 1px dashed var(--target-color); }
-        .target-label { font-size: 0.8rem; color: var(--target-color); font-weight: bold; margin-right: 10px; }
-        #target-display { flex: 1; font-size: 1.5rem; color: var(--target-color); font-family: monospace; font-weight: bold; }
+        /* Biểu thức có cuộn và tự điều chỉnh font */
+        #expression { 
+            font-size: 2.2rem; color: #7f8c8d; 
+            max-height: 120px; overflow-y: auto; 
+            word-break: break-all; margin-bottom: 5px;
+            transition: font-size 0.2s ease;
+            scroll-behavior: smooth;
+        }
         
-        /* Hiệu ứng rung khi lệch */
-        #comparison-msg { font-size: 0.9rem; font-weight: bold; text-align: center; height: 20px; margin-top: 5px; transition: all 0.3s; }
-        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes shake {
-            10%, 90% { transform: translate3d(-1px, 0, 0); }
-            20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-            40%, 60% { transform: translate3d(4px, 0, 0); }
+        #result-preview { font-size: 3.5rem; font-weight: 300; color: var(--text-main); line-height: 1; overflow-x: auto; white-space: nowrap; }
+
+        .target-area { 
+            display: flex; align-items: center; background: #f9f9f9; 
+            border-radius: 8px; padding: 8px; border: 1px dashed var(--target-color);
+            margin-top: 5px;
+        }
+        .target-label { font-size: 0.7rem; color: var(--target-color); font-weight: bold; margin-right: 8px; }
+        #target-display { flex: 1; font-size: 1.3rem; color: var(--target-color); font-weight: bold; }
+        #comparison-msg { font-size: 0.85rem; font-weight: bold; text-align: center; height: 18px; margin: 3px 0; }
+
+        .keypad {
+            height: 60%; width: 100%;
+            display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr);
+            background: #ccc; gap: 1px;
+            position: absolute; bottom: 0; left: 0;
+            padding-bottom: env(safe-area-inset-bottom);
+            z-index: 20;
         }
 
-        /* Hộp lịch sử */
-        .history-box {
-            position: absolute; top: 0; left: 0; width: 100%; height: 50%;
-            background: rgba(255,255,255,0.95); z-index: 100;
-            display: none; flex-direction: column; padding: 20px; box-sizing: border-box;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-bottom: 2px solid var(--accent);
+        button {
+            width: 100%; height: 100%; border: none; background: #fff;
+            font-size: 1.8rem; color: #333; outline: none;
+            display: flex; justify-content: center; align-items: center;
         }
-        .history-list { flex: 1; overflow-y: auto; list-style: none; padding: 0; margin: 0; }
-        .history-item { border-bottom: 1px solid #eee; padding: 10px 0; font-size: 0.9rem; }
-        .history-item .h-expr { color: #7f8c8d; }
-        .history-item .h-res { color: var(--text-main); font-weight: bold; text-align: right; }
+        button:active { background: #f0f0f0; }
 
-        /* Keypad */
-        .keypad { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); background: #e0e0e0; gap: 1px; height: 60%; }
-        button { width: 100%; height: 100%; border: none; background: #fff; font-size: 1.6rem; color: #333; outline: none; display: flex; justify-content: center; align-items: center; -webkit-tap-highlight-color: transparent; }
-        button:active { background: #f0f0f0; transform: scale(0.96); }
-        .btn-op { color: var(--op-color); font-weight: 600; background: #fafafa; }
-        .btn-func { color: var(--accent); font-weight: 600; background: #fafafa; }
-        .btn-clear { color: var(--danger); background: #fafafa; }
-        .btn-equal { background: var(--accent); color: white; font-size: 2.2rem; }
+        .btn-op { color: var(--op-color); font-weight: 600; }
+        .btn-func { color: var(--accent); font-weight: 600; }
+        .btn-clear { color: var(--danger); }
+        .btn-equal { background: var(--accent); color: white; font-size: 2.5rem; }
         .btn-plus { grid-row: span 2; color: var(--op-color); font-weight: 600; }
-        .active-target { background: #e3f2fd !important; border: 2px solid var(--target-color) !important; }
+        
+        .shake { animation: shake 0.4s both; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .history-box {
+            position: absolute; inset: 0;
+            background: white; z-index: 100; display: none; flex-direction: column; padding: 20px;
+            padding-top: env(safe-area-inset-top);
+        }
+        .history-list { flex: 1; overflow-y: auto; }
+        .history-item { border-bottom: 1px solid #eee; padding: 15px 0; }
+        .active-target { background: #e3f2fd !important; }
+
+        /* Ẩn scrollbar để giao diện sạch sẽ */
+        #expression::-webkit-scrollbar { width: 0; background: transparent; }
     </style>
 </head>
 <body>
 
 <div class="clevcalc-container">
     <div id="historyBox" class="history-box">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <b style="color: var(--accent)">LỊCH SỬ TÍNH TOÁN</b>
-            <span onclick="toggleHistory()" style="cursor:pointer; font-size: 1.2rem;">✖</span>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <b style="color:var(--accent)">LỊCH SỬ</b>
+            <span onclick="toggleHistory()" style="font-size: 1.5rem; cursor:pointer">✖</span>
         </div>
-        <ul id="historyList" class="history-list"></ul>
-        <button onclick="clearHistory()" style="height: 40px; font-size: 0.8rem; margin-top: 10px; background: #f8f9fa;">Xóa lịch sử</button>
+        <div id="historyList" class="history-list"></div>
+        <button onclick="clearHistory()" style="height:50px; background:#f2f2f2; font-size:1rem; border-radius: 8px;">Xóa lịch sử</button>
     </div>
 
     <div class="display-screen">
@@ -89,7 +116,7 @@
         <div id="result-preview">0</div>
         <div id="comparison-msg"></div>
         <div class="target-area" id="target-box" onclick="toggleTargetMode()">
-            <span class="target-label">SỐ KIỂM TRA:</span>
+            <span class="target-label">KIỂM TRA:</span>
             <div id="target-display">0</div>
         </div>
     </div>
@@ -125,8 +152,8 @@
     let historyExpr = "";
     let targetInput = "";
     let isTargetMode = false;
-    let calculationHistory = []; // Mảng lưu lịch sử
-    
+    let calculationHistory = [];
+
     const exprDiv = document.getElementById('expression');
     const resDiv = document.getElementById('result-preview');
     const targetDiv = document.getElementById('target-display');
@@ -143,17 +170,14 @@
         return parts.length > 1 ? parts[0] + "," + parts[1] : parts[0];
     }
 
-    function toggleHistory() {
-        hBox.style.display = hBox.style.display === 'flex' ? 'none' : 'flex';
-        renderHistory();
-    }
-
+    function toggleHistory() { hBox.style.display = hBox.style.display === 'flex' ? 'none' : 'flex'; renderHistory(); }
+    
     function renderHistory() {
         hList.innerHTML = calculationHistory.map(item => `
-            <li class="history-item">
-                <div class="h-expr">${item.expr} =</div>
-                <div class="h-res">${formatNumber(item.res)}</div>
-            </li>
+            <div class="history-item">
+                <div style="color:#7f8c8d; font-size:0.9rem">${item.expr} =</div>
+                <div style="font-weight:bold; text-align:right; font-size:1.2rem">${formatNumber(item.res)}</div>
+            </div>
         `).reverse().join('');
     }
 
@@ -161,14 +185,8 @@
 
     function toggleTargetMode() {
         isTargetMode = !isTargetMode;
-        if (isTargetMode) {
-            targetBox.classList.add('active-target');
-            msgDiv.innerText = "Đang nhập số kiểm tra...";
-            msgDiv.style.color = "var(--target-color)";
-        } else {
-            targetBox.classList.remove('active-target');
-            msgDiv.innerText = "";
-        }
+        targetBox.classList.toggle('active-target', isTargetMode);
+        msgDiv.innerText = isTargetMode ? "Đang nhập Số kiểm tra..." : "";
     }
 
     function renderDisplay() {
@@ -176,7 +194,18 @@
             let displayStr = historyExpr.replace(/\*/g, ' × ').replace(/\//g, ' ÷ ').replace(/\+/g, ' + ').replace(/\-/g, ' − ');
             displayStr = displayStr.replace(/(\d+(\.\d+)?)/g, (match) => formatNumber(match));
             exprDiv.innerText = displayStr;
-            exprDiv.scrollTop = exprDiv.scrollHeight;
+
+            // --- CẢI TIẾN: THU NHỎ CHỮ VÀ TỰ CUỘN ---
+            const len = exprDiv.innerText.length;
+            if (len > 40) exprDiv.style.fontSize = "1.2rem";
+            else if (len > 20) exprDiv.style.fontSize = "1.6rem";
+            else exprDiv.style.fontSize = "2.2rem";
+
+            // Luôn cuộn xuống cuối cùng
+            setTimeout(() => {
+                exprDiv.scrollTop = exprDiv.scrollHeight;
+            }, 10);
+            // ----------------------------------------
         }
         targetDiv.innerText = formatNumber(targetInput) || "0";
     }
@@ -189,21 +218,19 @@
 
     function smartParenthesis() {
         if (isTargetMode) return;
-        let openCount = (historyExpr.match(/\(/g) || []).length;
-        let closeCount = (historyExpr.match(/\)/g) || []).length;
-        const lastChar = historyExpr.slice(-1);
-        if (openCount > closeCount && !['+','-','*','/','('].includes(lastChar)) historyExpr += ")";
+        let open = (historyExpr.match(/\(/g) || []).length;
+        let close = (historyExpr.match(/\)/g) || []).length;
+        const last = historyExpr.slice(-1);
+        if (open > close && !['+','-','*','/','('].includes(last)) historyExpr += ")";
         else historyExpr += "(";
-        renderDisplay();
-        autoPreview();
+        renderDisplay(); autoPreview();
     }
 
     function addOp(op) {
         if (isTargetMode) { isTargetMode = false; targetBox.classList.remove('active-target'); }
-        if (historyExpr === "" && op !== '-') return;
         const last = historyExpr.slice(-1);
         if (['+','-','*','/'].includes(last)) historyExpr = historyExpr.slice(0, -1) + op;
-        else historyExpr += op;
+        else if (historyExpr !== "" || op === '-') historyExpr += op;
         renderDisplay();
     }
 
@@ -234,35 +261,29 @@
     function calculate() {
         if (isTargetMode) { isTargetMode = false; targetBox.classList.remove('active-target'); return; }
         try {
-            let finalRes = Math.round(eval(historyExpr) * 1000000) / 1000000;
-            
-            // Lưu lịch sử trước khi xóa màn hình
+            let res = eval(historyExpr);
+            let finalRes = Math.round(res * 1000000) / 1000000;
             calculationHistory.push({ expr: exprDiv.innerText, res: finalRes });
-            
             resDiv.innerText = formatNumber(finalRes);
+            
             if (targetInput !== "") {
-                let targetVal = parseFloat(targetInput);
                 msgDiv.classList.remove('shake');
-                void msgDiv.offsetWidth; // Trigger reflow
-                if (Math.abs(finalRes - targetVal) < 0.00001) {
-                    msgDiv.innerText = "✅ KẾT QUẢ KHỚP";
-                    msgDiv.style.color = "var(--accent)";
+                void msgDiv.offsetWidth;
+                if (Math.abs(finalRes - parseFloat(targetInput)) < 0.00001) {
+                    msgDiv.innerText = "✅ KHỚP TUYỆT ĐỐI"; msgDiv.style.color = "var(--accent)";
                 } else {
-                    msgDiv.innerText = `❌ LỆCH: ${formatNumber(Math.round((finalRes - targetVal) * 100) / 100)}`;
-                    msgDiv.style.color = "var(--danger)";
-                    msgDiv.classList.add('shake');
+                    msgDiv.innerText = `❌ LỆCH: ${formatNumber(Math.round((finalRes - parseFloat(targetInput)) * 100) / 100)}`;
+                    msgDiv.style.color = "var(--danger)"; msgDiv.classList.add('shake');
                 }
             }
-            historyExpr = finalRes.toString();
-            exprDiv.innerText = "";
+            historyExpr = finalRes.toString(); exprDiv.innerText = "";
         } catch(e) { resDiv.innerText = "Lỗi"; }
     }
 
     function clearAll() {
         if (isTargetMode) targetInput = "";
-        else { historyExpr = ""; targetInput = ""; msgDiv.innerText = ""; msgDiv.classList.remove('shake'); }
-        resDiv.innerText = "0";
-        renderDisplay();
+        else { historyExpr = ""; targetInput = ""; msgDiv.innerText = ""; }
+        resDiv.innerText = "0"; renderDisplay();
     }
 
     function backspace() {
