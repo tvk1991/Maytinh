@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ClevCalc Subtraction Pro</title>
+    <title>ClevCalc Pro Max Final</title>
     <style>
         :root {
             --bg-color: #ffffff;
@@ -49,7 +49,22 @@
             scroll-behavior: smooth;
         }
         
-        #result-preview { font-size: 3.5rem; font-weight: 300; color: var(--text-main); line-height: 1; overflow-x: auto; white-space: nowrap; }
+        /* CẢI TIẾN: Cho phép cuộn ngang và ẩn thanh cuộn */
+        #result-preview { 
+            font-size: 3.5rem; font-weight: 300; color: var(--text-main); 
+            line-height: 1; 
+            overflow-x: auto; 
+            white-space: nowrap;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        #result-preview::-webkit-scrollbar { display: none; }
+
+        #comparison-msg { 
+            font-size: 1.1rem; font-weight: 800; 
+            text-align: center; height: 24px; margin: 5px 0; 
+            letter-spacing: 0.5px;
+        }
 
         .target-area { 
             display: flex; align-items: center; background: #f9f9f9; 
@@ -63,7 +78,6 @@
         }
         .target-label { font-size: 0.7rem; color: var(--target-color); font-weight: bold; margin-right: 8px; }
         #target-display { flex: 1; font-size: 1.3rem; color: var(--target-color); font-weight: bold; text-align: right; }
-        #comparison-msg { font-size: 0.85rem; font-weight: bold; text-align: center; height: 18px; margin: 3px 0; }
 
         .keypad {
             height: 60%; width: 100%;
@@ -102,6 +116,7 @@
         .history-list { flex: 1; overflow-y: auto; }
         .history-item { border-bottom: 1px solid #eee; padding: 15px 0; }
         #expression::-webkit-scrollbar { width: 0; background: transparent; }
+        .active-target { background: #e3f2fd !important; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -134,21 +149,17 @@
         <button class="btn-func" data-val="()">()</button>
         <button class="btn-func" data-val="%">%</button>
         <button class="btn-op" data-val="-">−</button>
-
         <button data-val="7">7</button>
         <button data-val="8">8</button>
         <button data-val="9">9</button>
         <button class="btn-op" data-val="*">×</button>
-
         <button data-val="4">4</button>
         <button data-val="5">5</button>
         <button data-val="6">6</button>
         <button class="btn-op btn-plus" data-val="+">+</button>
-
         <button data-val="1">1</button>
         <button data-val="2">2</button>
         <button data-val="3">3</button>
-
         <button data-val="back">⌫</button>
         <button data-val="0">0</button>
         <button data-val=".">,</button>
@@ -165,7 +176,6 @@
         const gain = audioCtx.createGain();
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-
         if (type === 'click') {
             osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
             gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
@@ -205,18 +215,16 @@
             playSound('click');
             btn.classList.add('pressed');
             const val = btn.getAttribute('data-val');
-            
             if (val === 'C') clearAll();
             else if (val === '()') smartParenthesis();
             else if (val === '%') applyPercent();
-            else if (val === '-') addOp('-'); // Áp dụng hàm trừ
+            else if (val === '-') addOp('-');
             else if (val === '*') addOp('*');
             else if (val === '+') addOp('+');
             else if (val === 'back') backspace();
             else if (val === '=') calculate();
             else if (val === '.') handleInput('.');
             else handleInput(val);
-
             setTimeout(() => btn.classList.remove('pressed'), 100);
         };
         btn.addEventListener('touchstart', handleAction, {passive: false});
@@ -239,7 +247,6 @@
     }
 
     function toggleHistory() { hBox.style.display = hBox.style.display === 'flex' ? 'none' : 'flex'; renderHistory(); }
-    
     function renderHistory() {
         hList.innerHTML = calculationHistory.map(item => `
             <div class="history-item">
@@ -248,7 +255,6 @@
             </div>
         `).reverse().join('');
     }
-
     function clearHistory() { calculationHistory = []; renderHistory(); }
 
     function toggleTargetMode() {
@@ -266,7 +272,12 @@
             if (len > 40) exprDiv.style.fontSize = "1.2rem";
             else if (len > 20) exprDiv.style.fontSize = "1.6rem";
             else exprDiv.style.fontSize = "2.2rem";
+            
+            // Cuộn dòng biểu thức
             setTimeout(() => { exprDiv.scrollTop = exprDiv.scrollHeight; }, 10);
+            
+            // --- CẢI TIẾN: Cuộn dòng kết quả sang phải ---
+            setTimeout(() => { resDiv.scrollLeft = resDiv.scrollWidth; }, 10);
         }
         targetDiv.innerText = formatNumber(targetInput) || "0";
     }
@@ -316,6 +327,8 @@
             let close = (temp.match(/\)/g) || []).length;
             if (open > close) temp += ")".repeat(open - close);
             resDiv.innerText = formatNumber(Math.round(eval(temp) * 1000000) / 1000000);
+            // Cuộn preview sang phải
+            setTimeout(() => { resDiv.scrollLeft = resDiv.scrollWidth; }, 10);
         } catch(e) {}
     }
 
@@ -326,6 +339,10 @@
             let finalRes = Math.round(res * 1000000) / 1000000;
             calculationHistory.push({ expr: exprDiv.innerText, res: finalRes });
             resDiv.innerText = formatNumber(finalRes);
+            
+            // Cuộn kết quả cuối cùng sang phải
+            setTimeout(() => { resDiv.scrollLeft = resDiv.scrollWidth; }, 10);
+
             if (targetInput !== "") {
                 msgDiv.classList.remove('shake');
                 void msgDiv.offsetWidth;
