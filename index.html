@@ -75,19 +75,19 @@
             display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* Phần màn hình hiển thị biểu thức và kết quả - HIỆU CHỈNH BÁM ĐÁY */
+        /* Phần màn hình hiển thị biểu thức và kết quả */
         .display-screen {
             height: 48%; width: 100%;
             padding: 20px 25px;
             display: flex; flex-direction: column; 
-            justify-content: flex-end; /* ÉP NỘI DUNG BÁM ĐÁY */
+            justify-content: flex-end; /* HIỆU CHỈNH: Căn nội dung xuống đáy */
             text-align: right; background: var(--screen-bg); z-index: 5;
         }
 
         /* Vùng hiển thị biểu thức đã nhập */
-        #expression { font-size: 1.5rem; color: var(--expr-text); max-height: 120px; overflow-y: auto; margin-bottom: 8px; font-weight: 500; word-wrap: break-word; }
+        #expression { font-size: 1.5rem; color: var(--expr-text); max-height: 120px; overflow-y: auto; margin-bottom: 8px; font-weight: 500; }
         /* Vùng hiển thị kết quả tạm thời (preview) */
-        #result-preview { font-size: 2.3rem; color: var(--led-green); text-shadow: var(--led-green-glow); line-height: 1.1; overflow: hidden; white-space: nowrap; font-weight: 800; text-overflow: ellipsis; margin-bottom: 20px; }
+        #result-preview { font-size: 2.5rem; color: var(--led-green); text-shadow: var(--led-green-glow); line-height: 1.1; overflow: hidden; white-space: nowrap; font-weight: 800; text-overflow: ellipsis; margin-bottom: 20px; }
         /* Vùng hiển thị thông báo so sánh với mục tiêu */
         #comparison-msg { font-size: 0.95rem; font-weight: 800; text-align: center; height: 24px; margin-bottom: 20px; }
 
@@ -132,7 +132,7 @@
         }
         .history-list { flex: 1; overflow-y: auto; color: var(--key-text); }
         .history-item { border-bottom: 1px solid var(--keypad-bg); padding: 20px 0; } /* Tăng khoảng cách */
-        .history-expr { color: var(--expr-text); font-size: 1.5rem; margin-bottom: 5px; text-align: right; } /* Cỡ chữ biểu thức lớn hơn */
+        .history-expr { color: var(--expr-text); font-size: 1.5rem; margin-bottom: 5px; } /* Cỡ chữ biểu thức lớn hơn */
         .history-res { font-weight: 900; text-align: right; font-size: 1.4rem; color: var(--key-text); } /* Cỡ chữ kết quả lớn rõ rệt */
 
         /* Hiệu ứng khi kích hoạt chế độ nhập mục tiêu */
@@ -157,7 +157,7 @@
     </div>
 
     <div class="display-screen">
-        <div id="expression"></div>  <div id="result-preview">0</div>  <div id="comparison-msg"></div>   <div class="target-area">
+        <div id="expression"></div>   <div id="result-preview">0</div>  <div id="comparison-msg"></div>    <div class="target-area">
             <div class="control-btn" id="openHistory">
                 <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
             </div>
@@ -199,7 +199,7 @@
 </div>
 
 <script>
-    /* TOÀN BỘ LOGIC CŨ GIỮ NGUYÊN - CHỈ CẬP NHẬT PHÉP TÍNH PHẦN TRĂM CHUẨN */
+    /* TOÀN BỘ LOGIC CŨ GIỮ NGUYÊN */
     
     // Xử lý sự kiện chuyển đổi theme
     const themeToggle = document.getElementById('theme-toggle');
@@ -264,24 +264,12 @@
         btn.addEventListener('mousedown', (e) => { if(e.button === 0) handleAction(e); }); // Xử lý click chuột
     });
 
-    // Hàm chuyển đổi biểu thức hiển thị sang toán học (FIX %)
-    function prepareEval(expr) {
-        let e = expr.replace(/(\d+(\.\d+)?)%/g, "($1/100)");
-        e = e.replace(/(\d)\(/g, "$1*(").replace(/\)(\d)/g, ")*$1");
-        return e;
-    }
-
     // Hàm xử lý chính dựa trên giá trị nút
     function handleCommand(val) {
         playSound('click');
         if (val === 'C') clearAll();                     // Xóa
         else if (val === '()') smartParenthesis();      // Thêm ngoặc
-        else if (val === '%') {
-            if (!isTargetMode && historyExpr && !isNaN(historyExpr.slice(-1))) {
-                historyExpr += "%";
-                autoPreview();
-            }
-        }
+        else if (val === '%') applyPercent();           // Xử lý phần trăm
         else if (val === '-') addOp('-');                // Thêm toán tử -
         else if (val === '*') addOp('*');                // Thêm toán tử *
         else if (val === '+') addOp('+');                // Thêm toán tử +
@@ -289,7 +277,6 @@
         else if (val === '=') calculate();               // Tính toán
         else if (val === '.') handleInput('.');          // Thêm dấu thập phân
         else handleInput(val);                            // Thêm số
-        renderDisplay();
     }
 
     // Gán sự kiện cho các nút điều khiển
@@ -333,61 +320,103 @@
     // Cập nhật hiển thị biểu thức và giá trị mục tiêu
     function renderDisplay() {
         if (!isTargetMode) {
+            // Thay thế các ký tự toán tử bằng ký tự đẹp hơn và thêm khoảng trắng
             let displayStr = historyExpr.replace(/\*/g, ' × ').replace(/\//g, ' ÷ ').replace(/\+/g, ' + ').replace(/\-/g, ' − ');
-            displayStr = displayStr.replace(/(\d+(\.\d+)?)(?!%)/g, (match) => formatNumber(match));
+            // Định dạng số trong biểu thức
+            displayStr = displayStr.replace(/(\d+(\.\d+)?)/g, (match) => formatNumber(match));
             exprDiv.innerText = displayStr;
-            exprDiv.scrollTop = exprDiv.scrollHeight; // LUÔN CUỘN XUỐNG ĐÁY
+            exprDiv.scrollTop = exprDiv.scrollHeight; // HIỆU CHỈNH: Cuộn xuống đáy biểu thức
         }
         targetDiv.innerText = formatNumber(targetInput) || "0";
     }
 
     // Xử lý khi nhập số hoặc dấu thập phân
     function handleInput(n) {
-        if (isTargetMode) {
-            if (n === '.' && targetInput.includes('.')) return;
+        if (isTargetMode) { // Nếu đang ở chế độ nhập mục tiêu
+            if (n === '.' && targetInput.includes('.')) return; // Chỉ cho một dấu chấm
             targetInput += n;
-        } else {
+        } else { // Chế độ nhập biểu thức
+            // Kiểm tra nếu đã có mục tiêu và đang nhập số, dự đoán nếu nhập tiếp sẽ vượt mục tiêu
+            if (targetInput !== "" && !isNaN(n)) {
+                let cleanedExpr = historyExpr + n;
+                // Loại bỏ các ký tự không hợp lệ cuối
+                while (['+','-','*','/','(','.'].includes(cleanedExpr.slice(-1))) { cleanedExpr = cleanedExpr.slice(0, -1); }
+                try {
+                    let open = (cleanedExpr.match(/\(/g) || []).length;
+                    let close = (cleanedExpr.match(/\)/g) || []).length;
+                    if (open > close) cleanedExpr += ")".repeat(open - close);
+                    let potential = Math.round(eval(cleanedExpr) * 1000000) / 1000000;
+                    if (potential > parseFloat(targetInput)) {
+                        // Cảnh báo nếu vượt mục tiêu
+                        msgDiv.innerText = "⚠️ SẼ VƯỢT MỤC TIÊU!";
+                        msgDiv.style.color = "var(--danger)";
+                        msgDiv.classList.add('shake');
+                        resDiv.classList.add('neon-danger');
+                        setTimeout(() => msgDiv.classList.remove('shake'), 400);
+                        playSound('fail'); 
+                        return; // Không cho nhập nữa
+                    }
+                } catch(e) {}
+            }
             historyExpr += n; 
-            autoPreview();
+            autoPreview(); // Cập nhật kết quả tạm thời
         }
+        renderDisplay();
     }
 
-    // Xử lý thêm ngoặc thông minh
+    // Xử lý thêm ngoặc thông minh (đóng mở ngoặc tự động)
     function smartParenthesis() {
         if (isTargetMode) return;
         let open = (historyExpr.match(/\(/g) || []).length;
         let close = (historyExpr.match(/\)/g) || []).length;
         const last = historyExpr.slice(-1);
         if (open > close && !['+','-','*','/','('].includes(last)) historyExpr += ")"; else historyExpr += "(";
-        autoPreview();
+        renderDisplay(); autoPreview();
     }
 
     // Thêm toán tử
     function addOp(op) {
-        if (isTargetMode) { 
+        if (isTargetMode) { // Nếu đang ở chế độ target, thoát khỏi chế độ target
             isTargetMode = false; 
             document.querySelector('.target-area').classList.remove('active-target');
         }
         const last = historyExpr.slice(-1);
-        if (['+','-','*','/'].includes(last)) historyExpr = historyExpr.slice(0, -1) + op;
-        else if (historyExpr !== "" || op === '-') historyExpr += op;
+        if (['+','-','*','/'].includes(last)) historyExpr = historyExpr.slice(0, -1) + op; // Thay thế toán tử cuối
+        else if (historyExpr !== "" || op === '-') historyExpr += op; // Thêm mới, cho phép dấu trừ đứng đầu
         resDiv.classList.remove('neon-danger'); 
+        renderDisplay(); 
         autoPreview();
+    }
+
+    // Xử lý phần trăm (chuyển đổi % thành /100)
+    function applyPercent() {
+        if (isTargetMode) return;
+        try {
+            // Tách biểu thức thành các phần tử dựa trên toán tử
+            let parts = historyExpr.split(/([\+\-\*\/])/);
+            let lastPart = parts.pop(); let op = parts.pop();
+            let base = eval(parts.join("") || "0");
+            // Nếu toán tử là + hoặc -, thì phần trăm tính theo base, ngược lại chỉ là /100
+            let val = (op === '+' || op === '-') ? base * (parseFloat(lastPart) / 100) : parseFloat(lastPart) / 100;
+            historyExpr = parts.join("") + (op || "") + val;
+            renderDisplay(); autoPreview();
+        } catch(e) {}
     }
 
     // Cập nhật kết quả tạm thời (preview) khi nhập
     function autoPreview() {
         try {
             let temp = historyExpr; if (!temp) { resDiv.innerText = "0"; return; }
-            while (['+','-','*','/','(','.', '%'].includes(temp.slice(-1))) { temp = temp.slice(0, -1); }
+            // Loại bỏ các ký tự không hợp lệ ở cuối
+            while (['+','-','*','/','(','.'].includes(temp.slice(-1))) { temp = temp.slice(0, -1); }
             if (!temp) { resDiv.innerText = "0"; return; }
-            let mathExpr = prepareEval(temp);
-            let open = (mathExpr.match(/\(/g) || []).length;
-            let close = (mathExpr.match(/\)/g) || []).length;
-            if (open > close) mathExpr += ")".repeat(open - close);
-            let pVal = Math.round(eval(mathExpr) * 1000000) / 1000000;
+            // Cân bằng số ngoặc (thêm ngoặc đóng nếu thiếu)
+            let open = (temp.match(/\(/g) || []).length;
+            let close = (temp.match(/\)/g) || []).length;
+            if (open > close) temp += ")".repeat(open - close);
+            let pVal = Math.round(eval(temp) * 1000000) / 1000000;
             resDiv.innerText = formatNumber(pVal);
-            
+            // Kiểm tra vượt mục tiêu
             if (targetInput !== "" && pVal > parseFloat(targetInput)) {
                 resDiv.classList.add('neon-danger'); 
                 msgDiv.innerText = "⚠️ VƯỢT QUÁ!"; 
@@ -401,37 +430,38 @@
 
     // Hàm tính toán chính thức khi nhấn =
     function calculate() {
-        if (isTargetMode) { 
+        if (isTargetMode) { // Nếu đang ở chế độ target, thoát khỏi mà không tính
             isTargetMode = false; 
             document.querySelector('.target-area').classList.remove('active-target');
             return;
         }
         try {
             let temp = historyExpr; if (!temp) return;
-            while (['+','-','*','/','(','.', '%'].includes(temp.slice(-1))) { temp = temp.slice(0, -1); }
-            let res = eval(prepareEval(temp)); 
+            while (['+','-','*','/','(','.'].includes(temp.slice(-1))) { temp = temp.slice(0, -1); }
+            let res = eval(temp); 
             let finalRes = Math.round(res * 1000000) / 1000000;
-            
+            // So sánh với mục tiêu nếu có
             if (targetInput !== "") {
-                let diff = Math.round((finalRes - parseFloat(targetInput)) * 100) / 100;
-                if (Math.abs(diff) < 0.01) {
+                if (Math.abs(finalRes - parseFloat(targetInput)) < 0.00001) {
                     msgDiv.innerText = "✅ KHỚP TUYỆT ĐỐI"; 
                     msgDiv.style.color = "var(--accent)"; 
                     playSound('success');
                 } else {
+                    let diff = Math.round((finalRes - parseFloat(targetInput)) * 100) / 100;
                     msgDiv.innerText = (diff > 0 ? "❌ VƯỢT: " : "❌ THIẾU: ") + formatNumber(Math.abs(diff));
                     msgDiv.style.color = "var(--danger)"; 
                     playSound('fail');
                 }
             }
+            // Lưu vào lịch sử
             calculationHistory.push({ expr: exprDiv.innerText, res: finalRes });
             resDiv.innerText = formatNumber(finalRes); 
-            historyExpr = finalRes.toString(); 
+            historyExpr = finalRes.toString(); // Đặt biểu thức mới là kết quả
             exprDiv.innerText = "";
         } catch(e) { resDiv.innerText = "Lỗi"; }
     }
 
-    // Xóa toàn bộ
+    // Xóa toàn bộ (nếu đang target thì xóa target, nếu không thì xóa cả biểu thức và target)
     function clearAll() {
         if (isTargetMode) targetInput = "";
         else { historyExpr = ""; targetInput = ""; msgDiv.innerText = ""; }
