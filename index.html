@@ -70,11 +70,13 @@
             width: 100vw; height: 100dvh; max-width: 500px;
             background: var(--bg-color); position: relative;
             display: flex; flex-direction: column; overflow: hidden;
+            /* Tối ưu cho màn hình tai thỏ/nốt ruồi */
+            padding-top: env(safe-area-inset-top);
         }
 
         .display-screen {
             height: 40%; width: 100%;
-            padding: 20px 25px;
+            padding: 15px 25px;
             display: flex; flex-direction: column; 
             justify-content: flex-end;
             text-align: right; background: var(--screen-bg); z-index: 5;
@@ -92,20 +94,22 @@
             line-height: 1.4;
         }
 
-        #result-preview { font-size: 2.3rem; color: var(--led-green); text-shadow: var(--led-green-glow); line-height: 1.2; overflow: hidden; white-space: nowrap; font-weight: 800; text-overflow: ellipsis; margin-bottom: 15px; padding-bottom: 5px; }
-        #comparison-msg { font-size: 0.95rem; font-weight: 800; text-align: center; height: 24px; margin-bottom: 15px; }
+        #result-preview { font-size: 2.3rem; color: var(--led-green); text-shadow: var(--led-green-glow); line-height: 1.2; overflow: hidden; white-space: nowrap; font-weight: 800; text-overflow: ellipsis; margin-bottom: 10px; padding-bottom: 5px; }
+        #comparison-msg { font-size: 0.95rem; font-weight: 800; text-align: center; height: 24px; margin-bottom: 10px; }
 
         .target-area { 
             display: flex; align-items: center; background: var(--target-area-bg); 
-            border-radius: 14px; padding: 12px 18px; border: 1px solid var(--target-border);
-            gap: 12px; margin-bottom: 10px;
-            min-height: 55px;
+            border-radius: 14px; padding: 10px 18px; border: 1px solid var(--target-border);
+            gap: 12px; margin-bottom: 5px;
+            min-height: 52px;
         }
 
         .keypad {
             height: 60%; width: 100%;
             display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr);
-            background: var(--keypad-bg); gap: 1px; padding-bottom: env(safe-area-inset-bottom);
+            background: var(--keypad-bg); gap: 1px; 
+            /* Tối ưu cho thanh điều hướng vuốt Android */
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         .control-btn { display: flex; align-items: center; justify-content: center; padding: 5px; cursor: pointer; }
@@ -120,14 +124,15 @@
         button { 
             background: var(--key-bg); 
             border: none; 
-            font-size: 2.2rem; 
-            color: var(--key-text); 
+            font-size: 1.8rem; 
+            color: var(--led-orange-glow); 
             display: flex; 
             justify-content: center; 
             align-items: center;
             cursor: pointer;
             outline: none;
             will-change: background;
+            font-weight: 900;
         }
         
         button:active { 
@@ -149,6 +154,7 @@
             position: absolute; inset: 0; background: var(--screen-bg); z-index: 100; 
             display: none; flex-direction: column; padding: 25px;
             padding-top: calc(env(safe-area-inset-top) + 20px);
+            padding-bottom: env(safe-area-inset-bottom);
         }
         .history-list { flex: 1; overflow-y: auto; color: var(--key-text); }
         .history-item { border-bottom: 1px solid var(--keypad-bg); padding: 20px 0; }
