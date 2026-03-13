@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Sentinel Calc">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2344/2344132.png">
     
@@ -18,7 +18,7 @@
             --key-bg: #ffffff;
             --key-text: #2d3436;
             --key-active: #e2e4e9;
-            --expr-text: #000000;
+            --expr-text: #636e72;
             --target-area-bg: #fffaf5;
             --target-border: #ffecdb;
             --accent: #27ae60;
@@ -40,7 +40,7 @@
             --key-bg: #1e1e1e;
             --key-text: #ffffff;
             --key-active: #333333;
-            --expr-text: #555555;
+            --expr-text: #b2bec3;
             --target-area-bg: #1a1510;
             --target-border: #3d2b1f;
             --led-green: #2ecc71;
@@ -50,101 +50,67 @@
         }
 
         * { 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; 
+            box-sizing: border-box; -webkit-tap-highlight-color: transparent; 
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-            touch-action: manipulation;
-            user-select: none;
-            font-weight: 600; 
-            transition: background 0.2s, color 0.2s;
+            touch-action: manipulation; user-select: none; font-weight: 600; 
         }
 
         html, body { 
             height: 100%; margin: 0; overflow: hidden; 
-            background-color: var(--bg-color); display: flex; justify-content: center;
-            position: fixed; width: 100%;
+            background-color: var(--bg-color);
         }
 
         .clevcalc-container {
-            width: 100vw; height: 100dvh; max-width: 500px;
-            background: var(--bg-color); position: relative;
-            display: flex; flex-direction: column; overflow: hidden;
+            width: 100%; height: 100dvh; display: flex; flex-direction: column;
         }
 
+        /* TỐI ƯU TAI THỎ (SAFE AREA TOP) */
         .display-screen {
-            flex: 1; width: 100%;
-            padding: 20px 25px;
-            display: flex; flex-direction: column; 
-            justify-content: flex-end;
-            text-align: right; background: var(--screen-bg); z-index: 5;
-            min-height: 40%;
+            flex: 1; min-height: 35%;
+            padding: calc(env(safe-area-inset-top) + 10px) 25px 15px 25px;
+            display: flex; flex-direction: column; justify-content: flex-end;
+            text-align: right; background: var(--screen-bg);
         }
 
-        #expression { 
-            font-size: 1.5rem; color: var(--expr-text); 
-            max-height: 100px; overflow-y: auto; margin-bottom: 8px; 
-            font-weight: 500; word-break: break-all;
-        }
-        
-        #result-preview { 
-            font-size: 2.8rem; color: var(--led-green); 
-            text-shadow: var(--led-green-glow); line-height: 1.1; 
-            overflow: hidden; white-space: nowrap; font-weight: 800; 
-            text-overflow: ellipsis; margin-bottom: 10px;
-        }
-
-        #comparison-msg { font-size: 0.95rem; font-weight: 800; text-align: center; height: 24px; margin-bottom: 15px; }
+        #expression { font-size: 1.4rem; color: var(--expr-text); margin-bottom: 8px; word-break: break-all; }
+        #result-preview { font-size: 3rem; color: var(--led-green); text-shadow: var(--led-green-glow); margin-bottom: 10px; }
 
         .target-area { 
             display: flex; align-items: center; background: var(--target-area-bg); 
             border-radius: 14px; padding: 12px 18px; border: 1px solid var(--target-border);
-            gap: 12px; margin-bottom: 5px;
+            gap: 12px;
         }
 
+        /* TỐI ƯU VẠCH HOME (SAFE AREA BOTTOM) */
         .keypad {
-            height: 55%; width: 100%;
             display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr);
-            background: var(--keypad-bg); gap: 1px; 
+            background: var(--keypad-bg); gap: 1px;
             padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
         }
 
-        .control-btn { display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .control-btn svg { width: 22px; height: 22px; stroke-width: 2.5; fill: none; }
-        #openHistory svg { stroke: var(--target-color); }
-        #theme-toggle svg { fill: var(--target-color); }
-        .divider { width: 1px; height: 22px; background: var(--target-border); }
-        .target-label { font-size: 0.7rem; color: var(--target-color); font-weight: 800; margin-right: 8px; }
-        #target-display { flex: 1; font-size: 1.5rem; color: var(--led-orange); text-shadow: var(--led-orange-glow); font-weight: 900; }
-
-        button { 
-            background: var(--key-bg); border: none; font-size: 1.6rem; 
-            color: var(--key-text); display: flex; justify-content: center; 
-            align-items: center; cursor: pointer;
-        }
+        button { background: var(--key-bg); border: none; font-size: 1.6rem; color: var(--key-text); display: flex; justify-content: center; align-items: center; min-height: 70px; }
         button:active { background: var(--key-active); }
-        .btn-back svg { width: 26px; height: 26px; stroke: var(--key-text); stroke-width: 2.5; fill: none; }
-        .btn-op { color: var(--op-color); font-weight: 900; }
-        .btn-func { color: var(--accent); font-weight: 900; }
-        .btn-clear { color: var(--danger); font-weight: 900; }
-        .btn-equal { background: var(--accent); color: white; font-size: 2.2rem; font-weight: 800; }
-        .btn-plus { grid-row: span 2; color: var(--op-color); font-weight: 900; }
-        
+        .btn-op { color: var(--op-color); font-size: 1.8rem; }
+        .btn-func { color: var(--accent); }
+        .btn-clear { color: var(--danger); }
+        .btn-equal { background: var(--accent); color: white; font-size: 2.2rem; }
+        .btn-plus { grid-row: span 2; color: var(--op-color); }
+
         .history-box {
             position: absolute; inset: 0; background: var(--screen-bg); z-index: 100; 
-            display: none; flex-direction: column; padding: 25px;
-            padding-top: calc(env(safe-area-inset-top) + 20px);
+            display: none; flex-direction: column; 
+            padding: calc(env(safe-area-inset-top) + 20px) 25px env(safe-area-inset-bottom) 25px;
         }
         .history-list { flex: 1; overflow-y: auto; }
-        .history-item { border-bottom: 1px solid var(--keypad-bg); padding: 20px 0; }
-        .history-expr { color: var(--expr-text); font-size: 1.2rem; margin-bottom: 5px; opacity: 0.8; }
-        .history-res { font-weight: 900; text-align: right; font-size: 1.8rem; color: var(--led-green); text-shadow: var(--led-green-glow);}
+        .history-item { border-bottom: 1px solid var(--keypad-bg); padding: 15px 0; }
+        .history-res { font-size: 1.6rem; color: var(--led-green); text-align: right; }
 
-        .active-target { background: #fff5eb !important; border-color: var(--target-color) !important; outline: 2px solid var(--target-color); }
-        [data-theme="dark"] .active-target { background: #2a1f15 !important; }
-        
-        .shake { animation: shake 0.4s both; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+        .active-target { outline: 2px solid var(--target-color); }
         .neon-danger { color: var(--led-red) !important; text-shadow: var(--led-red-glow) !important; }
+        .shake { animation: shake 0.3s ease-in-out; }
+        @keyframes shake { 0%,100% {transform:translateX(0)} 25% {transform:translateX(-5px)} 75% {transform:translateX(5px)} }
     </style>
 </head>
 <body oncontextmenu="return false;"> 
