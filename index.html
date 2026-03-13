@@ -6,6 +6,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2344/2344132.png">
+
     
     <title>ClevCalc Sentinel History+</title>
     <style>
@@ -28,10 +30,15 @@
         }
 
         * { 
-            box-sizing: border-box; -webkit-tap-highlight-color: transparent; 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            touch-action: manipulation; user-select: none; font-weight: 600; 
+            touch-action: manipulation; 
+            font-weight: 600; 
             transition: background 0.2s, color 0.2s;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
         }
 
         html, body { 
@@ -46,27 +53,36 @@
             overflow: hidden; margin: 0 auto;
         }
 
-        /* TỐI ƯU MÀN HÌNH HIỂN THỊ */
         .display-screen {
-            flex: 1; /* Tự động giãn nhưng không tạo khoảng trắng quá lớn */
+            flex: 1; 
             width: 100%; 
-            /* Giảm padding top để loại bỏ khoảng trắng rác trên Safari */
             padding: calc(env(safe-area-inset-top) + 10px) 25px 10px 25px;
             display: flex; flex-direction: column; 
-            justify-content: flex-end; /* Đẩy nội dung xuống dưới sát bàn phím */
+            justify-content: flex-end; 
             text-align: right; background: var(--screen-bg); z-index: 5;
         }
 
-        /* THIẾT LẬP ĐỦ CHỖ CHO 5 DÒNG BIỂU THỨC */
+        /* CẢI THIỆN XUỐNG DÒNG BIỂU THỨC */
         #expression { 
-            font-size: 1.35rem; 
-            line-height: 1.4; /* Độ cao mỗi dòng */
+            font-size: 1.3rem; 
+            line-height: 1.5; /* Tăng nhẹ để giãn dòng cho dễ đọc */
             color: var(--expr-text); 
-            min-height: calc(1.35rem * 1.4 * 5); /* Đảm bảo luôn đủ diện tích cho 5 dòng */
-            max-height: calc(1.35rem * 1.4 * 5); 
-            overflow-y: auto; margin-bottom: 5px; 
-            font-weight: 500; word-break: break-all;
+            /* Đảm bảo chiều cao cho 5 dòng: 1.3rem * 1.5 * 5 */
+            min-height: 9.75rem; 
+            max-height: 9.75rem; 
+            overflow-y: auto; 
+            margin-bottom: 8px; 
+            font-weight: 500; 
+            
+            /* Tối ưu ngắt dòng đẹp mắt */
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: normal; /* Ưu tiên ngắt tại khoảng trắng (quanh các toán tử) */
+            white-space: pre-wrap; /* Giữ lại các khoảng trắng để trình duyệt ngắt dòng tại đó */
+            
             scrollbar-width: none;
+            user-select: none;
+            -webkit-user-select: none;
         }
         #expression::-webkit-scrollbar { display: none; }
         
@@ -87,9 +103,8 @@
             gap: 10px; margin-bottom: 5px;
         }
 
-        /* BÀN PHÍM CỐ ĐỊNH CHIỀU CAO */
         .keypad {
-            height: 50%; /* Giữ bàn phím ở mức 50% màn hình */
+            height: 50%; 
             width: 100%; display: grid; 
             grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr);
             background: var(--keypad-bg); gap: 1px; 
@@ -97,7 +112,7 @@
         }
 
         .control-btn { display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 5px; }
-        .control-btn svg { width: 22px; height: 22px; stroke-width: 2.5; fill: none; }
+        .control-btn svg { width: 22px; height: 22px; stroke-width: 2.5; fill: none; pointer-events: none; }
         #openHistory svg { stroke: var(--target-color); }
         #theme-toggle svg { fill: var(--target-color); }
         .divider { width: 1px; height: 20px; background: var(--target-border); }
@@ -108,10 +123,11 @@
             background: var(--key-bg); border: none; font-size: 1.6rem; 
             color: var(--key-text); display: flex; justify-content: center; 
             align-items: center; cursor: pointer;
+            -webkit-user-drag: none;
         }
         button:active { background: var(--key-active); }
         
-        .btn-back svg { width: 26px; height: 26px; stroke: var(--key-text); stroke-width: 2.5; fill: none; }
+        .btn-back svg { width: 26px; height: 26px; stroke: var(--key-text); stroke-width: 2.5; fill: none; pointer-events: none; }
         .btn-op { color: var(--op-color); font-weight: 900; }
         .btn-func { color: var(--accent); font-weight: 900; }
         .btn-clear { color: var(--danger); font-weight: 900; }
@@ -195,7 +211,7 @@
 </div>
 
 <script>
-    /* GIỮ NGUYÊN TOÀN BỘ LOGIC */
+    /* GIỮ NGUYÊN TOÀN BỘ LOGIC 100% */
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let historyExpr = "";          
     let targetInput = "";          
