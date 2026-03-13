@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Sentinel Calc">
@@ -61,48 +60,53 @@
 
         html, body { 
             height: 100%; margin: 0; overflow: hidden; 
-            background-color: var(--bg-color); display: flex; justify-content: center;
+            background-color: var(--bg-color);
             position: fixed; width: 100%;
         }
 
         .clevcalc-container {
-            width: 100vw; height: 100dvh; max-width: 500px;
-            background: var(--bg-color); position: relative;
-            display: flex; flex-direction: column; overflow: hidden;
+            width: 100vw; 
+            height: 100dvh; /* Sử dụng dvh để full màn hình động */
+            max-width: 500px;
+            background: var(--bg-color); 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden;
+            margin: 0 auto;
         }
 
-      .display-screen {
-    flex: 1; width: 100%;
-    /* Sử dụng max() để đảm bảo padding tối thiểu là 20px, 
-       nhưng nếu tai thỏ sâu hơn thì nó sẽ tự nới rộng ra */
-    padding-top: max(20px, env(safe-area-inset-top)); 
-    padding-left: max(25px, env(safe-area-inset-left));
-    padding-right: max(25px, env(safe-area-inset-right));
-    padding-bottom: 20px;
-    
-    display: flex; flex-direction: column; 
-    justify-content: flex-end;
-    text-align: right; 
-    background: var(--screen-bg); 
-    z-index: 5;
-    min-height: 40%;
-}
-
+        /* PHẦN CHỈNH SỬA: Mở rộng màn hình hiển thị */
+        .display-screen {
+            flex: 1; /* Chiếm tối đa không gian còn trống */
+            width: 100%;
+            padding: calc(env(safe-area-inset-top) + 15px) 25px 15px 25px;
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-end; /* Đẩy nội dung xuống sát bàn phím */
+            text-align: right; 
+            background: var(--screen-bg); 
+            z-index: 5;
+        }
 
         #expression { 
             font-size: 1.5rem; color: var(--expr-text); 
-            max-height: 100px; overflow-y: auto; margin-bottom: 8px; 
+            max-height: 120px; overflow-y: auto; margin-bottom: 8px; 
             font-weight: 500; word-break: break-all;
         }
         
         #result-preview { 
-            font-size: 2.8rem; color: var(--led-green); 
-            text-shadow: var(--led-green-glow); line-height: 1.1; 
-            overflow: hidden; white-space: nowrap; font-weight: 800; 
-            text-overflow: ellipsis; margin-bottom: 10px;
+            font-size: clamp(2.5rem, 12vw, 3.2rem); /* Chữ tự co giãn theo màn hình */
+            color: var(--led-green); 
+            text-shadow: var(--led-green-glow); 
+            line-height: 1.1; 
+            overflow: hidden; 
+            white-space: nowrap; 
+            font-weight: 800; 
+            text-overflow: ellipsis; 
+            margin-bottom: 10px;
         }
 
-        #comparison-msg { font-size: 0.95rem; font-weight: 800; text-align: center; height: 24px; margin-bottom: 15px; }
+        #comparison-msg { font-size: 0.95rem; font-weight: 800; text-align: center; min-height: 24px; margin-bottom: 15px; }
 
         .target-area { 
             display: flex; align-items: center; background: var(--target-area-bg); 
@@ -110,10 +114,15 @@
             gap: 12px; margin-bottom: 5px;
         }
 
+        /* PHẦN CHỈNH SỬA: Cố định tỷ lệ bàn phím */
         .keypad {
-            height: 55%; width: 100%;
-            display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr);
-            background: var(--keypad-bg); gap: 1px; 
+            height: 50%; /* Giảm chiều cao bàn phím xuống một chút để nhường chỗ cho màn hình */
+            width: 100%;
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            grid-template-rows: repeat(5, 1fr);
+            background: var(--keypad-bg); 
+            gap: 1px; 
             padding-bottom: env(safe-area-inset-bottom);
         }
 
@@ -215,6 +224,7 @@
 </div>
 
 <script>
+    /* TOÀN BỘ LOGIC JAVASCRIPT GIỮ NGUYÊN 100% */
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let historyExpr = "";          
     let targetInput = "";          
