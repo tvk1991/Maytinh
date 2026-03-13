@@ -37,7 +37,7 @@
         html, body { 
             height: 100%; margin: 0; overflow: hidden; 
             background-color: var(--bg-color); position: fixed; width: 100%;
-            overscroll-behavior-y: contain; /* Chống pull-to-refresh trên Android */
+            overscroll-behavior-y: contain;
         }
 
         .clevcalc-container {
@@ -46,23 +46,35 @@
             overflow: hidden; margin: 0 auto;
         }
 
+        /* TỐI ƯU MÀN HÌNH HIỂN THỊ */
         .display-screen {
-            flex: 1; width: 100%; padding: 20px 25px 10px 25px;
-            display: flex; flex-direction: column; justify-content: flex-end; 
+            flex: 1; /* Tự động giãn nhưng không tạo khoảng trắng quá lớn */
+            width: 100%; 
+            /* Giảm padding top để loại bỏ khoảng trắng rác trên Safari */
+            padding: calc(env(safe-area-inset-top) + 10px) 25px 10px 25px;
+            display: flex; flex-direction: column; 
+            justify-content: flex-end; /* Đẩy nội dung xuống dưới sát bàn phím */
             text-align: right; background: var(--screen-bg); z-index: 5;
         }
 
+        /* THIẾT LẬP ĐỦ CHỖ CHO 5 DÒNG BIỂU THỨC */
         #expression { 
-            font-size: 1.4rem; color: var(--expr-text); 
-            max-height: 100px; overflow-y: auto; margin-bottom: 5px; 
+            font-size: 1.35rem; 
+            line-height: 1.4; /* Độ cao mỗi dòng */
+            color: var(--expr-text); 
+            min-height: calc(1.35rem * 1.4 * 5); /* Đảm bảo luôn đủ diện tích cho 5 dòng */
+            max-height: calc(1.35rem * 1.4 * 5); 
+            overflow-y: auto; margin-bottom: 5px; 
             font-weight: 500; word-break: break-all;
-            scrollbar-width: none; /* Ẩn scrollbar trên Android */
+            scrollbar-width: none;
         }
         #expression::-webkit-scrollbar { display: none; }
         
         #result-preview { 
-            font-size: clamp(2.4rem, 11vw, 3rem); color: var(--led-green); 
-            text-shadow: var(--led-green-glow); line-height: 1.1; 
+            font-size: clamp(2.2rem, 10vw, 2.8rem); 
+            color: var(--led-green); 
+            text-shadow: var(--led-green-glow); 
+            line-height: 1.1; 
             overflow: hidden; white-space: nowrap; font-weight: 800; 
             text-overflow: ellipsis; margin-bottom: 8px;
         }
@@ -75,8 +87,10 @@
             gap: 10px; margin-bottom: 5px;
         }
 
+        /* BÀN PHÍM CỐ ĐỊNH CHIỀU CAO */
         .keypad {
-            height: 52%; width: 100%; display: grid; 
+            height: 50%; /* Giữ bàn phím ở mức 50% màn hình */
+            width: 100%; display: grid; 
             grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr);
             background: var(--keypad-bg); gap: 1px; 
             padding-bottom: env(safe-area-inset-bottom);
@@ -93,7 +107,7 @@
         button { 
             background: var(--key-bg); border: none; font-size: 1.6rem; 
             color: var(--key-text); display: flex; justify-content: center; 
-            align-items: center; cursor: pointer; position: relative;
+            align-items: center; cursor: pointer;
         }
         button:active { background: var(--key-active); }
         
@@ -181,12 +195,11 @@
 </div>
 
 <script>
-    /* OPTIMIZED FOR ANDROID - KEEPING LOGIC 100% */
+    /* GIỮ NGUYÊN TOÀN BỘ LOGIC */
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let historyExpr = "";          
     let targetInput = "";          
     let isTargetMode = false;      
-    // Khôi phục lịch sử từ LocalStorage
     let calculationHistory = JSON.parse(localStorage.getItem('calc_history') || '[]');
 
     const exprDiv = document.getElementById('expression');
@@ -197,10 +210,7 @@
     const hBox = document.getElementById('historyBox');
     const hList = document.getElementById('historyList');
 
-    // Haptic feedback cho Android
-    function vibrate() {
-        if (navigator.vibrate) navigator.vibrate(15);
-    }
+    function vibrate() { if (navigator.vibrate) navigator.vibrate(15); }
 
     function playSound(type) {
         if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -226,13 +236,10 @@
         }
     }
 
-    // Sử dụng pointerdown để Android phản hồi nhanh nhất
     const buttons = document.querySelectorAll('button[data-val]');
     buttons.forEach(btn => {
         btn.addEventListener('pointerdown', (e) => { 
-            e.preventDefault(); 
-            vibrate();
-            handleCommand(btn.getAttribute('data-val')); 
+            e.preventDefault(); vibrate(); handleCommand(btn.getAttribute('data-val')); 
         });
     });
 
@@ -251,8 +258,7 @@
     }
 
     document.getElementById('theme-toggle').addEventListener('pointerdown', (e) => {
-        e.preventDefault();
-        vibrate();
+        e.preventDefault(); vibrate();
         const body = document.body;
         const isDark = body.getAttribute('data-theme') === 'dark';
         body.setAttribute('data-theme', isDark ? 'light' : 'dark');
@@ -269,8 +275,7 @@
 
     function formatNumber(val) {
         if (!val && val !== 0) return "";
-        let s = val.toString(); 
-        let parts = s.split('.');
+        let s = val.toString(); let parts = s.split('.');
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         return parts.length > 1 ? parts[0] + "," + parts[1] : parts[0];
     }
@@ -290,9 +295,7 @@
     }
     
     function clearHistory() { 
-        calculationHistory = []; 
-        localStorage.removeItem('calc_history');
-        renderHistory(); 
+        calculationHistory = []; localStorage.removeItem('calc_history'); renderHistory(); 
     }
 
     function toggleTargetMode() {
@@ -335,8 +338,7 @@
                     }
                 } catch(e) {}
             }
-            historyExpr += n; 
-            autoPreview();
+            historyExpr += n; autoPreview();
         }
         renderDisplay();
     }
@@ -352,15 +354,12 @@
 
     function addOp(op) {
         if (isTargetMode) {
-            isTargetMode = false; 
-            document.getElementById('target-area-container').classList.remove('active-target');
+            isTargetMode = false; document.getElementById('target-area-container').classList.remove('active-target');
         }
         const last = historyExpr.slice(-1);
         if (['+','-','*','/'].includes(last)) historyExpr = historyExpr.slice(0, -1) + op;
         else if (historyExpr !== "" || op === '-') historyExpr += op;
-        resDiv.classList.remove('neon-danger'); 
-        renderDisplay(); 
-        autoPreview();
+        resDiv.classList.remove('neon-danger'); renderDisplay(); autoPreview();
     }
 
     function applyPercent() {
@@ -386,61 +385,41 @@
             let pVal = Math.round(eval(temp) * 1000000) / 1000000;
             resDiv.innerText = formatNumber(pVal);
             if (targetInput !== "" && pVal > parseFloat(targetInput)) {
-                resDiv.classList.add('neon-danger'); 
-                msgDiv.innerText = "⚠️ VƯỢT QUÁ!"; 
-                msgDiv.style.color = "var(--danger)";
+                resDiv.classList.add('neon-danger'); msgDiv.innerText = "⚠️ VƯỢT QUÁ!"; msgDiv.style.color = "var(--danger)";
             } else {
-                resDiv.classList.remove('neon-danger'); 
-                if(!isTargetMode) msgDiv.innerText = "";
+                resDiv.classList.remove('neon-danger'); if(!isTargetMode) msgDiv.innerText = "";
             }
         } catch(e) { resDiv.innerText = "0"; }
     }
 
     function calculate() {
         if (isTargetMode) {
-            isTargetMode = false; 
-            document.getElementById('target-area-container').classList.remove('active-target');
-            return;
+            isTargetMode = false; document.getElementById('target-area-container').classList.remove('active-target'); return;
         }
         try {
             let temp = historyExpr; if (!temp) return;
             while (['+','-','*','/','(','.'].includes(temp.slice(-1))) { temp = temp.slice(0, -1); }
-            let res = eval(temp); 
-            let finalRes = Math.round(res * 1000000) / 1000000;
+            let res = eval(temp); let finalRes = Math.round(res * 1000000) / 1000000;
             if (targetInput !== "") {
                 if (Math.abs(finalRes - parseFloat(targetInput)) < 0.00001) {
-                    msgDiv.innerText = "✅ KHỚP TUYỆT ĐỐI"; 
-                    msgDiv.style.color = "var(--accent)"; 
-                    playSound('success');
+                    msgDiv.innerText = "✅ KHỚP TUYỆT ĐỐI"; msgDiv.style.color = "var(--accent)"; playSound('success');
                 } else {
                     let diff = Math.round((finalRes - parseFloat(targetInput)) * 100) / 100;
                     msgDiv.innerText = (diff > 0 ? "❌ VƯỢT: " : "❌ THIẾU: ") + formatNumber(Math.abs(diff));
-                    msgDiv.style.color = "var(--danger)"; 
-                    playSound('fail');
+                    msgDiv.style.color = "var(--danger)"; playSound('fail');
                 }
             }
-            // Lưu lịch sử
             calculationHistory.push({ expr: exprDiv.innerText || historyExpr, res: finalRes });
-            if (calculationHistory.length > 50) calculationHistory.shift(); // Giới hạn 50 mục
+            if (calculationHistory.length > 50) calculationHistory.shift();
             localStorage.setItem('calc_history', JSON.stringify(calculationHistory));
-
-            resDiv.innerText = formatNumber(finalRes); 
-            historyExpr = finalRes.toString();
-            exprDiv.innerText = "";
+            resDiv.innerText = formatNumber(finalRes); historyExpr = finalRes.toString(); exprDiv.innerText = "";
         } catch(e) { resDiv.innerText = "Lỗi"; }
     }
 
     function clearAll() {
-        if (isTargetMode) {
-            targetInput = "";
-        } else {
-            historyExpr = ""; 
-            targetInput = ""; 
-            msgDiv.innerText = "";
-        }
-        resDiv.innerText = "0"; 
-        resDiv.classList.remove('neon-danger'); 
-        renderDisplay();
+        if (isTargetMode) targetInput = "";
+        else { historyExpr = ""; targetInput = ""; msgDiv.innerText = ""; }
+        resDiv.innerText = "0"; resDiv.classList.remove('neon-danger'); renderDisplay();
     }
 
     function backspace() {
@@ -449,10 +428,7 @@
         renderDisplay();
     }
 
-    // Tự động khởi tạo Audio Context trên Android sau tương tác đầu tiên
-    document.body.addEventListener('pointerdown', () => {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-    }, { once: true });
+    document.body.addEventListener('pointerdown', () => { if (audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true });
 </script>
 </body>
 </html>
