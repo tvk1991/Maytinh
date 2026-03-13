@@ -365,13 +365,14 @@
         } catch(e) { resDiv.innerText = "0"; }
     }
 
-    // ĐÃ SỬA: ĐẢM BẢO HIỂN THỊ ĐỊNH DẠNG SỐ KHI SỬA Ở GIỮA
+   // 1. HÀM HIỂN THỊ (Đã thêm định dạng số khi đang sửa)
     function renderDisplay() {
         if (isTargetMode) {
             document.getElementById('target-area-container').classList.add('active-target');
         } else {
             document.getElementById('target-area-container').classList.remove('active-target');
             if (cursorPos !== null) {
+                // Hàm phụ giúp định dạng chuỗi cắt nửa
                 const fmt = s => {
                     let str = s.replace(/\*/g,' × ').replace(/\//g,' ÷ ').replace(/\+/g,' + ').replace(/\-/g,' − ');
                     return str.replace(/(\d+(\.\d+)?)/g, match => formatNumber(match));
@@ -389,14 +390,16 @@
         exprDiv.scrollTop = exprDiv.scrollHeight;
     }
 
+    // 2. HÀM CHẠM VÀO MÀN HÌNH CỦA IPHONE (Thuật toán đồng bộ vị trí con trỏ)
     exprDiv.addEventListener('touchstart', function(e) {
         if (historyExpr === "" || isTargetMode) return;
         const touch = e.touches[0];
         if (cursorPos === null) cursorPos = historyExpr.length;
-        renderDisplay(); 
+        renderDisplay(); // render để lấy node
 
         setTimeout(() => {
             let range, textNode, offset;
+            // API bắt vị trí con trỏ trên iOS Safari
             if (document.caretRangeFromPoint) {
                 range = document.caretRangeFromPoint(touch.clientX, touch.clientY);
             } else if (e.target.ownerDocument.caretPositionFromPoint) {
@@ -409,9 +412,30 @@
                 let totalOffset = 0; let found = false;
                 for (let node of exprDiv.childNodes) {
                     if (node === textNode) { totalOffset += offset; found = true; break; }
-                    if (node.nodeType === 3) totalOffset += node.textContent.length;
+                    if (node.nodeType === 3) {
+                        totalOffset += node.textContent.length;
+                    } else if (node.nodeType === 1 && node.className !== 'expr-cursor') {
+                        totalOffset += node.innerText.length;
+                    }
                 }
-                if (found) { cursorPos = Math.min(totalOffset, historyExpr.length); renderDisplay(); }
+                
+                if (found) { 
+                    // THUẬT TOÁN ĐỒNG BỘ: 
+                    // Loại bỏ các ký tự dấu cách và dấu chấm phân cách hàng nghìn ảo khỏi bộ đếm offset
+                    let visualText = exprDiv.innerText;
+                    let visualPrefix = visualText.substring(0, totalOffset);
+                    let rawPrefixLength = 0;
+                    
+                    for(let i = 0; i < visualPrefix.length; i++) {
+                        let char = visualPrefix[i];
+                        // Nếu là ký tự có thật trong chuỗi gốc (số, ngoặc, phép tính) -> Tính vào độ dài gốc
+                        if (char.match(/[0-9\(\)]/) ||['×','÷','+','−', ','].includes(char)) {
+                            rawPrefixLength++;
+                        }
+                    }
+                    cursorPos = Math.min(rawPrefixLength, historyExpr.length);
+                    renderDisplay(); 
+                }
             }
         }, 10);
         vibrate();
