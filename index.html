@@ -29,7 +29,7 @@
             box-sizing: border-box; -webkit-tap-highlight-color: transparent;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             touch-action: manipulation; font-weight: 600; transition: background 0.2s, color 0.2s;
-            -webkit-user-select: none; user-select: none;
+            -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
         }
         html, body {
             height: 100%; margin: 0; overflow: hidden;
@@ -41,26 +41,31 @@
             background: var(--bg-color); display: flex; flex-direction: column;
             overflow: hidden; margin: 0 auto; position: relative;
         }
+        /* MÀN HÌNH HIỂN THỊ */
         .display-screen {
             flex: 1; width: 100%;
             padding: calc(env(safe-area-inset-top) + 10px) 25px 10px 25px;
-            display: flex; flex-direction: column; justify-content: flex-end;
-            text-align: right; background: var(--screen-bg); z-index: 5;
+            display: flex; flex-direction: column;
+            justify-content: flex-end; text-align: right;
+            background: var(--screen-bg); z-index: 5;
         }
         #expression {
             font-size: 1.3rem; line-height: 1.5; color: var(--expr-text);
-            min-height: 9.75rem; max-height: 9.75rem; overflow-y: auto;
-            margin-bottom: 8px; font-weight: 500; word-wrap: break-word;
-            white-space: pre-wrap; scrollbar-width: none; position: relative;
+            min-height: 9.75rem; max-height: 9.75rem;
+            overflow-y: auto; margin-bottom: 8px; font-weight: 500;
+            word-wrap: break-word; overflow-wrap: break-word;
+            word-break: normal; white-space: pre-wrap; scrollbar-width: none;
+            -webkit-user-select: text; user-select: text; /* Cần thiết cho Safari caret position */
         }
         #expression::-webkit-scrollbar { display: none; }
         
-        /* CURSOR NHẤP NHÁY */
+        /* CON TRỎ VĂN BẢN NHẤP NHÁY */
         .expr-cursor {
             display: inline-block; width: 2.5px; height: 1.15em;
             background: var(--led-green); vertical-align: text-bottom;
             border-radius: 2px; animation: blink-cur 1s step-end infinite;
             box-shadow: var(--led-green-glow); margin: 0 1px;
+            pointer-events: none;
         }
         @keyframes blink-cur { 50% { opacity: 0; } }
 
@@ -72,11 +77,16 @@
         }
         #comparison-msg { font-size: 0.9rem; font-weight: 800; text-align: center; min-height: 22px; margin-bottom: 12px; }
         
+        /* VÙNG MỤC TIÊU */
         .target-area {
             display: flex; align-items: center; background: var(--target-area-bg);
             border-radius: 14px; padding: 10px 15px; border: 1px solid var(--target-border);
             gap: 10px; margin-bottom: 5px;
         }
+        .active-target { background: #fff5eb !important; border-color: var(--target-color) !important; outline: 2px solid var(--target-color); }
+        [data-theme="dark"] .active-target { background: #2a1f15 !important; }
+
+        /* BÀN PHÍM */
         .keypad {
             height: 50%; width: 100%; display: grid;
             grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr);
@@ -86,7 +96,7 @@
         button {
             background: var(--key-bg); border: none; font-size: 1.6rem;
             color: var(--key-text); display: flex; justify-content: center;
-            align-items: center; cursor: pointer;
+            align-items: center; cursor: pointer; -webkit-user-drag: none;
         }
         button:active { background: var(--key-active); }
         .btn-op { color: var(--op-color); font-weight: 900; }
@@ -95,6 +105,7 @@
         .btn-equal { background: var(--accent); color: white; font-size: 2.2rem; font-weight: 800; }
         .btn-plus { grid-row: span 2; color: var(--op-color); font-weight: 900; }
 
+        /* NÚT ĐIỀU KHIỂN */
         .control-btn { display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 5px; }
         .control-btn svg { width: 22px; height: 22px; stroke-width: 2.5; fill: none; pointer-events: none; }
         #openHistory svg { stroke: var(--target-color); }
@@ -104,6 +115,7 @@
         .target-label { font-size: 0.7rem; color: var(--target-color); font-weight: 800; }
         #target-display { flex: 1; font-size: 1.4rem; color: var(--led-orange); text-shadow: var(--led-orange-glow); font-weight: 900; }
 
+        /* LỊCH SỬ */
         .history-box {
             position: absolute; inset: 0; background: var(--screen-bg); z-index: 100;
             display: none; flex-direction: column; padding: 20px;
@@ -113,9 +125,8 @@
         .history-item { border-bottom: 1px solid var(--keypad-bg); padding: 15px 0; cursor: pointer; }
         .history-expr { color: var(--expr-text); font-size: 1.1rem; margin-bottom: 4px; opacity: 0.7; pointer-events: none; }
         .history-res { font-weight: 900; text-align: right; font-size: 1.6rem; color: var(--led-green); pointer-events: none; }
-        
-        .active-target { background: #fff5eb !important; border-color: var(--target-color) !important; outline: 2px solid var(--target-color); }
-        [data-theme="dark"] .active-target { background: #2a1f15 !important; }
+
+        /* HIỆU ỨNG */
         .shake { animation: shake 0.4s both; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
         .neon-danger { color: var(--led-red) !important; text-shadow: var(--led-red-glow) !important; }
@@ -124,15 +135,21 @@
 <body oncontextmenu="return false;">
 
 <div class="clevcalc-container">
+    <!-- Panel Lịch Sử -->
     <div id="historyBox" class="history-box">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <span style="font-size: 1.6rem; font-weight: 900; color: var(--accent);">Lịch sử</span>
-            <div id="closeHistory" class="control-btn" style="font-size: 24px; color: var(--key-text)">✕</div>
+            <div id="closeHistory" class="control-btn">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color:var(--key-text)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </div>
         </div>
         <div id="historyList" class="history-list"></div>
         <button id="clearHistoryBtn" style="margin-top: 15px; min-height: 55px; background: var(--keypad-bg); font-size: 1rem; border-radius: 12px; color: var(--danger); width:100%">Xóa tất cả lịch sử</button>
     </div>
 
+    <!-- Màn Hình Hiển Thị -->
     <div class="display-screen">
         <div id="expression"></div>
         <div id="result-preview">0</div>
@@ -156,6 +173,7 @@
         </div>
     </div>
 
+    <!-- Bàn Phím -->
     <div class="keypad">
         <button class="btn-clear" data-val="C">C</button>
         <button class="btn-func" data-val="()">()</button>
@@ -188,14 +206,15 @@
     let cursorPos = null; 
     let isResultDisplayed = false;
 
-    const exprDiv = document.getElementById('expression');
-    const resDiv = document.getElementById('result-preview');
-    const targetDiv = document.getElementById('target-display');
-    const targetBox = document.getElementById('target-box');
-    const msgDiv = document.getElementById('comparison-msg');
-    const hBox = document.getElementById('historyBox');
-    const hList = document.getElementById('historyList');
+    const exprDiv    = document.getElementById('expression');
+    const resDiv     = document.getElementById('result-preview');
+    const targetDiv  = document.getElementById('target-display');
+    const targetBox  = document.getElementById('target-box');
+    const msgDiv     = document.getElementById('comparison-msg');
+    const hBox       = document.getElementById('historyBox');
+    const hList      = document.getElementById('historyList');
 
+    // --- AUDIO & VIBRATION (KHÔI PHỤC GỐC) ---
     function playSound(type) {
         if (audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator();
@@ -221,6 +240,7 @@
     }
     function vibrate() { if (navigator.vibrate) navigator.vibrate(15); }
 
+    // --- ĐỊNH DẠNG SỐ (KHÔI PHỤC GỐC) ---
     function formatNumber(val) {
         if (!val && val !== 0) return "";
         let s = val.toString(); let parts = s.split('.');
@@ -228,6 +248,7 @@
         return parts.length > 1 ? parts[0] + "," + parts[1] : parts[0];
     }
 
+    // --- XỬ LÝ NHẬP LIỆU ---
     document.querySelectorAll('[data-val]').forEach(btn => {
         btn.addEventListener('pointerdown', (e) => {
             e.preventDefault(); vibrate(); 
@@ -241,9 +262,9 @@
         });
     });
 
-    // --- GIỮ NGUYÊN LOGIC NHẬP VÀ CẢNH BÁO MỤC TIÊU ---
     function handleInput(n) {
         playSound('click');
+        // Logic mới: Nếu vừa có kết quả mà ấn phím số -> xóa làm ván mới
         if (isResultDisplayed && !isTargetMode) {
             historyExpr = ""; 
             isResultDisplayed = false;
@@ -258,7 +279,7 @@
                 historyExpr = historyExpr.slice(0, cursorPos) + n + historyExpr.slice(cursorPos);
                 cursorPos += n.length;
             } else {
-                // Check vượt mục tiêu gốc
+                // LOGIC CẢNH BÁO MỤC TIÊU GỐC 100%
                 if (targetInput !== "" && !isNaN(n)) {
                     let cleanedExpr = historyExpr + n;
                     while (['+','-','*','/','(','.'].includes(cleanedExpr.slice(-1))) { cleanedExpr = cleanedExpr.slice(0, -1); }
@@ -286,7 +307,7 @@
 
     function addOp(op) {
         playSound('click');
-        isResultDisplayed = false;
+        isResultDisplayed = false; // Phép tính nối tiếp
         if (isTargetMode) isTargetMode = false;
 
         if (cursorPos !== null) {
@@ -305,10 +326,10 @@
         renderDisplay(); autoPreview();
     }
 
-    // --- GIỮ NGUYÊN LOGIC PHẦN TRĂM PHỨC TẠP ---
+    // --- LOGIC PHẦN TRĂM (KHÔI PHỤC GỐC) ---
     function applyPercent() {
         if (isTargetMode) return;
-        playSound('click');
+        playSound('click'); cursorPos = null;
         try {
             let parts = historyExpr.split(/([\+\-\*\/])/);
             let lastPart = parts.pop(); let op = parts.pop();
@@ -319,54 +340,10 @@
         } catch(e) {}
     }
 
-    // --- GIỮ NGUYÊN LOGIC TÍNH TOÁN VÀ SO SÁNH ---
-    function calculate() {
-        if (isTargetMode) { isTargetMode = false; renderDisplay(); return; }
-        cursorPos = null;
-        try {
-            let temp = historyExpr; if (!temp) return;
-            while (['+','-','*','/','(','.'].includes(temp.slice(-1))) { temp = temp.slice(0, -1); }
-            let res = eval(temp); let finalRes = Math.round(res * 1000000) / 1000000;
-            if (targetInput !== "") {
-                if (Math.abs(finalRes - parseFloat(targetInput)) < 0.00001) {
-                    msgDiv.innerText = "✅ KHỚP TUYỆT ĐỐI"; msgDiv.style.color = "var(--accent)"; playSound('success');
-                } else {
-                    let diff = Math.round((finalRes - parseFloat(targetInput)) * 100) / 100;
-                    msgDiv.innerText = (diff > 0 ? "❌ VƯỢT: " : "❌ THIẾU: ") + formatNumber(Math.abs(diff));
-                    msgDiv.style.color = "var(--danger)"; playSound('fail');
-                }
-            }
-            calculationHistory.push({ expr: exprDiv.innerText || historyExpr, res: finalRes, raw: temp });
-            if (calculationHistory.length > 50) calculationHistory.shift();
-            localStorage.setItem('calc_history', JSON.stringify(calculationHistory));
-            resDiv.innerText = formatNumber(finalRes);
-            historyExpr = finalRes.toString();
-            exprDiv.innerText = "";
-            isResultDisplayed = true;
-        } catch(e) { resDiv.innerText = "Lỗi"; }
-        renderDisplay();
-    }
-
-    function autoPreview() {
-        try {
-            let temp = historyExpr; if (!temp) { resDiv.innerText = "0"; return; }
-            while (['+','-','*','/','(','.'].includes(temp.slice(-1))) { temp = temp.slice(0, -1); }
-            let open = (temp.match(/\(/g) || []).length;
-            let close = (temp.match(/\)/g) || []).length;
-            if (open > close) temp += ")".repeat(open - close);
-            let pVal = Math.round(eval(temp) * 1000000) / 1000000;
-            resDiv.innerText = formatNumber(pVal);
-            if (targetInput !== "" && pVal > parseFloat(targetInput)) {
-                resDiv.classList.add('neon-danger'); msgDiv.innerText = "⚠️ VƯỢT QUÁ!"; msgDiv.style.color = "var(--danger)";
-            } else {
-                resDiv.classList.remove('neon-danger'); if (!isTargetMode) msgDiv.innerText = "";
-            }
-        } catch(e) { resDiv.innerText = "0"; }
-    }
-
-    // --- XÓA NHANH ---
+    // --- XÓA NHANH (GIỮ NGUYÊN) ---
     let backTimer, backInterval;
     const btnBack = document.getElementById('btn-backspace');
+
     function backspace() {
         if (isTargetMode) targetInput = targetInput.slice(0, -1);
         else {
@@ -380,6 +357,7 @@
         }
         renderDisplay();
     }
+
     btnBack.addEventListener('pointerdown', (e) => {
         e.preventDefault(); vibrate(); playSound('click');
         backspace();
@@ -391,7 +369,55 @@
     btnBack.addEventListener('pointerup', stopBack);
     btnBack.addEventListener('pointerleave', stopBack);
 
-    // --- HIỂN THỊ VÀ CHẠM ĐỂ SỬA ---
+    // --- LOGIC TÍNH TOÁN (KHÔI PHỤC GỐC) ---
+    function calculate() {
+        if (isTargetMode) { isTargetMode = false; renderDisplay(); return; }
+        let raw = historyExpr; if (!raw) return;
+        cursorPos = null;
+        try {
+            while (['+','-','*','/','(','.'].includes(raw.slice(-1))) raw = raw.slice(0, -1);
+            let res = eval(raw); 
+            let finalRes = Math.round(res * 1000000) / 1000000;
+
+            if (targetInput !== "") {
+                if (Math.abs(finalRes - parseFloat(targetInput)) < 0.00001) {
+                    msgDiv.innerText = "✅ KHỚP TUYỆT ĐỐI"; msgDiv.style.color = "var(--accent)"; playSound('success');
+                } else {
+                    let diff = Math.round((finalRes - parseFloat(targetInput)) * 100) / 100;
+                    msgDiv.innerText = (diff > 0 ? "❌ VƯỢT: " : "❌ THIẾU: ") + formatNumber(Math.abs(diff));
+                    msgDiv.style.color = "var(--danger)"; playSound('fail');
+                }
+            }
+            calculationHistory.push({ expr: exprDiv.innerText || historyExpr, res: finalRes, raw: raw });
+            if (calculationHistory.length > 50) calculationHistory.shift();
+            localStorage.setItem('calc_history', JSON.stringify(calculationHistory));
+
+            resDiv.innerText = formatNumber(finalRes);
+            historyExpr = finalRes.toString();
+            exprDiv.innerText = "";
+            isResultDisplayed = true;
+        } catch(e) { resDiv.innerText = "Lỗi"; }
+        renderDisplay();
+    }
+
+    function autoPreview() {
+        try {
+            let temp = historyExpr; if (!temp) { resDiv.innerText = "0"; return; }
+            while (['+','-','*','/','(','.'].includes(temp.slice(-1))) temp = temp.slice(0, -1);
+            let open = (temp.match(/\(/g) || []).length;
+            let close = (temp.match(/\)/g) || []).length;
+            if (open > close) temp += ")".repeat(open - close);
+            let pVal = Math.round(eval(temp) * 1000000) / 1000000;
+            resDiv.innerText = formatNumber(pVal);
+            if (targetInput !== "" && pVal > parseFloat(targetInput)) {
+                resDiv.classList.add('neon-danger'); msgDiv.innerText = "⚠️ VƯỢT QUÁ!"; msgDiv.style.color = "var(--danger)";
+            } else {
+                resDiv.classList.remove('neon-danger'); if (!isTargetMode) msgDiv.innerText = "";
+            }
+        } catch(e) { resDiv.innerText = "0"; }
+    }
+
+    // --- HIỂN THỊ & TAP TO PLACE (FIX SAFARI) ---
     function renderDisplay() {
         if (isTargetMode) {
             document.getElementById('target-area-container').classList.add('active-target');
@@ -412,26 +438,36 @@
         exprDiv.scrollTop = exprDiv.scrollHeight;
     }
 
-    exprDiv.addEventListener('pointerdown', function(e) {
+    // Logic chạm để đặt con trỏ tối ưu cho Safari
+    exprDiv.addEventListener('touchstart', function(e) {
         if (historyExpr === "" || isTargetMode) return;
+        const touch = e.touches[0];
         if (cursorPos === null) cursorPos = historyExpr.length;
-        let range, textNode, offset;
-        if (document.caretRangeFromPoint) {
-            range = document.caretRangeFromPoint(e.clientX, e.clientY);
-            if (range) { textNode = range.startContainer; offset = range.startOffset; }
-        }
-        if (textNode) {
-            let totalOffset = 0; let found = false;
-            for (let node of exprDiv.childNodes) {
-                if (node === textNode) { totalOffset += offset; found = true; break; }
-                if (node.nodeType === Node.TEXT_NODE) totalOffset += node.textContent.length;
-            }
-            if (found) { cursorPos = Math.min(totalOffset, historyExpr.length); renderDisplay(); }
-        }
-        vibrate();
-    });
+        renderDisplay(); // Đảm bảo node văn bản tồn tại
 
-    // --- CÁC CHỨC NĂNG KHÁC ---
+        setTimeout(() => {
+            let range, textNode, offset;
+            if (document.caretRangeFromPoint) {
+                range = document.caretRangeFromPoint(touch.clientX, touch.clientY);
+            } else if (e.target.ownerDocument.caretPositionFromPoint) {
+                const pos = e.target.ownerDocument.caretPositionFromPoint(touch.clientX, touch.clientY);
+                if (pos) { textNode = pos.offsetNode; offset = pos.offset; }
+            }
+            if (range) { textNode = range.startContainer; offset = range.startOffset; }
+
+            if (textNode) {
+                let totalOffset = 0; let found = false;
+                for (let node of exprDiv.childNodes) {
+                    if (node === textNode) { totalOffset += offset; found = true; break; }
+                    if (node.nodeType === 3) totalOffset += node.textContent.length;
+                }
+                if (found) { cursorPos = Math.min(totalOffset, historyExpr.length); renderDisplay(); }
+            }
+        }, 10);
+        vibrate();
+    }, {passive: false});
+
+    // --- CÁC HÀM PHỤ TRỢ ---
     function renderHistory() {
         hList.innerHTML = calculationHistory.map((item, i) => `
             <div class="history-item" onclick="loadEditHistory(${i})">
@@ -440,20 +476,23 @@
             </div>
         `).reverse().join('');
     }
+
     window.loadEditHistory = (i) => {
         const item = calculationHistory[i];
-        historyExpr = item.raw || item.expr;
+        historyExpr = item.raw || item.expr.replace(/ × /g,'*').replace(/ ÷ /g,'/').replace(/ − /g,'-').replace(/\./g,'').replace(/,/g,'.');
         cursorPos = historyExpr.length;
         isResultDisplayed = false;
         hBox.style.display = 'none';
         playSound('click'); renderDisplay(); autoPreview();
     };
+
     function clearAll() {
         playSound('click');
         if (isTargetMode) targetInput = "";
         else { historyExpr = ""; targetInput = ""; msgDiv.innerText = ""; cursorPos = null; isResultDisplayed = false; }
-        resDiv.innerText = "0"; renderDisplay();
+        resDiv.innerText = "0"; resDiv.classList.remove('neon-danger'); renderDisplay();
     }
+
     function smartParenthesis() {
         playSound('click');
         let open = (historyExpr.match(/\(/g) || []).length;
@@ -466,11 +505,17 @@
         renderDisplay();
     }
 
+    // --- SỰ KIỆN PANEL & THEME ---
     document.getElementById('theme-toggle').onclick = () => {
-        const isDark = document.body.getAttribute('data-theme') === 'dark';
-        document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        const body = document.body;
+        const isDark = body.getAttribute('data-theme') === 'dark';
+        body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        document.getElementById('theme-icon').innerHTML = isDark ? 
+            '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-11.314l.707.707m11.314 11.314l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"/>' :
+            '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>';
         vibrate(); playSound('click');
     };
+
     document.getElementById('openHistory').onclick = () => { hBox.style.display = 'flex'; renderHistory(); vibrate(); };
     document.getElementById('closeHistory').onclick = () => { hBox.style.display = 'none'; vibrate(); };
     document.getElementById('clearHistoryBtn').onclick = () => { calculationHistory = []; renderHistory(); vibrate(); };
@@ -478,4 +523,4 @@
 
 </script>
 </body>
-	</html>
+			</html>
