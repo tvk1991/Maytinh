@@ -109,13 +109,13 @@
         .control-btn svg { width: 22px; height: 22px; stroke-width: 2.5; fill: none; pointer-events: none; }
         #openHistory svg { stroke: var(--target-color); }
         #theme-toggle svg { fill: var(--target-color); }
+        
+        /* Màu riêng cho nút Back trong target-area để dễ nhận diện */
+        .btn-back-ctrl svg { stroke: var(--key-text); }
+        
         .divider { width: 1px; height: 20px; background: var(--target-border); }
         .target-label { font-size: 0.7rem; color: var(--target-color); font-weight: 800; }
         #target-display { flex: 1; font-size: 1.4rem; color: var(--led-orange); text-shadow: var(--led-orange-glow); font-weight: 900; }
-
-        /* Nút Back trong hàng mục tiêu */
-        .btn-back-target { padding: 0 5px; margin-left: 5px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .btn-back-target svg { width: 26px; height: 26px; stroke: var(--key-text); stroke-width: 2.5; fill: none; pointer-events: none; }
 
         button { 
             background: var(--key-bg); border: none; font-size: 1.6rem; 
@@ -167,21 +167,24 @@
         <div id="result-preview">0</div>  
         <div id="comparison-msg"></div>    
         <div class="target-area" id="target-area-container">
+            <!-- Nút Lịch sử -->
             <div class="control-btn" id="openHistory">
                 <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
             </div>
             <div class="divider"></div>
+            <!-- Nút Theme -->
             <div class="control-btn" id="theme-toggle">
                 <svg id="theme-icon" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-11.314l.707.707m11.314 11.314l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
             </div>
+            
             <div class="divider"></div>
+            <!-- Vùng hiển thị Mục tiêu -->
             <div id="target-box" style="display:flex; align-items:center; flex:1; height:100%; cursor:pointer;">
                 <span class="target-label">MỤC TIÊU:</span>
                 <div id="target-display">0</div>
-                <!-- Di chuyển nút Back vào đây bằng thẻ div -->
-                <div class="btn-back-target" data-val="back">
-                    <svg viewBox="0 0 24 24"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><line x1="18" y1="9" x2="12" y2="15"></line><line x1="12" y1="9" x2="18" y2="15"></line></svg>
-                </div>
+            </div>
+			 <div class="control-btn btn-back-ctrl" data-val="back">
+                <svg viewBox="0 0 24 24"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><line x1="18" y1="9" x2="12" y2="15"></line><line x1="12" y1="9" x2="18" y2="15"></line></svg>
             </div>
         </div>
     </div>
@@ -190,7 +193,6 @@
         <button class="btn-clear" data-val="C">C</button>
         <button class="btn-func" data-val="()">()</button>
         <button class="btn-func" data-val="%">%</button>
-        <!-- Nút Trừ đưa lên chổ nút Back -->
         <button class="btn-op" data-val="-">−</button>
         
         <button data-val="7">7</button>
@@ -206,10 +208,8 @@
         <button data-val="1">1</button>
         <button data-val="2">2</button>
         <button data-val="3">3</button>
-        <!-- Nút 0 về chổ dấu Trừ -->
         <button data-val="0">0</button>
         
-        <!-- Thêm nút 00 vào chổ số 0 -->
         <button data-val="00">00</button>
         <button data-val=".">,</button>
         <button class="btn-equal" data-val="=">=</button>
@@ -258,7 +258,6 @@
         }
     }
 
-    // Cập nhật selector để bao gồm cả div có data-val (cho nút Back mới)
     const buttons = document.querySelectorAll('[data-val]');
     buttons.forEach(btn => {
         btn.addEventListener('pointerdown', (e) => { 
