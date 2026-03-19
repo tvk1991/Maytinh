@@ -370,6 +370,7 @@
     btnBack.addEventListener('pointerup', stopBack); btnBack.addEventListener('pointerleave', stopBack);
 
     function calculate() {
+		playSound('click'); // THÊM DÒNG NÀY
         if (isTargetMode) { isTargetMode = false; renderDisplay(); return; }
         let raw = historyExpr; if (!raw) return;
         cursorPos = null;
