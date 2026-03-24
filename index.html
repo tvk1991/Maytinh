@@ -13,16 +13,14 @@
             --key-bg: #ffffff; --key-text: #2d3436; --key-active: #e2e4e9;
             --expr-text: #2d3436; --target-area-bg: #fffaf5; --target-border: #ffecdb;
             --accent: #27ae60; --op-color: #f39c12; --target-color: #e67e22;
-            --danger: #c0392b; --led-green: #27ae60; --led-green-glow: 0 0 6px rgba(39, 174, 96, 0.2);
-            --led-orange: #e67e22; --led-orange-glow: 0 0 8px rgba(230, 126, 34, 0.3);
-            --led-red: #e74c3c; --led-red-glow: 0 0 10px rgba(231, 76, 60, 0.4);
+            --danger: #c0392b; --led-green: #27ae60; --led-green-glow: 0 0 12px rgba(39, 174, 96, 0.4);
+            --led-orange: #e67e22; --led-orange-glow: 0 0 12px rgba(230, 126, 34, 0.4);
+            --led-red: #e74c3c; --led-red-glow: 0 0 15px rgba(231, 76, 60, 0.5);
         }
         [data-theme="dark"] {
             --bg-color: #000000; --screen-bg: #000000; --keypad-bg: #121212;
             --key-bg: #1e1e1e; --key-text: #ffffff; --key-active: #333333;
             --expr-text: #888888; --target-area-bg: #1a1510; --target-border: #3d2b1f;
-            --led-green: #2ecc71; --led-green-glow: 0 0 12px rgba(46, 204, 113, 0.4);
-            --led-orange: #f39c12; --led-orange-glow: 0 0 15px rgba(243, 156, 18, 0.5);
         }
         * {
             box-sizing: border-box; -webkit-tap-highlight-color: transparent;
@@ -42,22 +40,21 @@
         .display-screen {
             flex: 1; width: 100%;
             padding: calc(env(safe-area-inset-top) + 10px) 25px 10px 25px;
-            display: flex; flex-direction: column;
-            justify-content: flex-end; text-align: right;
-            background: var(--screen-bg); z-index: 5;
+            display: flex; flex-direction: column; justify-content: flex-end; 
+            text-align: right; background: var(--screen-bg); z-index: 5;
         }
         #expression {
             font-size: 1.7rem; line-height: 1.5; color: var(--expr-text);
             min-height: 9.75rem; max-height: 9.75rem;
             overflow-y: auto; margin-bottom: 8px; font-weight: 500;
             word-wrap: break-word; white-space: pre-wrap;
-            -webkit-overflow-scrolling: touch; /* Cuộn mượt trên iOS */
+            -webkit-overflow-scrolling: touch;
         }
+        #expression::-webkit-scrollbar { display: none; }
         .expr-cursor {
-            display: inline-block; width: 2.5px; height: 1.15em;
-            background: var(--led-green); vertical-align: text-bottom;
+            display: inline-block; width: 2.8px; height: 1.2em;
+            background: #007aff; vertical-align: middle;
             border-radius: 2px; animation: blink-cur 1s step-end infinite;
-            box-shadow: var(--led-green-glow); margin: 0 1px;
         }
         @keyframes blink-cur { 50% { opacity: 0; } }
         #result-preview {
@@ -65,7 +62,10 @@
             text-shadow: var(--led-green-glow); line-height: 1.1;
             overflow: hidden; white-space: nowrap; font-weight: 800;
         }
-        #comparison-msg { font-size: 0.9rem; font-weight: 800; text-align: center; min-height: 22px; margin-bottom: 12px; }
+        #comparison-msg { 
+            font-size: 0.9rem; font-weight: 900; text-align: center; 
+            min-height: 22px; margin-bottom: 12px; transition: all 0.2s;
+        }
         .target-area {
             display: flex; align-items: center; background: var(--target-area-bg);
             border-radius: 14px; padding: 10px 15px; border: 1px solid var(--target-border);
@@ -80,7 +80,7 @@
         button {
             background: var(--key-bg); border: none; font-size: 1.6rem;
             color: var(--key-text); display: flex; justify-content: center;
-            align-items: center;
+            align-items: center; transition: background 0.05s;
         }
         button:active { background: var(--key-active); }
         .btn-op { color: var(--op-color); font-weight: 900; }
@@ -89,6 +89,13 @@
         .btn-equal { background: var(--accent); color: white; font-size: 2.2rem; font-weight: 800; }
         .btn-plus { grid-row: span 2; color: var(--op-color); }
         .control-btn { cursor: pointer; padding: 5px; display: flex; align-items: center; }
+        
+        /* LED ANIMATIONS */
+        @keyframes led-blink-green { 0%, 100% { text-shadow: var(--led-green-glow); opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes led-blink-red { 0%, 100% { text-shadow: var(--led-red-glow); transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.05); } }
+        .led-green { animation: led-blink-green 1s infinite; color: var(--accent) !important; }
+        .led-red { animation: led-blink-red 0.7s infinite; color: var(--danger) !important; }
+
         .history-box {
             position: absolute; inset: 0; background: var(--screen-bg); z-index: 100;
             display: none; flex-direction: column; padding: 20px;
@@ -96,8 +103,6 @@
         }
         .history-list { flex: 1; overflow-y: auto; }
         .history-item { border-bottom: 1px solid var(--keypad-bg); padding: 15px 0; }
-        .led-blink-warning { animation: blink-led-warning 0.8s ease-in-out infinite; }
-        @keyframes blink-led-warning { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; color: #ff4444; } }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -122,7 +127,6 @@
             <div class="control-btn" id="openHistory"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--target-color)" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
             <div style="width: 1px; height: 20px; background: var(--target-border);"></div>
             <div class="control-btn" id="theme-toggle"><svg width="22" height="22" viewBox="0 0 24 24" fill="var(--target-color)"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-11.314l.707.707m11.314 11.314l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg></div>
-            <div style="width: 1px; height: 20px; background: var(--target-border);"></div>
             <div id="target-box" style="display:flex; align-items:center; flex:1; cursor:pointer;">
                 <span style="font-size: 0.7rem; color: var(--target-color); margin-left: 5px;">MỤC TIÊU:</span>
                 <div id="target-display" style="font-size: 1.4rem; color: var(--led-orange); font-weight: 900; margin-left: 5px;">0</div>
@@ -154,12 +158,12 @@
     const exprDiv = document.getElementById('expression'), resDiv = document.getElementById('result-preview'), 
           targetDiv = document.getElementById('target-display'), msgDiv = document.getElementById('comparison-msg');
 
-    // TỐI ƯU CẢM ỨNG IPHONE: Touchstart phản hồi tức thì
+    // === TỐI ƯU CẢM ỨNG CỰC NHẠY CHO IPHONE ===
     document.querySelectorAll('[data-val]').forEach(btn => {
         btn.addEventListener('touchstart', (e) => {
             e.preventDefault(); 
             const val = btn.getAttribute('data-val');
-            vibrate(12); playSound('click');
+            vibrate(15); playSound('click');
             if (val === 'C') clearAll();
             else if (val === '=') calculate();
             else if (['+','-','*'].includes(val)) addOp(val);
@@ -187,6 +191,7 @@
         return s.length > 1 ? s[0] + "," + s[1] : s[0];
     }
 
+    // === HÀM XỬ LÝ NHẬP LIỆU CHÍNH ===
     function handleInput(n) {
         if (isResultDisplayed && !isTargetMode) { historyExpr = ""; isResultDisplayed = false; cursorPos = null; }
         if (isTargetMode) {
@@ -205,8 +210,13 @@
     function addOp(op) {
         isResultDisplayed = false;
         if (cursorPos !== null) {
-            historyExpr = historyExpr.slice(0, cursorPos) + op + historyExpr.slice(cursorPos);
-            cursorPos++;
+            const charBefore = historyExpr[cursorPos - 1];
+            if (['+','-','*','/'].includes(charBefore)) {
+                historyExpr = historyExpr.slice(0, cursorPos - 1) + op + historyExpr.slice(cursorPos);
+            } else {
+                historyExpr = historyExpr.slice(0, cursorPos) + op + historyExpr.slice(cursorPos);
+                cursorPos++;
+            }
         } else {
             const last = historyExpr.slice(-1);
             if (['+','-','*','/'].includes(last)) historyExpr = historyExpr.slice(0, -1) + op;
@@ -215,7 +225,7 @@
         renderDisplay();
     }
 
-    // TỌA ĐỘ CON TRỎ CHUẨN XÁC
+    // === TÍNH TOÁN VỊ TRÍ CON TRỎ (CURSOR) ===
     exprDiv.addEventListener('touchstart', (e) => {
         if (historyExpr === "" || isTargetMode) return;
         const touch = e.touches[0];
@@ -223,7 +233,9 @@
             const range = document.caretRangeFromPoint(touch.clientX, touch.clientY);
             if (range && range.startContainer) {
                 let offset = range.startOffset;
-                let visualPrefix = range.startContainer.textContent.substring(0, offset);
+                let text = range.startContainer.textContent;
+                let visualPrefix = text.substring(0, offset);
+                // Loại bỏ định dạng ảo (dấu cách/dấu chấm) để lấy index thật trong chuỗi data
                 let rawOffset = visualPrefix.replace(/[^0-9\(\)\+\−\×\÷\,]/g, '').length;
                 cursorPos = Math.min(rawOffset, historyExpr.length);
                 renderDisplay();
@@ -231,6 +243,7 @@
         }, 30);
     }, {passive: true});
 
+    // === HIỂN THỊ TRỰC QUAN ===
     function renderDisplay() {
         if (isTargetMode) {
             document.getElementById('target-area-container').style.outline = "2px solid var(--target-color)";
@@ -244,60 +257,84 @@
             }
         }
         targetDiv.innerText = formatNumber(targetInput) || "0";
-        exprDiv.scrollTop = exprDiv.scrollHeight;
+        exprDiv.scrollTop = exprDiv.scrollHeight; // Luôn cuộn xuống cuối khi gõ
     }
 
+    // === LOGIC TÍNH TOÁN & CẢNH BÁO MỤC TIÊU ===
     function calculate() {
         if (!historyExpr) return;
+        msgDiv.classList.remove('led-green', 'led-red');
         try {
-            let res = eval(historyExpr.replace(/×/g,'*').replace(/÷/g,'/'));
+            let cleanRaw = historyExpr.replace(/×/g,'*').replace(/÷/g,'/');
+            while (['+','-','*','/','(','.'].includes(cleanRaw.slice(-1))) cleanRaw = cleanRaw.slice(0, -1);
+            
+            let res = eval(cleanRaw);
             let final = Math.round(res * 1000000) / 1000000;
+
             if (targetInput !== "") {
-                let diff = final - parseFloat(targetInput);
-                if (Math.abs(diff) < 0.001) { msgDiv.innerText = "✅ KHỚP TUYỆT ĐỐI"; msgDiv.style.color = "var(--accent)"; }
-                else { msgDiv.innerText = (diff > 0 ? "❌ VƯỢT: " : "❌ THIẾU: ") + formatNumber(Math.abs(diff).toFixed(2)); msgDiv.style.color = "var(--danger)"; }
+                let tVal = parseFloat(targetInput);
+                let diff = final - tVal;
+                if (Math.abs(diff) < 0.001) {
+                    msgDiv.innerText = "✅ KHỚP TUYỆT ĐỐI";
+                    msgDiv.classList.add('led-green');
+                } else if (diff > 0) {
+                    msgDiv.innerText = "❌ VƯỢT MỤC TIÊU: " + formatNumber(diff.toFixed(2));
+                    msgDiv.classList.add('led-red');
+                } else {
+                    msgDiv.innerText = "⚠️ CÒN THIẾU: " + formatNumber(Math.abs(diff).toFixed(2));
+                    msgDiv.style.color = "var(--led-orange)";
+                }
             }
+
             calculationHistory.push({ expr: exprDiv.innerText, res: final, raw: historyExpr });
+            if (calculationHistory.length > 50) calculationHistory.shift();
             localStorage.setItem('calc_history', JSON.stringify(calculationHistory));
+            
             historyExpr = final.toString(); cursorPos = null; isResultDisplayed = true;
-            resDiv.innerText = formatNumber(final); renderDisplay();
+            resDiv.innerText = formatNumber(final);
+            renderDisplay();
         } catch(e) { resDiv.innerText = "Lỗi"; }
     }
 
     function autoPreview() {
         try {
             let temp = historyExpr.replace(/×/g,'*').replace(/÷/g,'/');
-            if (!temp) return;
+            if (!temp) { resDiv.innerText = "0"; return; }
             resDiv.innerText = formatNumber(eval(temp));
         } catch(e) {}
     }
 
     function clearAll() {
         if (isTargetMode) targetInput = "";
-        else { historyExpr = ""; targetInput = ""; cursorPos = null; msgDiv.innerText = ""; }
+        else { historyExpr = ""; targetInput = ""; cursorPos = null; msgDiv.innerText = ""; msgDiv.classList.remove('led-green', 'led-red'); }
         resDiv.innerText = "0"; renderDisplay();
     }
 
     function smartParenthesis() {
         let open = (historyExpr.match(/\(/g) ||[]).length, close = (historyExpr.match(/\)/g) ||[]).length;
-        handleInput((open > close && !['+','-','*','/','('].includes(historyExpr.slice(-1))) ? ")" : "(");
+        let char = (open > close && !['+','-','*','/','('].includes(historyExpr.slice(-1))) ? ")" : "(";
+        handleInput(char);
     }
 
     function applyPercent() {
         try { historyExpr = (eval(historyExpr)/100).toString(); renderDisplay(); autoPreview(); } catch(e) {}
     }
 
+    // === BACKSPACE VỚI TOUCHSTART ===
     document.getElementById('btn-backspace').addEventListener('touchstart', (e) => {
         e.preventDefault(); playSound('click');
         if (isTargetMode) targetInput = targetInput.slice(0, -1);
         else {
-            if (cursorPos > 0) { historyExpr = historyExpr.slice(0, cursorPos - 1) + historyExpr.slice(cursorPos); cursorPos--; }
-            else historyExpr = historyExpr.slice(0, -1);
+            if (cursorPos > 0) { 
+                historyExpr = historyExpr.slice(0, cursorPos - 1) + historyExpr.slice(cursorPos); 
+                cursorPos--; 
+            } else historyExpr = historyExpr.slice(0, -1);
             autoPreview();
         }
         renderDisplay();
     });
 
+    // === THEME & HISTORY ===
     document.getElementById('theme-toggle').onclick = () => {
         document.body.setAttribute('data-theme', document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     };
@@ -307,12 +344,15 @@
         document.getElementById('historyList').innerHTML = calculationHistory.slice().reverse().map((item, i) => `
             <div class="history-item" onclick="loadHist(${calculationHistory.length - 1 - i})">
                 <div style="font-size:0.9rem; color:var(--expr-text)">${item.expr} =</div>
-                <div style="font-size:1.5rem; font-weight:900; color:var(--led-green); text-align:right">${formatNumber(item.res)}</div>
+                <div style="font-size:1.6rem; font-weight:900; color:var(--led-green); text-align:right">${formatNumber(item.res)}</div>
             </div>
         `).join('');
     };
     document.getElementById('closeHistory').onclick = () => document.getElementById('historyBox').style.display = 'none';
-    document.getElementById('clearHistoryBtn').onclick = () => { calculationHistory = []; document.getElementById('historyList').innerHTML = ""; localStorage.removeItem('calc_history'); };
+    document.getElementById('clearHistoryBtn').onclick = () => { 
+        calculationHistory = []; document.getElementById('historyList').innerHTML = ""; 
+        localStorage.removeItem('calc_history'); 
+    };
     window.loadHist = (i) => {
         const item = calculationHistory[i]; historyExpr = item.raw || item.res.toString();
         cursorPos = historyExpr.length; document.getElementById('historyBox').style.display = 'none';
