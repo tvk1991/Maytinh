@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -5,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2344/2344132.png">
     <title>ClevCalc Sentinel History+</title>
     <style>
@@ -27,8 +28,8 @@
         }
         * {
             box-sizing: border-box; -webkit-tap-highlight-color: transparent;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            touch-action: manipulation; font-weight: 600; transition: background 0.2s, color 0.2s;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif;
+            touch-action: manipulation; font-weight: 600;
             -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
         }
         html, body {
@@ -88,17 +89,18 @@
             background: var(--key-bg); border: none; font-size: 1.6rem;
             color: var(--key-text); display: flex; justify-content: center;
             align-items: center; cursor: pointer; -webkit-user-drag: none;
+            touch-action: manipulation;
         }
-        button:active { background: var(--key-active); }
+        button:active { background: var(--key-active); transition: background 0.02s; }
         .btn-op { color: var(--op-color); font-weight: 900; }
         .btn-func { color: var(--accent); font-weight: 900; }
         .btn-clear { color: var(--danger); font-weight: 900; }
         .btn-equal { background: var(--accent); color: white; font-size: 2.2rem; font-weight: 800; }
         .btn-plus { grid-row: span 2; color: var(--op-color); font-weight: 900; }
-        .control-btn { display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 5px; }
+        .control-btn { display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 5px; touch-action: manipulation; }
         .control-btn svg { width: 22px; height: 22px; stroke-width: 2.5; fill: none; pointer-events: none; }
         #openHistory svg { stroke: var(--target-color); }
-        #theme-toggle svg { fill: var(--target-color); }
+        #theme-toggle svg { fill: var(--target-color); stroke: var(--target-color); }
         .btn-back-ctrl svg { stroke: var(--key-text); }
         .divider { width: 1px; height: 20px; background: var(--target-border); }
         .target-label { font-size: 0.7rem; color: var(--target-color); font-weight: 800; }
@@ -108,14 +110,13 @@
             display: none; flex-direction: column; padding: 20px;
             padding-top: calc(env(safe-area-inset-top) + 15px);
         }
-        .history-list { flex: 1; overflow-y: auto; }
-        .history-item { border-bottom: 1px solid var(--keypad-bg); padding: 15px 0; cursor: pointer; }
+        .history-list { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .history-item { border-bottom: 1px solid var(--keypad-bg); padding: 15px 0; cursor: pointer; touch-action: manipulation; }
         .history-expr { color: var(--expr-text); font-size: 1.1rem; margin-bottom: 4px; opacity: 0.7; pointer-events: none; }
         .history-res { font-weight: 900; text-align: right; font-size: 1.6rem; color: var(--led-green); pointer-events: none; }
         .shake { animation: shake 0.4s both; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
         .neon-danger { color: var(--led-red) !important; text-shadow: var(--led-red-glow) !important; }
-		        /* LED blink effects */
         @keyframes blink-led-green {
             0%, 100% { opacity: 1; text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent); }
             50% { opacity: 0.5; text-shadow: 0 0 5px var(--accent), 0 0 15px var(--accent); }
@@ -129,30 +130,13 @@
             50% { opacity: 0.5; text-shadow: 0 0 5px var(--led-orange), 0 0 15px var(--led-orange); }
         }
         @keyframes blink-led-warning {
-            0%, 100% { 
-                opacity: 1; 
-                text-shadow: 0 0 10px var(--danger), 0 0 20px var(--danger);
-                transform: scale(1);
-            }
-            50% { 
-                opacity: 0.3; 
-                text-shadow: 0 0 20px var(--danger), 0 0 40px var(--danger);
-                transform: scale(1.05);
-                color: #ff4444;
-            }
+            0%, 100% { opacity: 1; text-shadow: 0 0 10px var(--danger), 0 0 20px var(--danger); transform: scale(1);}
+            50% { opacity: 0.3; text-shadow: 0 0 20px var(--danger), 0 0 40px var(--danger); transform: scale(1.02); color: #ff4444;}
         }
-        .led-blink-green {
-            animation: blink-led-green 1.2s ease-in-out infinite !important;
-        }
-        .led-blink-red {
-            animation: blink-led-red 1.2s ease-in-out infinite !important;
-        }
-        .led-blink-orange {
-            animation: blink-led-orange 1.2s ease-in-out infinite !important;
-        }
-        .led-blink-warning {
-            animation: blink-led-warning 0.8s ease-in-out infinite !important;
-        }
+        .led-blink-green { animation: blink-led-green 1.2s ease-in-out infinite !important; }
+        .led-blink-red { animation: blink-led-red 1.2s ease-in-out infinite !important; }
+        .led-blink-orange { animation: blink-led-orange 1.2s ease-in-out infinite !important; }
+        .led-blink-warning { animation: blink-led-warning 0.8s ease-in-out infinite !important; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -168,7 +152,7 @@
             </div>
         </div>
         <div id="historyList" class="history-list"></div>
-        <button id="clearHistoryBtn" style="margin-top: 15px; min-height: 55px; background: var(--keypad-bg); font-size: 1rem; border-radius: 12px; color: var(--danger); width:100%">Xóa tất cả lịch sử</button>
+        <button id="clearHistoryBtn" style="margin-top: 15px; min-height: 55px; background: var(--keypad-bg); font-size: 1rem; border-radius: 12px; color: var(--danger); width:100%; touch-action: manipulation;">Xóa tất cả lịch sử</button>
     </div>
 
     <div class="display-screen">
@@ -177,19 +161,19 @@
         <div id="comparison-msg"></div>
         <div class="target-area" id="target-area-container">
             <div class="control-btn" id="openHistory">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" fill="none"></circle><polyline points="12 6 12 12 16 14" stroke="currentColor" fill="none"></polyline></svg>
             </div>
             <div class="divider"></div>
             <div class="control-btn" id="theme-toggle">
-                <svg id="theme-icon" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-11.314l.707.707m11.314 11.314l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
+                <svg id="theme-icon" viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-11.314l.707.707m11.314 11.314l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
             </div>
             <div class="divider"></div>
-            <div id="target-box" style="display:flex; align-items:center; flex:1; height:100%; cursor:pointer;">
+            <div id="target-box" style="display:flex; align-items:center; flex:1; height:100%; cursor:pointer; touch-action: manipulation;">
                 <span class="target-label">MỤC TIÊU:</span>
                 <div id="target-display">0</div>
             </div>
             <div class="control-btn btn-back-ctrl" id="btn-backspace">
-                <svg viewBox="0 0 24 24"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><line x1="18" y1="9" x2="12" y2="15"></line><line x1="12" y1="9" x2="18" y2="15"></line></svg>
+                <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><line x1="18" y1="9" x2="12" y2="15"></line><line x1="12" y1="9" x2="18" y2="15"></line></svg>
             </div>
         </div>
     </div>
@@ -218,7 +202,16 @@
 </div>
 
 <script>
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // iOS Audio Context chỉ khởi tạo khi cần, đảm bảo không auto-play bị chặn
+    let audioCtx = null;
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        return audioCtx;
+    }
+    
     let historyExpr = ""; 
     let targetInput = "";
     let isTargetMode = false;
@@ -228,32 +221,41 @@
 
     const exprDiv = document.getElementById('expression'), resDiv = document.getElementById('result-preview'), targetDiv = document.getElementById('target-display'), targetBox = document.getElementById('target-box'), msgDiv = document.getElementById('comparison-msg'), hBox = document.getElementById('historyBox'), hList = document.getElementById('historyList');
 	
-	    function removeLedBlink() {
+    function removeLedBlink() {
         msgDiv.classList.remove('led-blink-green', 'led-blink-red', 'led-blink-orange', 'led-blink-warning');
     }
+    
     function playSound(type) {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        if (type === 'click') {
-            osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-        } else if (type === 'success') {
-            osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(1046.5, audioCtx.currentTime + 0.3);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.4);
-        } else if (type === 'fail') {
-            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.5);
-        }
+        try {
+            const ctx = initAudio();
+            const osc = ctx.createOscillator(), gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            if (type === 'click') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(800, ctx.currentTime);
+                gain.gain.setValueAtTime(0.05, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+                osc.start(); osc.stop(ctx.currentTime + 0.1);
+            } else if (type === 'success') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1046.5, ctx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                osc.start(); osc.stop(ctx.currentTime + 0.4);
+            } else if (type === 'fail') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, ctx.currentTime);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
+                osc.start(); osc.stop(ctx.currentTime + 0.5);
+            }
+        } catch(e) { console.log('Audio error', e); }
     }
-    function vibrate() { if (navigator.vibrate) navigator.vibrate(15); }
+    
+    // iOS cảm ứng nhẹ nhàng nhưng vẫn có phản hồi xúc giác chỉ khi thiết bị hỗ trợ Haptic (iPhone 7+)
+    function lightImpact() {
+        if (window.webkit && window.webkit.messageHandlers) return;
+        if (window.TapticEngine) { try { window.TapticEngine.impact('light'); } catch(e) {} }
+        else if (navigator.vibrate) navigator.vibrate(8);
+    }
 
     function formatNumber(val) {
         if (!val && val !== 0) return "";
@@ -264,7 +266,7 @@
 
     document.querySelectorAll('[data-val]').forEach(btn => {
         btn.addEventListener('pointerdown', (e) => {
-            e.preventDefault(); vibrate(); 
+            e.preventDefault(); lightImpact(); 
             const v = btn.getAttribute('data-val');
             if (v === 'C') clearAll();
             else if (v === '()') smartParenthesis();
@@ -289,25 +291,6 @@
                 historyExpr = historyExpr.slice(0, cursorPos) + n + historyExpr.slice(cursorPos);
                 cursorPos += n.length;
             } else {
-                if (targetInput !== "" && !isNaN(n)) {
-                    let cleanedExpr = historyExpr + n;
-                    while (['+','-','*','/','(','.'].includes(cleanedExpr.slice(-1))) cleanedExpr = cleanedExpr.slice(0, -1);
-                    try {
-                        let open = (cleanedExpr.match(/\(/g) ||[]).length, close = (cleanedExpr.match(/\)/g) ||[]).length;
-                        if (open > close) cleanedExpr += ")".repeat(open - close);
-                        let potential = Math.round(eval(cleanedExpr) * 1000000) / 1000000;
-                        if (potential > parseFloat(targetInput)) {
-                            msgDiv.innerText = "⚠️ SẼ VƯỢT MỤC TIÊU!"; 
-                            msgDiv.style.color = "var(--danger)";
-                            msgDiv.classList.add('led-blink-warning', 'shake'); 
-                            setTimeout(() => msgDiv.classList.remove('shake'), 400);
-                            resDiv.classList.add('neon-danger'); 
-                            playSound('fail');
-                        } else {
-                            msgDiv.classList.remove('led-blink-warning');
-                        }
-                    } catch(e) {}
-                }
                 historyExpr += n;
             }
             autoPreview();
@@ -318,7 +301,6 @@
     function addOp(op) {
         playSound('click'); isResultDisplayed = false;
         if (isTargetMode) isTargetMode = false;
-
         if (cursorPos !== null) {
             const charBefore = cursorPos > 0 ? historyExpr[cursorPos - 1] : '';
             if (['+','-','*','/'].includes(charBefore)) {
@@ -363,14 +345,14 @@
         renderDisplay();
     }
     btnBack.addEventListener('pointerdown', (e) => {
-        e.preventDefault(); vibrate(); playSound('click'); backspace();
-        backTimer = setTimeout(() => { backInterval = setInterval(() => { vibrate(); backspace(); }, 70); }, 500);
+        e.preventDefault(); lightImpact(); playSound('click'); backspace();
+        backTimer = setTimeout(() => { backInterval = setInterval(() => { lightImpact(); backspace(); }, 70); }, 500);
     });
     const stopBack = () => { clearTimeout(backTimer); clearInterval(backInterval); };
     btnBack.addEventListener('pointerup', stopBack); btnBack.addEventListener('pointerleave', stopBack);
 
     function calculate() {
-		playSound('click'); // THÊM DÒNG NÀY
+        playSound('click');
         if (isTargetMode) { isTargetMode = false; renderDisplay(); return; }
         let raw = historyExpr; if (!raw) return;
         cursorPos = null;
@@ -378,8 +360,7 @@
             while (['+','-','*','/','(','.'].includes(raw.slice(-1))) raw = raw.slice(0, -1);
             let res = eval(raw); 
             let finalRes = Math.round(res * 1000000) / 1000000;
-
-                        if (targetInput !== "") {
+            if (targetInput !== "") {
                 if (Math.abs(finalRes - parseFloat(targetInput)) < 0.00001) {
                     msgDiv.innerText = "✅ KHỚP TUYỆT ĐỐI"; 
                     msgDiv.style.color = "var(--accent)"; 
@@ -401,9 +382,8 @@
             calculationHistory.push({ expr: exprDiv.innerText || historyExpr, res: finalRes, raw: raw });
             if (calculationHistory.length > 50) calculationHistory.shift();
             localStorage.setItem('calc_history', JSON.stringify(calculationHistory));
-
             resDiv.innerText = formatNumber(finalRes); historyExpr = finalRes.toString();
-            exprDiv.innerText = ""; isResultDisplayed = true;
+            exprDiv.innerHTML = ""; isResultDisplayed = true;
         } catch(e) { resDiv.innerText = "Lỗi"; }
         renderDisplay();
     }
@@ -423,15 +403,14 @@
                 msgDiv.classList.add('led-blink-warning');
             } else { 
                 resDiv.classList.remove('neon-danger'); 
-                msgDiv.classList.remove('led-blink-warning');
-                if (!isTargetMode) msgDiv.innerText = ""; 
+                if (!msgDiv.innerText.includes("KHỚP") && !msgDiv.innerText.includes("VƯỢT") && !msgDiv.innerText.includes("THIẾU"))
+                    msgDiv.classList.remove('led-blink-warning');
+                if (!isTargetMode && !msgDiv.innerText.includes("KHỚP")) msgDiv.innerText = ""; 
             }
         } catch(e) { resDiv.innerText = "0"; }
     }
 
-   // 1. HÀM HIỂN THỊ (Đã thêm định dạng số khi đang sửa)
     function renderDisplay() {
-	    // Xóa led blink nếu thông báo không còn
         if (!msgDiv.innerText.includes("KHỚP") && !msgDiv.innerText.includes("VƯỢT") && !msgDiv.innerText.includes("THIẾU") && !msgDiv.innerText.includes("⚠️")) {
             removeLedBlink();
         }
@@ -440,7 +419,6 @@
         } else {
             document.getElementById('target-area-container').classList.remove('active-target');
             if (cursorPos !== null) {
-                // Hàm phụ giúp định dạng chuỗi cắt nửa
                 const fmt = s => {
                     let str = s.replace(/\*/g,' × ').replace(/\//g,' ÷ ').replace(/\+/g,' + ').replace(/\-/g,' − ');
                     return str.replace(/(\d+(\.\d+)?)/g, match => formatNumber(match));
@@ -455,77 +433,79 @@
             }
         }
         targetDiv.innerText = formatNumber(targetInput) || "0";
-        exprDiv.scrollTop = exprDiv.scrollHeight;
+        if (exprDiv.scrollHeight > exprDiv.clientHeight) exprDiv.scrollTop = exprDiv.scrollHeight;
     }
 
-    // 2. HÀM CHẠM VÀO MÀN HÌNH CỦA IPHONE (Thuật toán đồng bộ vị trí con trỏ)
+    // Tối ưu cảm ứng cho iPhone: sử dụng caretRangeFromPoint chuẩn iOS, bỏ android vibration dư thừa
     exprDiv.addEventListener('touchstart', function(e) {
         if (historyExpr === "" || isTargetMode) return;
         const touch = e.touches[0];
         if (cursorPos === null) cursorPos = historyExpr.length;
-        renderDisplay(); // render để lấy node
-
+        renderDisplay();
         setTimeout(() => {
-            let range, textNode, offset;
-            // API bắt vị trí con trỏ trên iOS Safari
+            let range = null;
             if (document.caretRangeFromPoint) {
                 range = document.caretRangeFromPoint(touch.clientX, touch.clientY);
-            } else if (e.target.ownerDocument.caretPositionFromPoint) {
-                const pos = e.target.ownerDocument.caretPositionFromPoint(touch.clientX, touch.clientY);
-                if (pos) { textNode = pos.offsetNode; offset = pos.offset; }
+            } else if (document.caretPositionFromPoint) {
+                let pos = document.caretPositionFromPoint(touch.clientX, touch.clientY);
+                if (pos && pos.offsetNode) {
+                    range = document.createRange();
+                    range.setStart(pos.offsetNode, pos.offset);
+                    range.collapse(true);
+                }
             }
-            if (range) { textNode = range.startContainer; offset = range.startOffset; }
-
-            if (textNode) {
-                let totalOffset = 0; let found = false;
+            if (range && range.startContainer) {
+                let textNode = range.startContainer;
+                let offset = range.startOffset;
+                let totalOffset = 0, found = false;
                 for (let node of exprDiv.childNodes) {
                     if (node === textNode) { totalOffset += offset; found = true; break; }
-                    if (node.nodeType === 3) {
-                        totalOffset += node.textContent.length;
-                    } else if (node.nodeType === 1 && node.className !== 'expr-cursor') {
-                        totalOffset += node.innerText.length;
-                    }
+                    if (node.nodeType === 3) totalOffset += node.textContent.length;
+                    else if (node.nodeType === 1 && node.className !== 'expr-cursor') totalOffset += node.innerText.length;
                 }
-                
-                if (found) { 
-                    // THUẬT TOÁN ĐỒNG BỘ: 
-                    // Loại bỏ các ký tự dấu cách và dấu chấm phân cách hàng nghìn ảo khỏi bộ đếm offset
+                if (found) {
                     let visualText = exprDiv.innerText;
                     let visualPrefix = visualText.substring(0, totalOffset);
                     let rawPrefixLength = 0;
-                    
                     for(let i = 0; i < visualPrefix.length; i++) {
-                        let char = visualPrefix[i];
-                        // Nếu là ký tự có thật trong chuỗi gốc (số, ngoặc, phép tính) -> Tính vào độ dài gốc
-                        if (char.match(/[0-9\(\)]/) ||['×','÷','+','−', ','].includes(char)) {
-                            rawPrefixLength++;
-                        }
+                        let ch = visualPrefix[i];
+                        if (ch.match(/[0-9\(\)]/) || ['×','÷','+','−', ','].includes(ch)) rawPrefixLength++;
                     }
                     cursorPos = Math.min(rawPrefixLength, historyExpr.length);
-                    renderDisplay(); 
+                    renderDisplay();
                 }
             }
         }, 10);
-        vibrate();
-    }, {passive: false});
+        lightImpact();
+    }, { passive: false });
 
     function renderHistory() {
-        hList.innerHTML = calculationHistory.map((item, i) => `
-            <div class="history-item" onclick="loadEditHistory(${i})">
-                <div class="history-expr">${item.expr} =</div>
-                <div class="history-res">${formatNumber(item.res)}</div>
-            </div>
-        `).reverse().join('');
+        hList.innerHTML = [...calculationHistory].reverse().map((item, idx) => {
+            const originalIdx = calculationHistory.length - 1 - idx;
+            return `<div class="history-item" data-history-index="${originalIdx}">
+                        <div class="history-expr">${item.expr} =</div>
+                        <div class="history-res">${formatNumber(item.res)}</div>
+                    </div>`;
+        }).join('');
+        document.querySelectorAll('.history-item').forEach(el => {
+            el.addEventListener('pointerdown', (e) => {
+                e.stopPropagation();
+                const idx = parseInt(el.getAttribute('data-history-index'));
+                if (!isNaN(idx)) loadEditHistory(idx);
+            });
+        });
     }
 
-    window.loadEditHistory = (i) => {
-        const item = calculationHistory[i];
+    function loadEditHistory(index) {
+        const item = calculationHistory[index];
+        if (!item) return;
         historyExpr = item.raw || item.expr.replace(/ × /g,'*').replace(/ ÷ /g,'/').replace(/ − /g,'-').replace(/\./g,'').replace(/,/g,'.');
         cursorPos = historyExpr.length;
         isResultDisplayed = false;
         hBox.style.display = 'none';
         playSound('click'); renderDisplay(); autoPreview();
-    };
+    }
+    window.loadEditHistory = loadEditHistory;
 
     function clearAll() {
         playSound('click');
@@ -541,24 +521,36 @@
         if (cursorPos !== null) {
             historyExpr = historyExpr.slice(0, cursorPos) + char + historyExpr.slice(cursorPos); cursorPos++;
         } else { historyExpr += char; }
-        renderDisplay();
+        renderDisplay(); autoPreview();
     }
 
     document.getElementById('theme-toggle').onclick = () => {
         const body = document.body;
         const isDark = body.getAttribute('data-theme') === 'dark';
         body.setAttribute('data-theme', isDark ? 'light' : 'dark');
-        document.getElementById('theme-icon').innerHTML = isDark ? 
-            '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-11.314l.707.707m11.314 11.314l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"/>' :
-            '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>';
-        vibrate(); playSound('click');
+        const icon = document.getElementById('theme-icon');
+        if (!isDark) {
+            icon.innerHTML = '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>';
+            icon.setAttribute('fill', 'currentColor');
+        } else {
+            icon.innerHTML = '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-11.314l.707.707m11.314 11.314l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"/>';
+            icon.setAttribute('fill', 'none');
+        }
+        lightImpact(); playSound('click');
     };
 
-    document.getElementById('openHistory').onclick = () => { hBox.style.display = 'flex'; renderHistory(); vibrate(); };
-    document.getElementById('closeHistory').onclick = () => { hBox.style.display = 'none'; vibrate(); };
-    document.getElementById('clearHistoryBtn').onclick = () => { calculationHistory = []; renderHistory(); vibrate(); };
-    targetBox.onclick = () => { isTargetMode = !isTargetMode; renderDisplay(); vibrate(); };
-
+    document.getElementById('openHistory').onclick = () => { hBox.style.display = 'flex'; renderHistory(); lightImpact(); };
+    document.getElementById('closeHistory').onclick = () => { hBox.style.display = 'none'; lightImpact(); };
+    document.getElementById('clearHistoryBtn').onclick = () => { calculationHistory = []; localStorage.setItem('calc_history', '[]'); renderHistory(); lightImpact(); playSound('click'); };
+    targetBox.onclick = () => { isTargetMode = !isTargetMode; renderDisplay(); lightImpact(); };
+    
+    // Khởi tạo theme mặc định light
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.setAttribute('data-theme', 'dark');
+        document.getElementById('theme-icon').innerHTML = '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>';
+        document.getElementById('theme-icon').setAttribute('fill', 'currentColor');
+    }
+    renderDisplay();
 </script>
 </body>
-	</html>
+</html>
